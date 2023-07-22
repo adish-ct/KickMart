@@ -1,0 +1,91 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+admin-product-interface
+{% endblock %}
+{% load static %}
+{% block body %}
+<div class="container-fluid">
+        <div class="table-wrapper bg-dark border">
+            <div class="table-title bg-dark">
+                <div class="row">
+                    <div class="col-md-3 mt-5"></div>
+                    <div class="col-md-6 text-center mt-5">
+						<h2>PRODUCTS </h2>
+					</div>
+					<div class="col-md-3 text-end mt-5">
+						<a href="" class="btn btn-outline-danger" data-toggle="modal"><span>Create Product</span></a>
+                        <div class="mt-5">
+                            <form action="" method="post">
+							{% csrf_token %}
+							<div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search for products">
+                                <div class="input-group-append">
+                                    <span class="input-group-text bg-transparent text-primary">
+                                        <button class="btn bg-transparent" style="color: red;">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+						</form>
+                        </div>
+					</div>
+                </div>
+            </div>
+            <table class="table table-striped table-hover bg-dark">
+                <thead>
+                    <tr>
+                        <!--
+                        checkbox for multiple searching
+						<th>
+							<span class="custom-checkbox">
+								<input type="checkbox" id="selectAll">
+								<label for="selectAll"></label>
+							</span>
+						</th>
+						-->
+						<th>Product_Id</th>
+                        <th>Product_Name</th>
+                        <th>Image</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Availability</th>
+                        <th>Launch_date</th>
+                        <th>Type</th>
+                        <th>Size</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <!--
+						<td>
+							<span class="custom-checkbox">
+								<input type="checkbox" id="checkbox1" name="options[]" value="1">
+								<label for="checkbox1"></label>
+							</span>
+						</td>
+						-->
+                        <tr></tr>
+						<tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+
+
+{% endblock %}
