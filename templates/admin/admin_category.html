@@ -1,0 +1,71 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+admin-product-interface
+{% endblock %}
+{% load static %}
+{% block body %}
+<div class="container-fluid">
+        <div class="table-wrapper bg-dark border">
+            <div class="table-title bg-dark">
+                <div class="row">
+                    <div class="col-md-3 mt-5"></div>
+                    <div class="col-md-6 text-center mt-5">
+						<h2>PRODUCTS </h2>
+					</div>
+					<div class="col-md-3 text-end mt-5">
+						<a href="" class="btn btn-outline-danger" data-toggle="modal"><span>Create Variant</span></a>
+                        <div class="mt-5">
+                            <form action="" method="post">
+							{% csrf_token %}
+							<div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search for products">
+                                <div class="input-group-append">
+                                    <span class="input-group-text bg-transparent text-primary">
+                                        <button class="btn bg-transparent" style="color: red;">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+						</form>
+                        </div>
+					</div>
+                </div>
+            </div>
+            <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Table with stripped rows</h5>
+
+              <!-- Table with stripped rows -->
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Email Address</th>
+                    <th scope="col">Phone</th>
+                      <th scope="col">Staff</th>
+                    <th scope="col">Operations</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for i in users %}
+                  <tr>
+                    <th scope="row">{{ i.id }}</th>
+                    <td></td>
+                    <td>{{ i.email }}</td>
+                    <td>{{ i.phone }}</td>
+                      <td>{% if i.is_staff %}<span class="fw-bold" style="color: green;"> {{ i.is_staff }} </span> {% else %}<span class="fw-bold" style="color: red;"> {{ i.is_staff }} </span> {% endif %}</td>
+                    <td>operation</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div>
+        </div>
+    </div>
+
+{% endblock %}
