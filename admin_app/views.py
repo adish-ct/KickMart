@@ -1,11 +1,16 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_control
 from django.shortcuts import render, redirect
 from user_app.models import *
 from shop.models import *
 
 
 # Create your views here.
+
+
+@cache_control(no_cache=True, no_store=True)
 def admin_login(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
@@ -28,10 +33,45 @@ def admin_login(request):
     return render(request, 'admin/admin_login.html')
 
 
+@login_required(login_url='admin_login')
 def admin_dashboard(request):
     return render(request, 'admin/admin_dashboard.html')
 
 
+@login_required(login_url='admin_login')
 def admin_product(request):
+    products = Product.objects.all()
+    context = {
+        'products': products,
+    }
+    return render(request, 'admin/admin_product.html', context)
 
-    return render(request, 'admin/admin_product.html')
+
+@login_required(login_url='admin_login')
+def admin_product_variant(request, product_id):
+    variant = ProductVariant.objects.filter(product=product_id)
+    context = {
+        'variants': variant,
+    }
+    return render(request, 'admin/admin_variant_product.html', context)
+
+
+@login_required(login_url='admin_login')
+def admin_users(request):
+    users = CustomUser.objects.all()
+    context = {
+        'users': users,
+    }
+    return render(request, 'admin/admin_users.html', context)
+
+
+# @cache_control(no_cache=True, no_store=True)
+@login_required(login_url='admin_login')
+def admin_logout(request):
+    logout(request)
+    request.session.flush()
+    return redirect('admin_login')
+
+
+def admin_category(request):
+    return render(request, 'admin/admin_category.html')

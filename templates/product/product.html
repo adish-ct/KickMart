@@ -114,8 +114,8 @@ products-kickmart
                     {% for item in products %}
                     <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
                         <div class="card product-item border-0 mb-4">
-                            <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0" style="height: 20vw">
-                                <img class="img-fluid w-100 h-100" src="{{ item.product_image.url }}" alt="">
+                            <div id="main-image" class="card-header product-img position-relative overflow-hidden bg-transparent border p-0 img-item" style="height: 20vw">
+                                <img id="main-img" class="img-fluid w-100 h-100 " src="{{ item.product_image.url }}" alt="">
                             </div>
                             <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
                                 <h6 class="text-truncate mb-3">{{ item.product_name }}</h6>
@@ -162,4 +162,58 @@ products-kickmart
         </div>
     </div>
     <!-- Shop End -->
+<script>
+
+
+// window.addEventListener('resize', slideImage);
+
+const mainImage = document.querySelector('.main-image');
+const img = document.getElementById('main-img');
+let zoomEnabled = false;
+let currentImageIndex = 0;
+
+const imgItems = Array.from(document.querySelectorAll('.img-item'));
+imgItems.forEach((item, index) => {
+  item.addEventListener('click', () => {
+    setCurrentImage(index);
+  });
+});
+
+mainImage.addEventListener('click', enableZoom);
+mainImage.addEventListener('mousemove', zoomIn);
+mainImage.addEventListener('mouseleave', zoomOut);
+
+function setCurrentImage(index) {
+  currentImageIndex = index;
+  const selectedImg = imgItems[index].querySelector('img');
+  img.src = selectedImg.src;
+  zoomEnabled = false;
+  img.style.transform = 'scale(1)';
+}
+
+function enableZoom() {
+  zoomEnabled = true;
+}
+
+function zoomIn(event) {
+  if (!zoomEnabled) {
+    return;
+  }
+
+  const boundingRect = mainImage.getBoundingClientRect();
+  const mouseX = event.clientX - boundingRect.left;
+  const mouseY = event.clientY - boundingRect.top;
+
+  const offsetX = (mouseX / boundingRect.width) * 100;
+  const offsetY = (mouseY / boundingRect.height) * 100;
+
+  img.style.transformOrigin = `${offsetX}% ${offsetY}%`;
+  img.style.transform = 'scale(2)'; // Adjust the scale factor as desired
+}
+
+function zoomOut() {
+  img.style.transform = 'scale(1)';
+  zoomEnabled = false;
+}
+</script>
 {% endblock %}

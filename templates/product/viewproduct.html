@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}
 products-kickmart
 {% endblock %}
-{% load static %}
+
 
 {% block body %}
 
@@ -10,23 +11,21 @@ products-kickmart
     {% for i in product %}
     <div class="container-fluid py-5">
         <div class="row px-xl-5">
-            <div class="col-lg-2 pb-5">
-
-            </div>
+            <div class="col-lg-2"></div>
             <div class="col-lg-5 pb-5">
-                <div id="product-carousel" class="" data-ride="carousel">
-                    <div class="">
-                        <div class="carousel-item active">
-                            <img class="w-100 h-100" src="{{ i.product_image.url }}" alt="Image">
+                {% comment %} <div id="product-carousel" class="carousel slide" data-ride="carousel"> {% endcomment %}
+                    {% comment %} <div class=""> {% endcomment %}
+                        <div class="img-fluid">
+                            <img class="big_img w-100" src="{{i.product_image.url}}" style="width:100%;
+                            height: 60vh; object-fit:contain;" alt="Image">
                         </div>
-                    </div>
-                    <a class="carousel-control-prev" href="#product-carousel" data-slide="prev">
-                        <i class="fa fa-2x fa-angle-left text-dark"></i>
-                    </a>
-                    <a class="carousel-control-next" href="#product-carousel" data-slide="next">
-                        <i class="fa fa-2x fa-angle-right text-dark"></i>
-                    </a>
-                </div>
+                        {% comment %} <div class=" " data-bs-inervel="1000">
+    
+                            <img class="big_img" src="" style="width:100%;
+                            height: 40vh; object-fit:contain;" alt="Image">
+                        </div> {% endcomment %}
+                    {% comment %} </div> {% endcomment %}
+                {% comment %} </div> {% endcomment %}
             </div>
 
             <div class="col-lg-5 pb-5">
@@ -48,35 +47,66 @@ products-kickmart
                 <p class="mb-4">{{ i.product_description }}</p>
                 <div class="d-flex mb-3">
                     <p class="text-dark font-weight-medium mb-0 mr-3">Sizes:</p>
-                    <form>
+                    {% comment %} <form> {% endcomment %}
+                        {% comment %} <select class="js-select2" onchange="get_current_price()" name="selected_variant" required> {% endcomment %}
+                            <!-- choose-storage -->
+        
+                            {% comment %} {% if selected_variant %}
+                            <option value="{{variant}}" selected>
+                                {{ color }} |
+                            </option>
+                            {% else %}
+                            <option value="" selected>Select
+        
+                            </option>
+                            {% endif %}
+        
+                            {% for variant in variants %}
+        
+                            <option value="{{ variant }}">{{ variant.size }}</option>
+                            {% endfor %} {% endcomment %}
+                            {% comment %} <div class="size-selector">
+                                {% for i in variant %}
+                                <input type="radio" name="size" value="small" id="small">
+                                <label for="small"> {{ i.product_size }} </label>
+                                {% endfor %}
+                                
+                              </div> {% endcomment %}
 
-                        <!-- size section started use for loop here -->
-                        {% for i in variant %}
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="checkbox" class="custom-control-input" id="size-1" name="size">
-                            <label class="custom-control-label" for="size-1">{{ i.product_size.size }}</label>
-                        </div>
-                        {% endfor %}
+                              <form id="myForm" method="POST" action="your-backend-url">
+                                <div id="buttonContainer">
+                                    {% for item in variant %}
+                                        <button type="button" class="button" data-value="{{ item.product_size }}" onclick="selectButton({{forloop.counter}})"> {{ item.product_size }} </button>
+                                    {% endfor %}
+                                  
+                                </div>
+                                <input type="hidden" id="selectedValueInput" name="selected_size">
+                              </form>
+        
+        
+                        {% comment %} </select> {% endcomment %}
+
                         <!-- the id is blocking the selection of other options check the id portion -->
                         <!-- size section ended here close for loop -->
 
-                    </form>
+                    {% comment %} </form> {% endcomment %}
                 </div>
-                <div class="d-flex mb-4">
-                    <p class="text-dark font-weight-medium mb-0 mr-3">Colors:</p>
 
+<!--                <div class="d-flex mb-4">-->
+<!--                    <p class="text-dark font-weight-medium mb-0 mr-3">Colors:</p>-->
                     <!-- color form started -->
+                <!-- color variant for loop -->
+                <!--
                     <form>
-                        <!-- color variant for loop -->
-                        <!--
                         <div class="custom-control custom-radio custom-control-inline">
                             <input type="radio" class="custom-control-input" id="color-1" name="color">
                             <label class="custom-control-label" for="color-1">Black</label>
                         </div>
                         -->
                         <!-- color variant for loop -->
-                    </form>
-                </div>
+<!--                    </form>-->
+<!--                </div>-->
+
                 <div class="d-flex align-items-center mb-4 pt-2">
                     <div class="input-group quantity mr-3" style="width: 130px;">
                         <div class="input-group-btn">

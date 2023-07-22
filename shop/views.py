@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import *
 from django.db.models import QuerySet
 from itertools import chain
@@ -8,6 +8,8 @@ from itertools import chain
 
 # Create your views here.
 def products(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     category = Category.objects.all()
     all_brands = ProductBrand.objects.all()
     all_products = Product.objects.all()

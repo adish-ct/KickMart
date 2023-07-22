@@ -41,25 +41,21 @@ admin-product-interface
                 <thead>
                   <tr>
                     <th scope="col">Id</th>
-                    <th scope="col">Name-{{ i.product.product_name }}</th>
-                    <th scope="col">Image</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Stock</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Email Address</th>
+                    <th scope="col">Phone</th>
+                      <th scope="col">Staff</th>
                     <th scope="col">Operations</th>
                   </tr>
                 </thead>
                 <tbody>
-                {% for i in variants %}
+                {% for i in users %}
                   <tr>
                     <th scope="row">{{ i.id }}</th>
-                    <td>{{ i.variant_name }}</td>
-                    <td>
-                        <div style="width: 70px; height: 70px;">
-                            <img src="{{ i.product_image.url }}" alt="Small Image" style="max-width: 100%; max-height: 100%;">
-                        </div>
-                    </td>
-                    <td>{{ i.selling_price }}</td>
-                    <td>{{ i.stock }}</td>
+                    <td></td>
+                    <td>{{ i.email }}</td>
+                    <td>{{ i.phone }}</td>
+                      <td>{% if i.is_staff %}<span class="fw-bold" style="color: green;"> {{ i.is_staff }} </span> {% else %}<span class="fw-bold" style="color: red;"> {{ i.is_staff }} </span> {% endif %}</td>
                     <td>operation</td>
                   </tr>
                 {% endfor %}

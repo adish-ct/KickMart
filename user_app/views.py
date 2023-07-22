@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     return render(request, 'product/index.html')
 
 
