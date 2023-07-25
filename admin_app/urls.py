@@ -11,5 +11,9 @@ urlpatterns = [
     path('admin_product_variant/<str:id>/', views.admin_product_variant, name="admin_product_variant"),
     path('admin_users/', views.admin_users, name="admin_users"),
     path('admin_user_manage/<int:id>/', views.admin_user_manage, name="admin_user_manage"),
+    path('admin-category/', views.admin_category, name="admin_category"),
+    path('admin-add-category/', views.admin_add_category, name="admin_add_category"),
+    path('admin-edit-category/<int:id>', views.admin_edit_category, name="admin_edit_category"),
+    path('admin-delete-category/<int:id>', views.admin_delete_category, name="admin_delete_category"),
     path('admin_logout/', views.admin_logout, name="admin_logout"),
 ]

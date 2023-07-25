@@ -1,5 +1,5 @@
 import os
-
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -10,7 +10,6 @@ from shop.models import *
 
 
 # Create your views here.
-
 
 @cache_control(no_cache=True, no_store=True)
 def admin_login(request):
@@ -35,12 +34,12 @@ def admin_login(request):
     return render(request, 'admin/admin_login.html')
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def admin_dashboard(request):
     return render(request, 'admin/admin_dashboard.html')
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def admin_product(request):
     products = Product.objects.all()
     context = {
@@ -49,7 +48,8 @@ def admin_product(request):
     return render(request, 'admin/admin_product.html', context)
 
 
-@login_required(login_url='admin_login')
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
 def admin_edit_product(request, id):
     product = Product.objects.get(id=id)
     product_category = product.category
@@ -93,7 +93,8 @@ def admin_edit_product(request, id):
     return render(request, 'admin/admin_edit_product.html', context)
 
 
-@login_required(login_url='admin_login')
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
 def admin_add_product(request):
     categories = Category.objects.all()
     print(categories)
@@ -129,7 +130,7 @@ def admin_add_product(request):
 
 
 @cache_control(no_store=True, no_cache=True)
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def admin_delete_product(request, id):
     prod = Product.objects.get(id=id)
     if prod.product_image:
@@ -140,7 +141,7 @@ def admin_delete_product(request, id):
     return redirect('admin_product')
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def admin_product_variant(request, id):
     variant = ProductVariant.objects.filter(product=id)
     context = {
@@ -149,7 +150,7 @@ def admin_product_variant(request, id):
     return render(request, 'admin/admin_variant_product.html', context)
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def admin_users(request):
     users = CustomUser.objects.all()
     context = {
@@ -158,6 +159,8 @@ def admin_users(request):
     return render(request, 'admin/admin_users.html', context)
 
 
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
 def admin_user_manage(request, id):
     user = CustomUser.objects.get(id=id)
     if user.is_active:
@@ -169,12 +172,71 @@ def admin_user_manage(request, id):
     return redirect('admin_users')
 
 
+@staff_member_required(login_url='admin_login')
 def admin_category(request):
-    return render(request, 'admin/admin_category.html')
+    categories = Category.objects.all()
+    context = {
+        'categories': categories
+    }
+    return render(request, 'admin/admin_category.html', context)
 
 
-# @cache_control(no_cache=True, no_store=True)
-@login_required(login_url='admin_login')
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def admin_add_category(request):
+    if request.method == 'POST':
+        category_name = request.POST['category_name']
+        exist_category = Category.objects.filter(category_name__iexact=category_name)
+        if exist_category.exists():
+            messages.error(request, "This is an existing category")
+            return redirect('admin_add_category')
+        category_description = request.POST['description']
+        if len(request.FILES['image']):
+            category_image = request.FILES['image']
+        category = Category(category_name=category_name, category_image=category_image,
+                            category_description=category_description)
+        category.save()
+        messages.success(request, "Successfully added new category")
+        return redirect('admin_category')
+    return render(request, 'admin/admin_add_category.html')
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def admin_edit_category(request, id):
+    category = Category.objects.get(id=id)
+    context = {
+        'category': category,
+    }
+    if request.method == 'POST':
+        category_name = request.POST['name']
+        description = request.POST['description']
+        if len(request.FILES) != 0:
+            if category.category_image:
+                if len(category.category_image) > 0:
+                    os.remove(category.category_image.path)
+            category.category_image = request.FILES['image']
+        category.category_name = category_name
+        category.category_description = description
+        category.save()
+        messages.success(request, "Category updated successfully")
+        return redirect('admin_category')
+    return render(request, 'admin/admin_edit_category.html', context)
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def admin_delete_category(request, id):
+    category = Category.objects.get(id=id)
+    if category.category_image:
+        if len(category.category_image) > 0:
+            os.remove(category.category_image.path)
+    category.delete()
+    return redirect('admin_category')
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
 def admin_logout(request):
     logout(request)
     request.session.flush()

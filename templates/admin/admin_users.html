@@ -5,71 +5,53 @@ admin-product-interface
 {% load static %}
 {% block body %}
 <div class="container-fluid">
-        <div class="table-wrapper bg-dark border">
-            <div class="table-title bg-dark">
-                <div class="row">
-                    <div class="col-md-3 mt-5"></div>
-                    <div class="col-md-6 text-center mt-5">
-						<h2>PRODUCTS </h2>
-					</div>
-					<div class="col-md-3 text-end mt-5">
-						<a href="" class="btn btn-outline-danger" data-toggle="modal"><span>Create Variant</span></a>
-                        <div class="mt-5">
-                            <form action="" method="post">
-							{% csrf_token %}
-							<div class="input-group">
-                                <input type="text" class="form-control" placeholder="Search for products">
-                                <div class="input-group-append">
-                                    <span class="input-group-text bg-transparent text-primary">
-                                        <button class="btn bg-transparent" style="color: red;">
-                                            <i class="fa fa-search"></i>
-                                        </button>
-                                    </span>
-                                </div>
-                            </div>
-						</form>
-                        </div>
-					</div>
-                </div>
-            </div>
-            <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Table with stripped rows</h5>
-
-              <!-- Table with stripped rows -->
-              <table class="table table-striped" id="sortTable">
-                <thead>
-                  <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Email Address</th>
-                    <th scope="col">Phone</th>
-<!--                      <th scope="col">Staff</th>-->
-                      <th scope="col">Active</th>
-                    <th scope="col">Operations</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {% for i in users %}
-                {% if i.is_superuser != True %}
-                  <tr>
-                    <th scope="row">{{ i.id }}</th>
-                    <td></td>
-                    <td>{{ i.email }}</td>
-                    <td>{{ i.phone }}</td>
-<!--                      <td>{% if i.is_staff %}<span class="fw-bold" style="color: green;"> {{ i.is_staff }} </span> {% else %}<span class="fw-bold" style="color: red;"> {{ i.is_staff }} </span> {% endif %}</td>-->
-                      <td>{% if i.is_active %}<span class="fw-bold" style="color: green;"> Active </span> {% else %}<span class="fw-bold" style="color: red;"> Blocked </span> {% endif %}</td>
-                    <td><a href="{% url 'admin_user_manage' i.id %}"> {% if i.is_active %} <span class="text-danger"> Block </span> {% else %} <span class="text-success"> Unblock </span> {% endif %} </a></td>
-                  </tr>
-                {% endif %}
-                {% endfor %}
-                </tbody>
-              </table>
-              <!-- End Table with stripped rows -->
-
-            </div>
-          </div>
+    <div class="row">
+        <div class="col-md-3 mt-5"></div>
+        <div class="col-md-6 text-center mt-5">
+            <h2 class="mb-5 mt-5">Customers </h2>
         </div>
     </div>
+    <div class="card bg-secondary">
+        <div class="card-body">
+            <h5 class="card-title mt-3 mb-4">KickMart Customers Table </h5>
+            <div class="col-12">
+                <div class="bg-secondary rounded h-100 p-4">
+                    <div class="table-responsive">
+                        <table class="table" id="sortTable">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Id</th>
+                                <th scope="col">First Name</th>
+                                <th scope="col">Email Address</th>
+                                <th scope="col">Phone</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in users %}
+                            {% if i.is_superuser != True %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ i.id }}</td>
+                                <td></td>
+                                <td>{{ i.email }}</td>
+                                <td>{{ i.phone }}</td>
+                                <td>{% if i.is_active %}<span class="fw-bold" style="color: green;"> Active </span> {% else %}<span class="fw-bold" style="color: red;"> Blocked </span> {% endif %}</td>
+                                <td><a href="{% url 'admin_user_manage' i.id %}"> {% if i.is_active %} <span class="text-danger"> Block </span> {% else %} <span class="text-success"> Unblock </span> {% endif %} </a></td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 {% endblock %}

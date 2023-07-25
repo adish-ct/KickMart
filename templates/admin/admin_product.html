@@ -17,56 +17,60 @@ admin-product-interface
 					</div>
                 </div>
             </div>
-            <div class="card border-white">
+            <div class="card bg-secondary">
             <div class="card-body">
-              <h5 class="card-title text-dark mb-4">Table with stripped rows</h5>
+              <h5 class="card-title text-white mb-4">All your products are here</h5>
                 <p>
                     {% for message in messages %}
                     <span class="text-center text-success">{{ message }}</span>
                     {% endfor %}
                 </p>
+              <!-- Table  -->
 
-              <!-- Table with stripped rows -->
-              <table class="table table-striped" id="sortTable">
-                <thead>
-                  <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Image</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Brand</th>
-                    <th scope="col">Stock</th>
-                    <th scope="col">Operations</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {% for i in products %}
-                  <tr>
-                    <th scope="row">{{ i.id }}</th>
-                    <td>{{ i.product_name }}</td>
-                    <td>
-                        {% if i.product_image %}
-                        <div style="width: 70px; height: 70px;">
-                            <img src="{{ i.product_image.url }}" alt="Small Image" style="max-width: 100%; max-height: 100%;">
+                <div class="col-12">
+                    <div class="bg-secondary rounded h-100 p-4">
+                        <div class="table-responsive">
+                            <table class="table" id="sortTable">
+                                <thead>
+
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Id</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Stock</th>
+                                    <th scope="col">Operations</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for i in products %}
+                                <tr>
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td>{{ i.id }}</td>
+                                    <td>{{ i.product_name }}</td>
+                                    <td>
+                                        {% if i.product_image %}
+                                            <div style="width: 70px; height: 70px;">
+                                                <img src="{{ i.product_image.url }}" alt="Small Image" style="max-width: 100%; max-height: 100%;">
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ i.selling_price }}</td>
+                                    <td>{{ i.category.category_name }}</td>
+                                    <td><a href="{% url 'admin_product_variant' i.id %}"> stock</a></td>
+                                    <td>
+                                        <a href="{% url 'admin_edit_product' i.id %}" class="edit"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+                                        <a href="{% url 'admin_delete_product' i.id %}" class="delete"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                        {% endif %}
-                    </td>
-                    <td>{{ i.selling_price }}</td>
-                    <td>{{ i.category.category_name }}</td>
-                    <td>{{ i.brand.brand_name }}</td>
-                    <td><a href="{% url 'admin_product_variant' i.id %}"> stock</a></td>
-                    <td>
-                        <!-- /admin_home/admin_edit_product/{{ i.id }} -->
-                      <a href="{% url 'admin_edit_product' i.id %}" class="edit"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                      <a href="{% url 'admin_delete_product' i.id %}" class="delete"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-                    </td>
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-              <!-- End Table with stripped rows -->
-
+                    </div>
+                </div>
             </div>
           </div>
         </div>

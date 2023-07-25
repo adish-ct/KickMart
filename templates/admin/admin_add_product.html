@@ -10,7 +10,7 @@ admin-product-interface
                 <div class="row">
                     <div class="col-md-3 mt-5"></div>
                     <div class="col-md-6 text-center mt-5">
-						<h2>ADD NEW PRODUCT </h2>
+						<h2 class="text-white">ADD NEW PRODUCT </h2>
 					</div>
 					<div class="col-md-3 text-end mt-5 mb-5">
 						<a href="" class="btn btn-outline-danger" data-toggle="modal"><span></span></a>
@@ -18,9 +18,9 @@ admin-product-interface
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card bg-secondary">
                 <div class="card-body">
-                  <h5 class="card-title mb-5" style="color: black;">Add Product Table</h5>
+                  <h5 class="card-title mb-5 text-white">Add Product Table</h5>
 
                   <!-- Edit product form  -->
                     <form enctype="multipart/form-data" method="post" action="">
@@ -28,7 +28,7 @@ admin-product-interface
                         <div class="row mb-4">
                             <div class="col">
                               <div class="form-outline">
-                                  <input type="text" id="addProduct" class="form-control bg-white" name="name"/>
+                                  <input type="text" id="addProduct" class="form-control bg-dark text-white" name="name"/>
                                   <label class="form-label" for="addProduct">Product Name</label>
 
                               </div>
@@ -59,7 +59,7 @@ admin-product-interface
                             <div class="col-md-4">
                                 <div class="col">
                                     <div class="form-outline">
-                                        <input type="number" name="originalPrice" id="projectOriginalPrice" class="form-control bg-white" min="1" step="any" style="width: 50%" required/>
+                                        <input type="number" name="originalPrice" id="projectOriginalPrice" class="form-control bg-dark text-white" min="1" step="any" style="width: 50%" required/>
                                         <label class="form-label" for="projectOriginalPrice">Original Price</label>
                                     </div>
                                 </div>
@@ -68,7 +68,7 @@ admin-product-interface
                             <div class="col-md-4">
                                 <div class="col">
                                     <div class="form-outline">
-                                        <input type="number" name="sellingPrice" id="projectSellingPrice" class="form-control bg-white" min="1" step="any" style="width: 50%" required/>
+                                        <input type="number" name="sellingPrice" id="projectSellingPrice" class="form-control bg-dark text-white" min="1" step="any" style="width: 50%" required/>
                                         <label class="form-label" for="projectSellingPrice">Selling Price</label>
                                     </div>
                                 </div>
@@ -86,7 +86,7 @@ admin-product-interface
 
                       <!-- Message input -->
                       <div class="form-outline mb-4">
-                        <textarea class="form-control bg-white" id="productDesc" rows="4" name="description"></textarea>
+                        <textarea class="form-control bg-dark text-white" id="productDesc" rows="4" name="description"></textarea>
                         <label class="form-label" for="productDesc">Product Description</label>
                       </div>
 

@@ -1,71 +1,92 @@
 {% extends 'admin_base.html' %}
 {% block title %}
-admin-product-interface
+admin-category-interface
 {% endblock %}
 {% load static %}
 {% block body %}
 <div class="container-fluid">
-        <div class="table-wrapper bg-dark border">
-            <div class="table-title bg-dark">
-                <div class="row">
-                    <div class="col-md-3 mt-5"></div>
-                    <div class="col-md-6 text-center mt-5">
-						<h2>PRODUCTS </h2>
-					</div>
-					<div class="col-md-3 text-end mt-5">
-						<a href="" class="btn btn-outline-danger" data-toggle="modal"><span>Create Category</span></a>
-                        <div class="mt-5">
-                            <form action="" method="post">
-							{% csrf_token %}
-							<div class="input-group">
-                                <input type="text" class="form-control" placeholder="Search for products">
-                                <div class="input-group-append">
-                                    <span class="input-group-text bg-transparent text-primary">
-                                        <button class="btn bg-transparent" style="color: red;">
-                                            <i class="fa fa-search"></i>
-                                        </button>
-                                    </span>
-                                </div>
-                            </div>
-						</form>
-                        </div>
-					</div>
-                </div>
-            </div>
-            <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Table with stripped rows</h5>
-
-              <!-- Table with stripped rows -->
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Category Name</th>
-                    <th scope="col">Category Description</th>
-                    <th scope="col">Phone</th>
-                      <th scope="col">Staff</th>
-                    <th scope="col">Operations</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {% for i in users %}
-                  <tr>
-                    <th scope="row">{{ i.id }}</th>
-                    <td></td>
-                    <td>{{ i.email }}</td>
-                    <td>{{ i.phone }}</td>
-                      <td>{% if i.is_staff %}<span class="fw-bold" style="color: green;"> {{ i.is_staff }} </span> {% else %}<span class="fw-bold" style="color: red;"> {{ i.is_staff }} </span> {% endif %}</td>
-                    <td>operation</td>
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-              <!-- End Table with stripped rows -->
-
-            </div>
-          </div>
+    <div class="row">
+        <div class="col-md-3 mt-5"></div>
+        <div class="col-md-6 text-center mt-5 mb-5">
+            <h2 class="text-white">CATEGORIES </h2>
+        </div>
+        <div class="col-md-3 text-end mt-5">
+            <a href="{% url 'admin_add_category' %}" class="btn btn-outline-danger" data-toggle="modal"><span class="text-white">Create Category</span></a>
         </div>
     </div>
+</div>
+
+<div class="card bg-secondary">
+    <div class="card-body">
+        <h5 class="card-title text-white mb-4">All your Categories are here</h5>
+        <p>
+            {% for message in messages %}
+            <span class="text-center text-success">{{ message }}</span>
+            {% endfor %}
+        </p>
+              <!-- Table  -->
+
+        <div class="col-12">
+            <div class="bg-secondary rounded h-100 p-4">
+                <div class="table-responsive">
+                    <table class="table" id="sortTable">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Id</th>
+                            <th scope="col">Category Name</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Operations</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for i in categories %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ i.id }}</td>
+                            <td>{{ i.category_name }}</td>
+                            <td>
+                                {% if i.category_image %}
+                                <div style="width: 70px; height: 70px;">
+                                    <img src="{{ i.category_image.url }}" alt="Small Image" style="max-width: 100%; max-height: 100%;">
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>{{ i.category_description }}</td>
+                            <td>
+                                <a href="{% url 'admin_edit_category' i.id %}" class="edit"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+                                <a href="{% url 'admin_delete_category' i.id %}" class="delete"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Delete modal -->
+
+    <div class="modal" tabindex="-1" id="productDeleteModal-{{ i.id }}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Modal body text goes here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary"><a href=""> Confirm </a> </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 {% endblock %}

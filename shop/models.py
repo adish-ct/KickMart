@@ -80,3 +80,5 @@ class MultipleImages(models.Model):
     images = models.ImageField(upload_to='multiple_images/', blank=True)
 
 
+
+
