@@ -77,10 +77,11 @@ def user_signup(request):
             return render(request, 'user/signup.html')
 
 
+@cache_control(no_store=True, no_cache=True)
 def otp_verification(request, user_id):
     user = CustomUser.objects.get(id=user_id)
     context = {
-        'user': user
+        'user': user,
     }
     if request.method == 'POST':
         otp = request.POST['otp']
@@ -98,6 +99,24 @@ def otp_verification(request, user_id):
             messages.error(request, 'Please enter a valid OTP....')
     else:
         return render(request, 'user/otp_verification.html', context)
+
+
+@cache_control(no_store=True, no_cache=True)
+def regenerate_otp(request, id):
+    user = CustomUser.objects.get(id=id)
+    email = user.email
+    user.otp = ''
+    otp = get_random_string(length=6, allowed_chars='1234567890')
+
+    subject = 'Verify your account'
+    message = f'Your OTP for account verification is {otp}'
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [email, ]
+    send_mail(subject, message, email_from, recipient_list)
+
+    user.otp = otp
+    user.save()
+    return redirect('otp_verification', id)
 
 
 

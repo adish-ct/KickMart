@@ -133,7 +133,7 @@
                                 <button class="btn btn-warning mt-3" type="submit">Submit</button>
                             </div>
                             <div class="card-footer text-muted">
-                                <a href="#" class="btn btn-primary">Regenerate OTP</a>
+                                <a href="{% url 'regenerate_otp' user.id %}" class="btn btn-primary">Regenerate OTP</a>
                             </div>
                         </form>
                     </div>
