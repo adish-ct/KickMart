@@ -25,7 +25,9 @@ kick-mart-login
           <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
 
 <!--            form  Login user      -->
-
+              {% for message in messages %}
+                <span class="text-success fw-bold"> {{ message }} </span>
+              {% endfor %}
             <form action="" method="post">
                 {% csrf_token %}
                   <div class="row">

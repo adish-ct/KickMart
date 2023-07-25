@@ -5,7 +5,7 @@ from django.db import models
 
 class Category(models.Model):
     category_name = models.CharField(max_length=150, unique=True)
-    category_description = models.TextField(max_length=250, null=True)
+    category_description = models.TextField(null=True)
     category_image = models.ImageField(upload_to='category_images/')
 
     class Meta:
@@ -46,7 +46,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     brand = models.ForeignKey(ProductBrand, on_delete=models.CASCADE)
     product_description = models.TextField(blank=True)
-    product_image = models.ImageField(upload_to='product_images/', null=False)
+    product_image = models.ImageField(upload_to='product_images/', blank=True)
     original_price = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     selling_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
@@ -67,7 +67,16 @@ class ProductVariant(models.Model):
     product_size = models.ForeignKey(ProductSize, on_delete=models.CASCADE)
     stock = models.PositiveIntegerField(default=0)
 
+    class Meta:
+        ordering = ['product_size']
+
     def __str__(self):
         return f"{self.product_id.product_name} - size : {self.product_size.size}"
+    
+
+class MultipleImages(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_title = models.CharField(max_length=250, null=False, default='product')
+    images = models.ImageField(upload_to='multiple_images/', blank=True)
 
 

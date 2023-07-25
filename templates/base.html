@@ -16,7 +16,10 @@
       rel="stylesheet"
     />
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
+      rel="stylesheet"
+    />
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -39,33 +42,31 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet" />
     <link href="{% static 'css/style.min.css' %}" rel="stylesheet" />
 
-
     <style>
       /* Add your CSS styles here */
-      .button {
+      .button-size {
         display: inline-block;
         padding: 10px 20px;
-        background-color:#fff;
+        background-color: #fff;
         border: none;
         border-radius: 5px;
         cursor: pointer;
-       border: 1px solid black;
+        border: 1px solid black;
+        margin-left: 10px;
+        margin-bottom: 10px;
       }
-      .button:hover{
-          background-color: black;
-          color: white;
-          transition: .4s ease-in-out;
+      .button-size:hover {
+        background-color: black;
+        color: white;
+        transition: 0.4s ease-in-out;
       }
       .selected {
         background-color: black;
         color: white;
       }
     </style>
-    
+
     <!-- Your HTML code -->
-    
-
-
   </head>
 
   <body>
@@ -359,11 +360,11 @@
     ></a>
   </body>
 
-      <!-- JavaScript Libraries -->
-      <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-      <script src="{% static 'lib/easing/easing.min.js' %}"></script>
-      <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+  <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
 
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/zoomsl.js' %}"></script>
@@ -378,18 +379,18 @@
   <script>
     let selectedButton = null;
     const selectedValueInput = document.getElementById("selectedValueInput");
-  
+
     function selectButton(buttonIndex) {
       const buttonContainer = document.getElementById("buttonContainer");
-      const buttons = buttonContainer.getElementsByClassName("button");
-  
+      const buttons = buttonContainer.getElementsByClassName("button-size");
+
       if (selectedButton !== null) {
         selectedButton.classList.remove("selected");
       }
-  
+
       selectedButton = buttons[buttonIndex - 1];
       selectedButton.classList.add("selected");
-  
+
       const selectedValue = selectedButton.getAttribute("data-value");
       selectedValueInput.value = selected_size;
     }

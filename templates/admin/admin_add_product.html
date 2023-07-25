@@ -1,0 +1,107 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+admin-product-interface
+{% endblock %}
+{% load static %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="table-wrapper bg-dark border">
+            <div class="table-title bg-dark">
+                <div class="row">
+                    <div class="col-md-3 mt-5"></div>
+                    <div class="col-md-6 text-center mt-5">
+						<h2>ADD NEW PRODUCT </h2>
+					</div>
+					<div class="col-md-3 text-end mt-5 mb-5">
+						<a href="" class="btn btn-outline-danger" data-toggle="modal"><span></span></a>
+					</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title mb-5" style="color: black;">Add Product Table</h5>
+
+                  <!-- Edit product form  -->
+                    <form enctype="multipart/form-data" method="post" action="">
+                        {% csrf_token %}
+                        <div class="row mb-4">
+                            <div class="col">
+                              <div class="form-outline">
+                                  <input type="text" id="addProduct" class="form-control bg-white" name="name"/>
+                                  <label class="form-label" for="addProduct">Product Name</label>
+
+                              </div>
+                            </div>
+
+                            <div class="col">
+                                <label for="selectOption" class="control-label">Choose Category :</label>
+                                <select id="selectOption" name="selectOption" style="padding: 10px; width: 10vw; border-radius: 5px;" required>
+                                    <option value=""> Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}" name="{{ category.id }}"> {{ category.category_name }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="selectOptionBrand" class="control-label">Choose Brand :</label>
+                                <select id="selectOptionBrand" name="selectBrand" style="padding: 10px; width: 10vw; border-radius: 5px;" required>
+                                    <option value=""> Brand</option>
+                                    {% for brand in brands %}
+                                    <option value="{{ brand.id }}"> {{ brand.brand_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="col">
+                                    <div class="form-outline">
+                                        <input type="number" name="originalPrice" id="projectOriginalPrice" class="form-control bg-white" min="1" step="any" style="width: 50%" required/>
+                                        <label class="form-label" for="projectOriginalPrice">Original Price</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="col">
+                                    <div class="form-outline">
+                                        <input type="number" name="sellingPrice" id="projectSellingPrice" class="form-control bg-white" min="1" step="any" style="width: 50%" required/>
+                                        <label class="form-label" for="projectSellingPrice">Selling Price</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <input class="form-control" type="file" id="formFile" name="image">
+                                    <label for="formFile" class="form-label">Choose your image</label>
+                                </div>
+                            </div>
+                        </div>
+
+                      <!-- Message input -->
+                      <div class="form-outline mb-4">
+                        <textarea class="form-control bg-white" id="productDesc" rows="4" name="description"></textarea>
+                        <label class="form-label" for="productDesc">Product Description</label>
+                      </div>
+
+                      <!-- Submit button -->
+                      <div class="text-center">
+                          <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4 w-50">Add Product</button>
+                      </div>
+                    </form>
+                    <hr />
+
+                  <!-- Edit product form end -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

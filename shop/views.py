@@ -22,11 +22,13 @@ def products(request):
 
 
 def detail_view(request, product_id):
+    all_products = Product.objects.all()
     product = Product.objects.filter(id=product_id)
     variant = ProductVariant.objects.filter(product_id=product_id)
     context = {
         'product': product,
         'variant': variant,
+        'products': all_products,
     }
 
     return render(request, 'product/viewproduct.html', context)

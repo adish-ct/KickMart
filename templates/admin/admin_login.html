@@ -17,23 +17,13 @@
     <link href="{% static 'admin/css/style.css' %}" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-dark">
     <div class="container-fluid position-relative d-flex p-0">
-        <!-- Spinner Start -->
-<!--
-        <div id="spinner" class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
-        </div>
--->
-        <!-- Spinner End -->
-
-
         <!-- Sign In Start -->
         <div class="container-fluid">
             <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
                 <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+
                     <form action="" method="post">
                         {% csrf_token %}
                         <div class="bg-secondary rounded p-4 p-sm-5 my-4 mx-3">
@@ -56,6 +46,11 @@
                                 <a href="" style="color: rgb(255, 255, 254);">Forgot Password</a>
                             </div>
                             <div>
+                                <span class="text-danger fw-5">
+                                    {% for message in messages %}
+                                        {{ message }}
+                                    {% endfor %}
+                                </span>
                                 <button type="submit" class="btn  btn-outline-light py-3 w-100 mb-4 fw-bold" style="color: rgb(250, 249, 248);">Sign In</button>
                             </div>
                         </div>
@@ -68,6 +63,10 @@
 
     <!-- Template Javascript -->
     <script src="{% static 'admin/js/main.js' %}"></script>
+    <script>
+
+
+    </script>
 </body>
 
 </html>
