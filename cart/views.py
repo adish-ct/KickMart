@@ -4,6 +4,7 @@ from cart.models import *
 from shop.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from django.contrib import messages
 
 # Create your views here.
 
@@ -136,22 +137,45 @@ def remove_cart(request, variant_id):
 
 
 def add_cart_quandity(request, variant_id):
-    cart = Cart.objects.get(cart_id=_cart_id(request))
     variant = ProductVariant.objects.get(id=variant_id)
-    try:
-        cart_item = CartItem.objects.get(cart=cart, product=variant)
-        cart_item.quantity += 1
-        cart_item.save()
-    except CartItem.DoesNotExist:
-        pass
+    cart = Cart.objects.get(cart_id=_cart_id(request))
+    if 'user' in request.session:
+        my_user = request.user
+
+        try:
+            cart_item = CartItem.objects.get(customer=my_user, product=variant)
+            if variant.stock > cart_item.quantity:
+                cart_item.quantity += 1
+            else:
+                messages.error(request, "No more products available in the current variant")
+            cart_item.save()
+        except CartItem.DoesNotExist:
+            pass
+    else:
+        try:
+            cart_item = CartItem.objects.get(cart=cart, product=variant)
+            if variant.stock > cart_item.quantity:
+                cart_item.quantity += 1
+            else:
+                messages.error(request, "No more products available in the current variant")
+            cart_item.save()
+        except CartItem.DoesNotExist:
+            pass
     return redirect('cart')
 
 
 def delete_cart(request, variant_id):
-    cart = Cart.objects.get(cart_id=_cart_id(request))
     variant = get_object_or_404(ProductVariant, id=variant_id)
-    cart_item = CartItem.objects.filter(cart=cart, product=variant)
-    cart_item.delete()
+    if 'user' in request.session:
+        my_user = request.user
+        cart_item = CartItem.objects.filter(customer=my_user, product=variant)
+        if cart_item:
+            cart_item.delete()
+    else:
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        
+        cart_item = CartItem.objects.filter(cart=cart, product=variant)
+        cart_item.delete()
     return redirect('cart')
 
 
