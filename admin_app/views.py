@@ -4,9 +4,10 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from user_app.models import *
 from shop.models import *
+from django.http import HttpResponse
 
 
 # Create your views here.
@@ -39,6 +40,10 @@ def admin_dashboard(request):
     return render(request, 'admin/admin_dashboard.html')
 
 
+
+# Product section -----------------------------------------------
+
+
 @staff_member_required(login_url='admin_login')
 def admin_product(request):
     products = Product.objects.all()
@@ -54,6 +59,8 @@ def admin_edit_product(request, id):
     product = Product.objects.get(id=id)
     product_category = product.category
     product_brand = product.brand
+    # fetch the images from multiple images table related with that product
+    object_image = MultipleImages.objects.filter(product=id)
     brands = ProductBrand.objects.exclude(brand_name=product_brand)
     categories = Category.objects.exclude(category_name=product_category)
     context = {
@@ -62,31 +69,51 @@ def admin_edit_product(request, id):
         'brands': brands,
         'product_category': product_category,
         'product_brand': product_brand,
+        'multiple_images': object_image,
     }
+
     if request.method == 'POST':
         product_name = request.POST['product_name']
         category = request.POST['selectOption']
         brand = request.POST['selectBrandOption']
         original_price = request.POST['originalPrice']
         selling_price = request.POST['sellingPrice']
-
         # condition for checking is there any file is present in the request.
-        if len(request.FILES) != 0:
+        single_image = request.FILES.get('image', None)
+    
+        multiple_images = request.FILES.getlist('multipleImage')
             # we want to remove the image that already stored in the database.
             # first of all we have to check if there is any image exist on product object.
+        if single_image:
             if product.product_image:
-                if len(product.product_image) > 0:
-                    os.remove(product.product_image.path)
-            product_image = request.FILES['image']
+                os.remove(product.product_image.path)
+            product.product_image = single_image  
+
+        if multiple_images:
+            if object_image:
+                for i in object_image:
+                    os.remove(i.images.path)
+                    i.delete()
+                for image in multiple_images:
+                    photo = MultipleImages.objects.create(
+                        product = product,
+                        images = image,
+                    )
+            else:
+                for image in multiple_images:
+                    photo = MultipleImages.objects.create(
+                        product = product,
+                        images = image,
+                    )
+                
         product.product_name = product_name
         product.category = Category.objects.get(id=category)
         product.brand = ProductBrand.objects.get(id=brand)
         product.original_price = original_price
         product.selling_price = selling_price
-        # condition for checking image is present or not.
-        if product_image:
-            product.product_image = product_image
+
         product.save()
+        # Multi_image.save()
         messages.success(request, "Product updated successfully")
         return redirect('admin_product')
 
@@ -97,7 +124,6 @@ def admin_edit_product(request, id):
 @staff_member_required(login_url='admin_login')
 def admin_add_product(request):
     categories = Category.objects.all()
-    print(categories)
     brands = ProductBrand.objects.all()
     context = {
         'categories': categories,
@@ -111,11 +137,11 @@ def admin_add_product(request):
         original_price = request.POST['originalPrice']
         selling_price = request.POST['sellingPrice']
         product_description = request.POST['description']
-
-        if len(request.FILES) != 0:
-            product_image = request.FILES['image']
+        # single image fetching
+        product_image = request.FILES.get('image', None)
+        if product_image:
             product.product_image = product_image
-
+  
         product.product_name = product_name
         product.category = Category.objects.get(id=category)
         product.brand = ProductBrand.objects.get(id=brand)
@@ -123,6 +149,16 @@ def admin_add_product(request):
         product.selling_price = selling_price
         product.product_description = product_description
         product.save()
+
+        # multiple image fetching
+        multiple_images = request.FILES.getlist('multipleImage', None)
+        if multiple_images:            
+            for image in multiple_images:
+                photo = MultipleImages.objects.create(
+                    product = product,
+                    images = image,
+                )
+            
         messages.success(request, "Product added successfully")
         return redirect('admin_product')
 
@@ -142,12 +178,48 @@ def admin_delete_product(request, id):
 
 
 @staff_member_required(login_url='admin_login')
-def admin_product_variant(request, id):
-    variant = ProductVariant.objects.filter(product=id)
+def admin_product_variant(request, product_id):
+    variant = ProductVariant.objects.filter(product=product_id)
     context = {
         'variants': variant,
     }
     return render(request, 'admin/admin_variant_product.html', context)
+
+
+
+@staff_member_required(login_url='admin_login')
+@cache_control(no_store=True, no_cache=True)
+def product_variant_update(request):
+    if request.method == 'POST':
+        id = request.POST['id']
+        price = request.POST['price']
+        stock = request.POST['stock']
+        variant = ProductVariant.objects.get(id=id)
+        product_id = variant.product
+        variant.product_price = price
+        variant.stock = stock
+        variant.save()
+        return redirect('admin_product_variant', product_id.id)
+
+
+
+@staff_member_required(login_url='admin_login')
+@cache_control(no_store=True, no_cache=True)
+def product_variant_control(request, variant_id):
+    variant = ProductVariant.objects.get(id=variant_id)
+    product_id = variant.product.id
+    if variant.is_active:
+        variant.is_active = False
+    else:
+        variant.is_active = True
+    variant.save()
+    return redirect('admin_product_variant', product_id)
+
+
+# Product section end -------------------------------------------------
+
+
+# admin user section --------------------------------------------------
 
 
 @staff_member_required(login_url='admin_login')
@@ -170,6 +242,16 @@ def admin_user_manage(request, id):
         user.is_active = True
         user.save()
     return redirect('admin_users')
+
+
+
+
+
+
+# admin user section ended ------------------------------------------
+
+
+# admin category section --------------------------------------------
 
 
 @staff_member_required(login_url='admin_login')
@@ -235,9 +317,130 @@ def admin_delete_category(request, id):
     return redirect('admin_category')
 
 
+# admin category section end ---------------------------------------
+
+# coupon section start ----------------------------------------------
+
+@staff_member_required(login_url='admin_login')
+def admin_coupon_management(request):
+    coupons = Coupons.objects.all().order_by('id')
+    context = {
+        'coupons': coupons,
+    }
+    return render(request, 'admin/admin_coupon.html', context)
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def add_coupon(request):
+    if request.method == 'POST':
+        description = request.POST['description']
+        coupon_code = request.POST['coupon_code']
+        coupon_title = request.POST['coupon_title']
+        discount_amount = request.POST['discount_amount']
+        discount = request.POST['discount'] 
+        valid_from = request.POST['valid_from']
+        valid_to = request.POST['valid_to'] 
+        quantity = request.POST['quantity'] 
+        minimum_order_amount = request.POST['minimum_amount'] 
+
+        coupon = Coupons.objects.create(
+            description = description,
+            coupon_code = coupon_code,
+            coupon_title = coupon_title,
+            valid_from = valid_from,
+            valid_to = valid_to,
+            quantity = quantity,
+            minimum_order_amount = minimum_order_amount,
+        )
+        if discount_amount:
+            coupon.discount_amount = discount_amount
+        if discount:
+            coupon.discount = discount
+    
+        coupon.save()
+
+        return redirect('admin_coupon_management')
+    return render(request, 'admin/admin_add_coupon.html')
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def delete_coupon(request, coupon_id):
+    coupon = get_object_or_404(Coupons, id=coupon_id)
+    if coupon:
+        coupon.delete()
+    return redirect ('admin_coupon_management')
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def edit_coupon(request, coupon_id):
+    coupon = Coupons.objects.get(id=coupon_id)
+    if request.method == 'POST':
+        description = request.POST['description']
+        coupon_code = request.POST['coupon_code']
+        coupon_title = request.POST['coupon_title']
+        discount_amount = request.POST['discount_amount']
+        discount = request.POST['discount'] 
+        valid_from = request.POST['valid_from']
+        valid_to = request.POST['valid_to'] 
+        quantity = request.POST['quantity'] 
+        minimum_order_amount = request.POST['minimum_amount'] 
+
+        coupon.id = coupon_id
+        coupon.description = description
+        coupon.coupon_code = coupon_code
+        coupon.coupon_title = coupon_title
+        coupon.quantity = quantity
+        coupon.minimum_order_amount = minimum_order_amount
+
+        if valid_from:
+            coupon.valid_from = valid_from
+        if valid_to:
+            coupon.valid_to = valid_to
+        if discount_amount:
+            coupon.discount_amount = discount_amount
+            if discount:
+                discount = None
+        if discount:
+            if discount_amount:
+                discount_amount = None
+                coupon.discount = discount   
+
+        coupon.save()
+
+        return redirect('admin_coupon_management')
+    context = {
+        'coupon': coupon,
+    }
+    return render(request, 'admin/admin_edit_coupon.html', context)
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def activate_coupon(requset, coupon_id):
+    coupon = Coupons.objects.get(id=coupon_id)
+    if coupon.active:
+        coupon.active = False
+    else:
+        coupon.active = True
+    coupon.save()
+    return redirect('admin_coupon_management')
+
+
+# coupon section end ----------------------------------------------
+
+
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_logout(request):
     logout(request)
     request.session.flush()
     return redirect('admin_login')
+
+

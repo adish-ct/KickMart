@@ -14,7 +14,6 @@ admin-product-interface
 					</div>
                 </div>
             </div>
-
             <div class="card bg-secondary p-5">
                 <div class="card-body" style="font-size: 1rem">
                   <h5 class="card-title text-white mb-5">Product Update Table</h5>
@@ -28,7 +27,6 @@ admin-product-interface
                               <div class="form-outline">
                                   <input type="text" id="form6Example1" value="{{ product.product_name }}" class="form-control bg-grey text-white" name="product_name"/>
                                   <label class="form-label" for="form6Example1">Product Name</label>
-
                               </div>
                             </div>
 
@@ -77,13 +75,13 @@ admin-product-interface
                             <div class="col-md-4">
                                 <div class="col">
                                     <div class="form-outline">
-                                        <input type="" id="productUpdate" value="{{ product.updated_date }}" class="form-control bg-grey text-white" min="1" step="any" style="width: 50%" required/>
+                                        <input type="" id="productUpdate" value="{{ product.updated_date }}" class="form-control bg-grey text-dark" min="1" step="any" style="width: 50%" readonly/>
                                         <label class="form-label" for="productUpdate">Last Update Date</label>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-">
                                 <div class="mb-4 d-flex justify-content-center align-items-center gap-3">
                                     <label for="currentFile" class="form-label">Current Image</label>
                                     {% if product.product_image %}
@@ -100,9 +98,29 @@ admin-product-interface
                             </div>
                         </div>
 
+                        <div class="row">
+                             <!-- Multiple Image -->
+                             <div class="mb-4 d-flex justify-content-center align-items-center gap-3">
+                                <label for="currentFile" class="form-label">Current Image</label>
+                                {% if multiple_images %}
+                                    {% for image in multiple_images %}
+                                        <img src="{{ image.images.url }}" alt="multiple images" style="width: 10vw;" id="currentFile" />
+                                    {% endfor %}  
+                                {% endif %}
+                            </div>
+                             <div class="col-md-6 mx-auto">
+                                <label class="text-danger">*Select two or more images for adding
+                                    multiple images *</label>
+                                <div class="mb-3">
+                                    <input class="form-control" type="file" id="formFile" multiple id="formFile" name="multipleImage">
+                                    <label for="formFile" class="form-label">Choose your image</label>
+                                </div>
+                            </div>
+                        </div>
+
                       <!-- Description input -->
                       <div class="form-outline mb-4">
-                        <textarea class="form-control bg-grey text-color" id="productDesc" rows="4"></textarea>
+                        <textarea class="form-control bg-grey text-color" id="productDesc" rows="4"> {{ product.product_description|safe }}</textarea>
                         <label class="form-label" for="productDesc">Product Description</label>
                       </div>
 
@@ -111,15 +129,10 @@ admin-product-interface
                           <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4">Save Product</button>
                       </div>
                     </form>
-
-
-
+                    <!-- Edit product form end -->
                     <hr />
-
-                  <!-- Edit product form end -->
                 </div>
             </div>
-
         </div>
     </div>
 

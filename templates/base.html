@@ -11,6 +11,7 @@
     <link href="img/favicon.ico" rel="icon" />
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com" />
+    
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
@@ -20,6 +21,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
       rel="stylesheet"
     />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -98,41 +101,42 @@
         <div class="col-lg-3 d-none d-lg-block">
           <a href="" class="text-decoration-none">
             <h1 class="m-0 display-5 font-weight-semi-bold">
-              <span class="text-primary font-weight-bold mr-1">K</span>ick<span
-                class="text-primary font-weight-bold mr-1"
-                >M</span
-              >art
+              <span class="text-primary font-weight-bold mr-1">K</span>ick
+              <span class="text-primary font-weight-bold mr-1">M</span>art
             </h1>
           </a>
         </div>
         <div class="col-lg-6 col-6 text-left">
-          <form action="">
+
+          <form action="{% url 'search' %}" method="GET">
             <div class="input-group">
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Search for products"
-              />
-              <div class="input-group-append">
+              <input type="text" class="form-control" placeholder="Search for products" name="search"/>
+              <button type="submit" class="input-group-append border-0">
                 <span class="input-group-text bg-transparent text-primary">
                   <i class="fa fa-search"></i>
                 </span>
-              </div>
+              </button>
             </div>
           </form>
+
         </div>
         <div class="col-lg-3 col-6 text-right">
-          <a href="" class="btn border">
+        {% if user.is_authenticated %}
+          <a href="{% url 'user_profile' user.id %}" class="btn border">
             <i class="fas fa-user text-primary"></i>
           </a>
+        {% endif %}
+
           <a href="" class="btn border">
             <i class="fas fa-heart text-primary"></i>
             <span class="badge" style="color: grey">0</span>
           </a>
-          <a href="" class="btn border">
+
+          <a href="{% url 'cart' %}" class="btn border">
             <i class="fas fa-shopping-cart text-primary"></i>
-            <span class="badge" style="color: grey">0</span>
+            <span class="badge" style="color: grey"> {{ cart_count }} </span>
           </a>
+          
         </div>
       </div>
     </div>
@@ -158,26 +162,18 @@
           >
             <div class="navbar-nav w-100 overflow-hidden" style="height: 410px">
               <div class="nav-item dropdown">
-                <a href="#" class="nav-link" data-toggle="dropdown"
-                  >Dresses <i class="fa fa-angle-down float-right mt-1"></i
-                ></a>
-                <div
-                  class="dropdown-menu position-absolute bg-secondary border-0 rounded-0 w-100 m-0"
-                >
-                  <a href="" class="dropdown-item">Men's Dresses</a>
-                  <a href="" class="dropdown-item">Women's Dresses</a>
-                  <a href="" class="dropdown-item">Baby's Dresses</a>
+                <a href="{% url 'products' %}" class="dropdown-item mt-3 border-bottom"> All Products </a>
+                {% for category in category_link %}
+                <a href="{{ category.get_url }}" class="dropdown-item mt-3 border-bottom"> {{ category.category_name }}'s Shoes </a>
+                {% endfor %}
+                <div class="dropdown-menu position-absolute bg-secondary border-0 rounded-0 w-100 m-0">
+                  {% comment %}
+                  use loop to display available brands in each category
+                  <a href="" class="nav-item nav-link">Shirts</a>
+                  {% endcomment %}
                 </div>
               </div>
-              <a href="" class="nav-item nav-link">Shirts</a>
-              <a href="" class="nav-item nav-link">Jeans</a>
-              <a href="" class="nav-item nav-link">Swimwear</a>
-              <a href="" class="nav-item nav-link">Sleepwear</a>
-              <a href="" class="nav-item nav-link">Sportswear</a>
-              <a href="" class="nav-item nav-link">Jumpsuits</a>
-              <a href="" class="nav-item nav-link">Blazers</a>
-              <a href="" class="nav-item nav-link">Jackets</a>
-              <a href="" class="nav-item nav-link">Shoes</a>
+              
             </div>
           </nav>
         </div>
@@ -187,9 +183,8 @@
           >
             <a href="" class="text-decoration-none d-block d-lg-none">
               <h1 class="m-0 display-5 font-weight-semi-bold">
-                <span class="text-primary font-weight-bold border px-3 mr-1"
-                  >E</span
-                >Shopper
+                <span class="text-primary font-weight-bold mr-1">K</span>ick
+                <span class="text-primary font-weight-bold mr-1">M</span>art
               </h1>
             </a>
             <button
@@ -218,8 +213,12 @@
                     >Pages</a
                   >
                   <div class="dropdown-menu rounded-0 m-0">
-                    <a href="cart.html" class="dropdown-item">Shopping Cart</a>
-                    <a href="checkout.html" class="dropdown-item">Checkout</a>
+                    {% if user.is_authenticated %}
+                    <a href=" {% url 'user_cart' %} " class="dropdown-item">Shopping Cart</a>
+                    {% else %}
+                    <a href=" {% url 'user_cart' %} " class="dropdown-item">Shopping Cart</a>
+                    {% endif %}
+                    
                   </div>
                 </div>
                 <a href="contact.html" class="nav-item nav-link">Contact</a>
@@ -250,111 +249,67 @@
     <!-- Footer Start -->
     <div class="container-fluid bg-secondary text-dark mt-5 pt-5">
       <div class="row px-xl-5 pt-5">
-        <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
-          <a href="" class="text-decoration-none">
-            <h1 class="m-0 display-5 font-weight-semi-bold mb-4">
-              <span class="text-primary font-weight-bold mr-1">K</span>ick<span
-                class="text-primary font-weight-bold mr-1"
-                >M</span
-              >art
-            </h1>
-          </a>
-          <p>
-            Dolore erat dolor sit lorem vero amet. Sed sit lorem magna, ipsum no
-            sit erat lorem et magna ipsum dolore amet erat.
-          </p>
-          <p class="mb-2">
-            <i class="fa fa-map-marker-alt text-primary mr-3"></i>123 Street,
-            New York, USA
-          </p>
-          <p class="mb-2">
-            <i class="fa fa-envelope text-primary mr-3"></i>info@example.com
-          </p>
-          <p class="mb-0">
-            <i class="fa fa-phone-alt text-primary mr-3"></i>+012 345 67890
-          </p>
-        </div>
-        <div class="col-lg-8 col-md-12">
-          <div class="row">
-            <div class="col-md-4 mb-5">
-              <h5 class="font-weight-bold text-dark mb-4">Quick Links</h5>
-              <div class="d-flex flex-column justify-content-start">
-                <a class="text-dark mb-2" href="index.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Home</a
-                >
-                <a class="text-dark mb-2" href="shop.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Our Shop</a
-                >
-                <a class="text-dark mb-2" href="detail.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Shop Detail</a
-                >
-                <a class="text-dark mb-2" href="cart.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Shopping Cart</a
-                >
-                <a class="text-dark mb-2" href="checkout.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Checkout</a
-                >
-                <a class="text-dark" href="contact.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Contact Us</a
-                >
-              </div>
-            </div>
-            <div class="col-md-4 mb-5">
-              <h5 class="font-weight-bold text-dark mb-4">Quick Links</h5>
-              <div class="d-flex flex-column justify-content-start">
-                <a class="text-dark mb-2" href="index.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Home</a
-                >
-                <a class="text-dark mb-2" href="shop.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Our Shop</a
-                >
-                <a class="text-dark mb-2" href="detail.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Shop Detail</a
-                >
-                <a class="text-dark mb-2" href="cart.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Shopping Cart</a
-                >
-                <a class="text-dark mb-2" href="checkout.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Checkout</a
-                >
-                <a class="text-dark" href="contact.html"
-                  ><i class="fa fa-angle-right mr-2"></i>Contact Us</a
-                >
-              </div>
-            </div>
-            <div class="col-md-4 mb-5">
-              <h5 class="font-weight-bold text-dark mb-4">Newsletter</h5>
-              <form action="">
-                <div class="form-group">
-                  <input
-                    type="text"
-                    class="form-control border-0 py-4"
-                    placeholder="Your Name"
-                    required="required"
-                  />
-                </div>
-                <div class="form-group">
-                  <input
-                    type="email"
-                    class="form-control border-0 py-4"
-                    placeholder="Your Email"
-                    required="required"
-                  />
-                </div>
-                <div>
-                  <button
-                    class="btn btn-primary btn-block border-0 py-3"
-                    type="submit"
-                  >
-                    Subscribe Now
-                  </button>
-                </div>
-              </form>
-            </div>
+          <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
+              <a href="" class="text-decoration-none">
+                  <h1 class="m-0 display-5 font-weight-semi-bold mb-4"><span class="text-primary font-weight-bold mr-1">K</span>ick<span class="text-primary font-weight-bold mr-1">M</span>mart</h1>
+              </a>
+              <p>Step up your style game with [Your Website Name] and discover the joy of walking in confidence. Embrace fashion, step into comfort, and find your perfect fit today</p>
+              <p class="mb-2"><i class="fa fa-map-marker-alt text-primary mr-3"></i>AC Market, Kannur, Kerala</p>
+              <p class="mb-2"><i class="fa fa-envelope text-primary mr-3"></i>kickmart@yahoo.com</p>
+              <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-3"></i>+91 860635918</p>
           </div>
-        </div>
+          <div class="col-lg-8 col-md-12">
+              <div class="row">
+                  <div class="col-md-4 mb-5">
+                      <h5 class="font-weight-bold text-dark mb-4">Quick Links</h5>
+                      <div class="d-flex flex-column justify-content-start">
+                          <a class="text-dark mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Home</a>
+                          <a class="text-dark mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>Our Shop</a>
+                          <a class="text-dark mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>Shopping Cart</a>
+                          <a class="text-dark" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contact Us</a>
+                      </div>
+                  </div>
+                  <div class="col-md-4 mb-5">
+                      <h5 class="font-weight-bold text-dark mb-4">Get Links</h5>
+                      <div class="d-flex flex-column justify-content-start">
+                          <a class="text-dark mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Privacy</a>
+                          <a class="text-dark mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>facebook</a>
+                          <a class="text-dark mb-2" href="detail.html"><i class="fa fa-angle-right mr-2"></i>instagram</a>
+                          <a class="text-dark mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>twitter</a>
+                      </div>
+                  </div>
+                  <div class="col-md-4 mb-5">
+                      <h5 class="font-weight-bold text-dark mb-4">Newsletter</h5>
+                      <form action="">
+                          <div class="form-group">
+                              <input type="text" class="form-control border-0 py-4" placeholder="Your Name" required="required" />
+                          </div>
+                          <div class="form-group">
+                              <input type="email" class="form-control border-0 py-4" placeholder="Your Email"
+                                  required="required" />
+                          </div>
+                          <div>
+                              <button class="btn btn-primary btn-block border-0 py-3" type="submit">Subscribe Now</button>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
       </div>
-    </div>
+      <div class="row border-top border-light mx-xl-5 py-4">
+          <div class="col-md-6 px-xl-0">
+              <p class="mb-md-0 text-center text-md-left text-dark">
+                  &copy; <a class="text-dark font-weight-semi-bold" href="#">KickMart</a>. All Rights Reserved. Designed
+                  by
+                  <a class="text-dark font-weight-semi-bold" href="https://htmlcodex.com">kickmart Pvt Ltd.</a><br>
+                  Distributed By <a href="https://themewagon.com" target="_blank">E-commerce</a>
+              </p>
+          </div>
+          <div class="col-md-6 px-xl-0 text-center text-md-right">
+              <img class="img-fluid" src="img/payments.png" alt="">
+          </div>
+      </div>
+  </div>
     <a href="#" class="btn btn-primary back-to-top"
       ><i class="fa fa-angle-double-up"></i
     ></a>
@@ -369,6 +324,7 @@
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/zoomsl.js' %}"></script>
   <script src="{% static 'js/zoomsl.min.js' %}"></script>
+  <script src="{% static 'js/validation.js' %}"></script>
   <script type="text/javascript">
     $(document).ready(function () {
       $(".big_img").imagezoomsl({
@@ -376,6 +332,7 @@
       });
     });
   </script>
+
   <script>
     let selectedButton = null;
     const selectedValueInput = document.getElementById("selectedValueInput");
@@ -392,7 +349,7 @@
       selectedButton.classList.add("selected");
 
       const selectedValue = selectedButton.getAttribute("data-value");
-      selectedValueInput.value = selected_size;
+      selectedValueInput.value = selectedValue;
     }
   </script>
 </html>

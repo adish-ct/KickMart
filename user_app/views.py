@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -9,8 +10,9 @@ from user_app.models import *
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from .mail import *
-import uuid
+from shop.models import *
 from django.http import HttpResponse
+
 
 # Create your views here.
 
@@ -21,13 +23,27 @@ from django.http import HttpResponse
 def index(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
-    return render(request, 'product/index.html')
+    categories = Category.objects.all()
+    # fetch product within a number of limit using slicing method
+    products = Product.objects.all()[:4]
+    latest_product = Product.objects.all().order_by('created_date')[:4:-1]
+    brands = ProductBrand.objects.all()
+    context = {
+        'categories': categories,
+        'products': products,
+        'latest_poduct': latest_product,
+        'brands': brands,
+    }
+    
+    return render(request, 'product/index.html', context)
 
 
 """ User can create new account, user sign up function"""
 
 
 def user_signup(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     # user is the key, created for normal users
     if 'user' in request.session:
         return redirect('index')
@@ -79,6 +95,10 @@ def user_signup(request):
 
 @cache_control(no_store=True, no_cache=True)
 def otp_verification(request, user_id):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
+    if 'user' in request.session:
+        return redirect('index')
     user = CustomUser.objects.get(id=user_id)
     context = {
         'user': user,
@@ -119,10 +139,10 @@ def regenerate_otp(request, id):
     return redirect('otp_verification', id)
 
 
-
-
 @cache_control(no_cache=True, no_store=True)
 def user_login(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     if 'user' in request.session:
         return redirect('index')
     else:
@@ -132,12 +152,13 @@ def user_login(request):
 
             user = authenticate(request, email=email, password=password)
             if user:
-                if user.is_verified:
+                if user.is_verified and user.is_superuser == False:
                     login(request, user)
                     request.session['user'] = email
+                    messages.success(request, "logged in successfully, welcome")
                     return redirect('index')
                 else:
-                    messages.error(request, "Your account is not verified")
+                    messages.error(request, "please submit valid credentials.")
             else:
                 messages.error(request, "Invalid credentials, Try again")
                 return redirect('user_login')
@@ -147,6 +168,79 @@ def user_login(request):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def user_logout(request):
-    logout(request)
-    request.session.flush()
-    return redirect('index')
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
+    if 'user' in request.session:
+        logout(request)
+        request.session.flush()
+        return redirect('index')
+    else:
+        return redirect('index')
+    
+
+
+@cache_control(no_cache=True, no_store=True)
+@login_required(login_url='index')
+def user_profile(request, user_id):
+    user = CustomUser.objects.get(id=user_id)
+    if request.method == 'POST':
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        date_of_birth = request.POST.get('date_of_birth', None)
+        if date_of_birth:
+            user.date_of_birth = date_of_birth
+
+        phone = request.POST['phone']
+        if request.FILES:
+            if user.image:
+                os.remove(user.image.path)
+            image = request.FILES.get('pic', None)
+            if image:
+                user.image = image
+        user.first_name = first_name
+        user.last_name = last_name
+        user.phone = phone
+        user.save()
+        return redirect('user_profile', user.id)
+    return render(request, 'user/user_profile.html')
+
+
+
+
+def address_book(request, user_id):
+    user = CustomUser.objects.get(id=user_id)
+    address = UserAddress.objects.filter(user=user)
+    context = {
+        'address': address,
+    }
+    return render(request, 'user/address_book.html', context)
+
+
+
+def add_address(request, user_id):
+    user = CustomUser.objects.get(id=user_id)
+    if request.method == 'POST':
+        name = request.POST['first_name']
+        phone = request.POST['phone']
+        address = request.POST['address']
+        town = request.POST['town']
+        zip = request.POST['zip']
+        location = request.POST['location']
+        district = request.POST['district']
+        if not name:
+            name = user.first_name
+
+        user_address = UserAddress(user=user, name=name, alternative_mobile=phone, address=address, town=town, zip_code=zip, nearby_location=location, district=district, )
+        user_address.save()
+        return redirect('address_book', user.id)
+    return render(request, 'user/add_address.html')
+
+
+
+def delete_address(request, address_id):
+    user = request.user
+    address = UserAddress.objects.get(id=address_id)
+    address.delete()
+    return redirect('address_book', user.id)
+
+

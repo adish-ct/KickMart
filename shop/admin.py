@@ -2,8 +2,26 @@ from django.contrib import admin
 from shop.models import *
 
 # Register your models here.
-admin.site.register(Category)
-admin.site.register(ProductBrand)
+class CategoryAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('category_name', )}
+    list_display = ('category_name', 'slug')
+
+
+class ProductAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('product_name', )}
+    list_display = ('product_name', 'slug', 'product_image', 'category', 'selling_price')
+
+class BrandAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('brand_name', )}
+    list_display = ('brand_name', 'slug')
+
+class VariantAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product',)
+
+
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(ProductBrand, BrandAdmin)
 admin.site.register(ProductSize)
-admin.site.register(Product)
-admin.site.register(ProductVariant)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(ProductVariant, VariantAdmin)
+admin.site.register(MultipleImages)

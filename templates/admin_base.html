@@ -36,7 +36,7 @@
 
 </head>
 
-<body">
+<body>
     <div class="container-fluid position-relative d-flex p-0">
         <!-- Sidebar Start -->
         <div class="sidebar pe-4 pb-3">
@@ -63,7 +63,7 @@
                     <a href="{% url 'admin_users' %}" class="nav-item nav-link"><i class="fa fa-user me-2"></i>Users</a>
                     <a href="{% url 'admin_product' %}" class="nav-item nav-link"><i class="fa fa-box me-2"></i>Products</a>
                     <a href="{% url 'admin_category' %}" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Category</a>
-                    <a href="" class="nav-item nav-link"><i class="fa fa-suitcase me-2"></i>Coupons</a>
+                    <a href="{% url 'admin_coupon_management' %}" class="nav-item nav-link"><i class="fa fa-suitcase me-2"></i>Coupons</a>
                     <a href="" class="nav-item nav-link"><i class="fa fa-file me-2"></i>Orders</a>
                     <a href="" class="nav-item nav-link"><i class="fa fa-image me-2"></i>Banners</a>
                     <a href="" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a>
@@ -190,6 +190,19 @@
 <script>
     $('#sortTable').DataTable();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script>
+  $(document).on("click", ".popupBTN", function () {
+    var vId = $(this).data('qwer');
+    var vPrice = $(this).data('price');
+    var vStock = $(this).data('stock');
+    $(".modal-body #variantId").val(vId);
+    $(".modal-body #Price").val(vPrice);
+    $(".modal-body #stock").val(vStock);
+
+  });
+</script>
+
 </body>
 
 </html>

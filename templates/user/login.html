@@ -22,21 +22,22 @@ kick-mart-login
 
 <!-- Pills content -->
         <div class="tab-content">
-          <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
+          <div class="tab-pane fade show active mb-5" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
 
 <!--            form  Login user      -->
-              {% for message in messages %}
-                <span class="text-success fw-bold"> {{ message }} </span>
-              {% endfor %}
+
             <form action="" method="post">
                 {% csrf_token %}
                   <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="text-center mb-5 mt-5  col-md-8">
+                    <div class="col-md-2 col-sm-1"></div>
+                    <div class="text-center mb-5 mt-5  col-md-8 col-sm-10">
                       <h3 class="text-center">
                         YOUR ACCOUNT FOR EVERYTHING KICK-MART
                       </h3>
                     </div>
+                        {% for message in messages %}
+                            <small class=" text-center {{ message.tags }} bg-white"> {{ message }} </small>
+                        {% endfor %}
                   </div>
 
                   <!-- Email input -->
@@ -53,25 +54,15 @@ kick-mart-login
 
                   <!-- 2 column grid layout -->
                   <div class="row mb-4">
-                    <div class="col-md-6 d-flex justify-content-center">
-                        <p class="text-start">Don't you have an account ?</p>&nbsp;&nbsp;
-                        <a href="{% url 'user_signup' %}" style="color: grey">Register Here</a>
-                      <!-- Checkbox -->
-            <!--          <div class="form-check mb-3 mb-md-0">-->
-            <!--            <input class="form-check-input" type="checkbox" value="" id="loginCheck" checked />-->
-            <!--            <label class="form-check-label" for="loginCheck"> Remember me </label>-->
-            <!--          </div>-->
-                    </div>
-
-                  <div class="col-md-6 text-end">
-                    <!-- Simple link -->
-                    <a href="#!" style="color: grey">Forgot password?</a>
-                  </div>
+                      <div class="col-md-12 text-end">
+                        <!-- Simple link -->
+                        <a href="#!" style="color: grey">Forgot password?</a>
+                      </div>
                 </div>
 
                 <!-- Submit button -->
                 <div class="col-md-12 text-center">
-                  <button type="submit" class="fw-bold mb-4" style="width: 100%; background-color: black; color: yellow; height: 50px">LOG IN</button>
+                  <button type="submit" class="fw-bold mb-4 w-100" style="width: 100%; background-color: black; color: yellow; height: 50px">LOG IN</button>
                 </div>
             </form>
 

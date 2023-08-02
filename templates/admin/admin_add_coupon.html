@@ -1,0 +1,97 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+admin-product-interface
+{% endblock %}
+{% load static %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="table-wrapper bg-dark border">
+            <div class="table-title bg-dark">
+                <div class="row">
+                    <div class="col-md-3 mt-5"></div>
+                    <div class="col-md-6 text-center mt-5">
+						<h2 class="text-white">ADD NEW COUPON </h2>
+					</div>
+					<div class="col-md-3 text-end mt-5 mb-5">
+						<a href="" class="btn btn-outline-danger" data-toggle="modal"><span></span></a>
+					</div>
+                </div>
+            </div>
+
+            <div class="card bg-secondary" style="font-size: 20px;">
+                <div class="card-body">
+                  <h5 class="card-title mb-5 text-white">ADD COUPON TABLE</h5>
+
+                  <!-- Edit product form  -->
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <div class="row mb-4">
+                            <div class="col">
+                              <div class="form-outline">
+                                  <input type="text" id="addCoupon" class="form-control bg-dark text-white" name="coupon_code" required/>
+                                  <label class="form-label" for="addCoupon">Coupon Code</label>
+                              </div>
+                            </div>
+
+                            <div class="col">
+                                <input type="text" id="couponTitle" class="form-control bg-dark text-white" name="coupon_title" required/>
+                                <label for="couponTitle" class="control-label">Coupon Title :</label>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <input type="number" id="discountAmount" class="form-control bg-dark text-white" name="discount_amount"/>
+                                <label for="discountAmount" class="control-label">discount_amount</label>
+                            </div>
+
+                            <div class="col-md-3">
+                                <input type="number" id="discount" class="form-control bg-dark text-white" name="discount"/>
+                                <label for="discount" class="control-label">discount in %</label>
+                            </div>
+
+                            <div class="col-md-3">
+                                <input type="date" id="customDate" name="valid_from" required>
+                                <label for="customDate" class="control-label">Valid From Format :</label>
+                            </div>
+
+                            <div class="col-md-3">
+                                <input type="date" id="customDateTo"  name="valid_to" required>
+                                <label for="customDateTo" class="control-label">Valid To</label>
+                            </div>
+                        </div>
+           
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <input type="number" id="discountAmount" class="form-control bg-dark text-white" name="minimum_amount" required/>
+                                <label for="discountAmount" class="control-label">Minimun Amount To Apply</label>
+                            </div>
+
+                            <div class="col-md-3">
+                                <input type="number" id="discount" class="form-control bg-dark text-white" name="quantity"/>
+                                <label for="discount" class="control-label">Coupon Quantity</label>
+                            </div>
+                        </div>
+                        
+
+                      <!-- Message input -->
+                      <div class="form-outline mb-4">
+                        <textarea class="form-control bg-dark text-white" id="productDesc" rows="10" name="description"></textarea>
+                        <label class="form-label" for="productDesc">Description</label>
+                      </div>
+
+                      <!-- Submit button -->
+                      <div class="text-center">
+                          <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4 w-50">Add Coupon</button>
+                      </div>
+                    </form>
+                    <hr />
+
+                  <!-- Edit product form end -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

@@ -2,23 +2,22 @@
 {% endblock %} {% block body %}
 
 <!-- Shop Detail Start -->
-{% for i in product %}
 <div class="container-fluid py-5">
   <div class="row px-xl-5">
-    <div class="col-lg-2"></div>
-    <div class="col-lg-5 pb-5">
-      <div class="img-fluid">
+    <div class="col-lg-6 pb-5 col-12 text-center">
+      <div class="img-fluid text-center">
         <img
           class="big_img w-100"
-          src="{{i.product_image.url}}"
+          src="{{ product.product_image.url }}"
           style="width: 100%; height: 60vh; object-fit: contain"
-          alt="Image"
+          alt="Image" id="main-img"
         />
       </div>
     </div>
 
+    
     <div class="col-lg-5 pb-5">
-      <h3 class="font-weight-semi-bold">{{ i.product_name }}</h3>
+      <h3 class="font-weight-semi-bold">{{ product.product_name }}</h3>
       <div class="d-flex mb-3">
         <div class="text-primary mr-2">
           <small class="fas fa-star"></small>
@@ -31,106 +30,72 @@
       </div>
       <div class="d-flex">
         <h4 class="font-weight-semi-bold mb-4">
-          Rs. {{ i.selling_price }}/- &nbsp;&nbsp;
+          Rs. {{ product.selling_price }}/- &nbsp;&nbsp;
         </h4>
         <p
           class="font-weight-regular text-muted ml-2"
           style="text-decoration: line-through; font-size: 18px"
         >
-          Rs.{{ i.original_price }}/-
+          Rs.{{ product.original_price }}/-
         </p>
       </div>
-      <p class="mb-4">{{ i.product_description }}</p>
+      <p class="mb-4">{{ product.product_description }}</p>
       <div class="d-flex mb-3">
         <p class="text-dark font-weight-medium mb-0 mr-3">Sizes:</p>
 
+        <a href="">Add to cart</a>
 
-        {% comment %}
-        <form>
-          {% endcomment %} {% comment %}
-          <select class="js-select2" onchange="get_current_price()" name="selected_variant" required>
-            {% endcomment %}
-            <!-- choose-storage -->
-
-            {% comment %} {% if selected_variant %}
-            <option value="{{variant}}" selected>{{ color }} |</option>
-            {% else %}
-            <option value="" selected>Select</option>
-            {% endif %}
-
-            {% for variant in variants %}
-            <option value="{{ variant }}">{{ variant.size }}</option>
-            {% endfor %}
-            {% endcomment %}
-
-            {% comment %}
-            <div class="size-selector">
-              {% for i in variant %}
-              <input type="radio" name="size" value="small" id="small" />
-              <label for="small"> {{ i.product_size }} </label>
-              {% endfor %}
-            </div>
-            {% endcomment %}
-
-            <form id="myForm" method="POST" action="your-backend-url">
-              <div id="buttonContainer">
-                {% for item in variant %}
-                <button type="button" class="button-size" data-value="{{ item.product_size }}" onclick="selectButton({{ forloop.counter }})">
+        {% comment %} product variant {% endcomment %}
+          
+          <form id="myForm" method="POST" action="{% url 'add_cart' product.id %}">
+            {% csrf_token %}
+            <div id="buttonContainer">
+              {% for item in variant %}
+                <button type="button" class="button-size" id="{{ item.id }}" data-value="{{ item.product_size }}" onclick="selectButton({{ forloop.counter }})">
                   {{ item.product_size }}
                 </button>
-                {% endfor %}
-              </div>
-              <input type="hidden" id="selectedValueInput" name="selected_size"/>
-            </form>
+              {% endfor %}
+            </div>
+            <input type="hidden" id="selectedValueInput" name="selectedValue"/>
+            <button class="btn btn-primary px-3 mt-4" type="submit"> 
+              <i class="fa fa-shopping-cart mr-1"></i> Add To Cart
+            </button>
+          </form>
 
-            {% comment %}
-          </select>
-          {% endcomment %}
-
-          {% comment %}
-        </form>
-        {% endcomment %}
       </div>
 
-      <!--
-      <div class="d-flex mb-4">
+    
+      {% comment %} <div class="d-flex mb-4">
         <p class="text-dark font-weight-medium mb-0 mr-3">Colors:</p>
-       color form started
-       color variant for loop
-
-
+      
         <form>
+
           <div class="custom-control custom-radio custom-control-inline">
             <input type="radio" class="custom-control-input" id="color-1" name="color">
             <label class="custom-control-label" for="color-1">Black</label>
           </div>
 
-       color variant for loop
         </form>
-      </div>
-      -->
+      </div> {% endcomment %}
+     
 
       <div class="d-flex align-items-center mb-4 pt-2">
+        <!--
         <div class="input-group quantity mr-3" style="width: 130px">
           <div class="input-group-btn">
             <button class="btn btn-primary btn-minus">
               <i class="fa fa-minus"></i>
             </button>
           </div>
-          <input
-            type="text"
-            class="form-control bg-secondary text-center"
-            value="1"
-          />
+          <input type="text" class="form-control bg-secondary text-center" value="1"/>
           <div class="input-group-btn">
             <button class="btn btn-primary btn-plus">
               <i class="fa fa-plus"></i>
             </button>
           </div>
         </div>
-        <button class="btn btn-primary px-3">
-          <i class="fa fa-shopping-cart mr-1"></i> Add To Cart
-        </button>
+        -->
+
       </div>
       <div class="d-flex pt-2">
         <p class="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
@@ -151,6 +116,19 @@
       </div>
     </div>
   </div>
+
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-6 p-3 m-2 d-flex col-sm-12 col-12">
+      {% for image in multiple_images %}
+      <div class="text-start pb-2 m-1">
+        <img src="{{ image.images.url }}" alt="product image" onclick="imgClick(this.id)" class="image-fluid mx-auto m-sm-auto" height="150vw" width="150vw" id="{{ image.id}}">
+      </div>
+      {% endfor %}
+      
+    </div>
+  </div>
+
   <div class="row px-xl-5">
     <div class="col">
       <div class="nav nav-tabs justify-content-center border-secondary mb-4">
@@ -318,7 +296,6 @@
     </div>
   </div>
 </div>
-{% endfor %}
 <!-- Shop Detail End -->
 
 <!-- Products Start -->
@@ -345,7 +322,7 @@
             </div>
           </div>
           <div class="card-footer d-flex justify-content-between bg-light border">
-            <a href="{% url 'detail_view' item.id %}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+            <a href="{{ item.get_url }}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
             <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
           </div>
         </div>
@@ -357,5 +334,13 @@
   </div>
 </div>
 <!-- Products End -->
+<script>
+  function imgClick(id) {
+
+  let img = document.getElementById(id).src
+  document.getElementById('main-img').src = img
+
+}
+</script>
 
 {% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+coupon-details 
+{% endblock title %}
+{% block body %}
+
+<div class="container-fluid">
+    <div class="table-wrapper bg-dark border">
+        <div class="table-title bg-dark">
+            <div class="row">
+                <div class="col-md-3 mt-5"></div>
+                <div class="col-md-6 text-center mt-5 mb-5">
+                    <h1 class="text-white">COUPONS </h1>
+                </div>
+
+            </div>
+        </div>
+        <div class="card bg-secondary">
+            <div class="card-body">
+                <div class="d-flex justify-content-spacebetween p-3 mt- col-md-12">
+                    <div class="col-md-6">
+                        <h5 class="card-title text-white mb-4">ALL YOUR COUPONS </h5>
+                    </div>
+                    {% if messages %}
+                    <p>
+                        {% for message in messages %}
+                        <span class="text-center text-success">{{ message }}</span>
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    <div class="col-md-6 text-end">
+                        <a href="{% url 'add_coupon' %}" class="btn bg-white" data-toggle="modal">
+                            <span class="text-dark">CREATE COUPON</span></a>
+                    </div>
+                </div>
+
+                <!-- Table  -->
+
+                <div class="col-12">
+                    <div class="bg-secondary rounded h-100 p-4">
+                        <div class="table-responsive">
+                            <table class="table" id="sortTable" style="font-size: 20px;">
+                                <thead>
+                                    <tr class="border">
+                                        <th scope="col">#</th>
+                                        <th scope="col">Coupon Code</th>
+                                        <th scope="col">Discount</th>
+                                        <th scope="col">Minimum Amount</th>
+                                        <th scope="col">Valid From</th>
+                                        <th scope="col">Valid To</th>
+                                        <th scope="col">Quandity</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Operations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for coupon in coupons %}
+                                    <tr>
+                                        <th scope="row"> {{ forloop.counter }} </th>
+                                        <td> {{ coupon.coupon_code }} </td>
+                                        {% if coupon.discount %}
+                                        <td> {{ coupon.discount }} % </td>
+                                        {% else %}
+                                        <td> {{ coupon.discount_amount }} </td>
+                                        {% endif %}
+                                        <td> {{ coupon.minimum_order_amount }} </td>
+                                        <td> {{ coupon.valid_from }} </td>
+                                        <td> {{ coupon.valid_to }} </td>
+                                        <td> {{ coupon.quantity }} </td>
+                                        <td>
+                                            <a href="{% url 'activate_coupon' coupon.id %}" class="edit">
+                                                {% if coupon.active %}
+                                                <p class="text-success">Active</p>
+                                                {% else %}
+                                                <p class="text-danger">Disabled</p>
+                                                {% endif %}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'edit_coupon' coupon.id %}" class="edit">
+                                                <i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i>
+                                            </a>
+                                            <a href="{% url 'delete_coupon' coupon.id %}" class="delete"> 
+                                                <i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i>
+                                            </a>
+                                        </td>
+                                        
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}

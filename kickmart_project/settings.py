@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'user_app',
     'admin_app',
     'shop',
-    'rest_framework',
+    'cart',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +65,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'shop.context_processors.category_link',
+                'shop.context_processors.product_link',
+                'cart.context_processors.counter',
             ],
         },
     },
@@ -121,6 +124,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

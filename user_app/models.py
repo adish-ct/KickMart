@@ -40,6 +40,8 @@ class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
     phone = models.CharField(max_length=10, unique=True)
+    image = models.ImageField(upload_to='profile_images', blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
 
@@ -53,3 +55,22 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return '{}'.format(self.phone)
+    
+
+
+class UserAddress(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, blank=True)
+    alternative_mobile = models.IntegerField(blank=True)
+    address = models.CharField(max_length=255, null=True)
+    town = models.CharField(max_length=150, null=False)
+    zip_code = models.IntegerField(null=False)
+    nearby_location = models.CharField(max_length=255, blank=True)
+    district = models.CharField(max_length=150, null=False)
+    created = models.DateField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f"self.user.email"
+    
+
