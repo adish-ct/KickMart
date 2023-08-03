@@ -352,4 +352,28 @@
       selectedValueInput.value = selectedValue;
     }
   </script>
+  <script>
+    // Get the copy button and the content to copy
+    const copyButton = document.querySelectorAll("copy-button");
+    const contentToCopy = document.querySelectorAll("content-to-copy");
+
+    // Add a click event listener to the copy button
+    copyButton.addEventListener("click", () => {
+        // Create a range to select the content
+        const range = document.createRange();
+        range.selectNode(contentToCopy);
+
+        // Create a selection and select the range
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // Copy the selected content to the clipboard
+        document.execCommand("copy");
+
+        // Clean up the selection
+        selection.removeAllRanges();
+    });
+</script>
+
 </html>

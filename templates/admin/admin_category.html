@@ -7,7 +7,7 @@ admin-category-interface
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-3 mt-5"></div>
-        <div class="col-md-6 text-center mt-5 mb-5">
+        <div class="col-md-6 text-center mt-5 mb-5 p-5">
             <h1 class="text-white">CATEGORIES </h1>
         </div>
         <div class="col-md-3 text-end mt-5">
@@ -41,9 +41,8 @@ admin-category-interface
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Id</th>
-                                <th scope="col">Category Name</th>
                                 <th scope="col">Image</th>
+                                <th scope="col">Name</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Operations</th>
                             </tr>
@@ -52,8 +51,6 @@ admin-category-interface
                             {% for i in categories %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
-                                <td>{{ i.id }}</td>
-                                <td>{{ i.category_name }}</td>
                                 <td>
                                     {% if i.category_image %}
                                     <div style="width: 90px; height: 90px;">
@@ -62,6 +59,7 @@ admin-category-interface
                                     </div>
                                     {% endif %}
                                 </td>
+                                <td>{{ i.category_name }}</td>
                                 <td>{{ i.category_description }}</td>
                                 <td>
                                     <a href="{% url 'admin_edit_category' i.id %}" class="edit"><i

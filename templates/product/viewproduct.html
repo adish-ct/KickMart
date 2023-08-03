@@ -6,16 +6,11 @@
   <div class="row px-xl-5">
     <div class="col-lg-6 pb-5 col-12 text-center">
       <div class="img-fluid text-center">
-        <img
-          class="big_img w-100"
-          src="{{ product.product_image.url }}"
-          style="width: 100%; height: 60vh; object-fit: contain"
-          alt="Image" id="main-img"
-        />
+        <img class="big_img w-100" src="{{ product.product_image.url }}"
+          style="width: 100%; height: 60vh; object-fit: contain" alt="Image" id="main-img" />
       </div>
     </div>
 
-    
     <div class="col-lg-5 pb-5">
       <h3 class="font-weight-semi-bold">{{ product.product_name }}</h3>
       <div class="d-flex mb-3">
@@ -32,52 +27,39 @@
         <h4 class="font-weight-semi-bold mb-4">
           Rs. {{ product.selling_price }}/- &nbsp;&nbsp;
         </h4>
-        <p
-          class="font-weight-regular text-muted ml-2"
-          style="text-decoration: line-through; font-size: 18px"
-        >
+        <p class="font-weight-regular text-muted ml-2" style="text-decoration: line-through; font-size: 18px">
           Rs.{{ product.original_price }}/-
         </p>
       </div>
       <p class="mb-4">{{ product.product_description }}</p>
       <div class="d-flex mb-3">
+
+        {% if variant %}
         <p class="text-dark font-weight-medium mb-0 mr-3">Sizes:</p>
 
-        <a href="">Add to cart</a>
-
         {% comment %} product variant {% endcomment %}
-          
-          <form id="myForm" method="POST" action="{% url 'add_cart' product.id %}">
-            {% csrf_token %}
-            <div id="buttonContainer">
-              {% for item in variant %}
-                <button type="button" class="button-size" id="{{ item.id }}" data-value="{{ item.product_size }}" onclick="selectButton({{ forloop.counter }})">
-                  {{ item.product_size }}
-                </button>
-              {% endfor %}
-            </div>
-            <input type="hidden" id="selectedValueInput" name="selectedValue"/>
-            <button class="btn btn-primary px-3 mt-4" type="submit"> 
-              <i class="fa fa-shopping-cart mr-1"></i> Add To Cart
+
+        <form id="myForm" method="POST" action="{% url 'add_cart' product.id %}">
+          {% csrf_token %}
+          <div id="buttonContainer">
+            {% for item in variant %}
+            <button type="button" class="button-size" id="{{ item.id }}" data-value="{{ item.product_size }}"
+              onclick="selectButton({{ forloop.counter }})">
+              {{ item.product_size }}
             </button>
-          </form>
-
-      </div>
-
-    
-      {% comment %} <div class="d-flex mb-4">
-        <p class="text-dark font-weight-medium mb-0 mr-3">Colors:</p>
-      
-        <form>
-
-          <div class="custom-control custom-radio custom-control-inline">
-            <input type="radio" class="custom-control-input" id="color-1" name="color">
-            <label class="custom-control-label" for="color-1">Black</label>
+            {% endfor %}
           </div>
-
+          <input type="hidden" id="selectedValueInput" name="selectedValue" />
+          <button class="btn btn-primary px-3 mt-4" type="submit">
+            <i class="fa fa-shopping-cart mr-1"></i> Add To Cart
+          </button>
         </form>
-      </div> {% endcomment %}
-     
+        {% else %}
+        <div class="text-center">
+          <h5 class="text-danger">Currently unavailable</h5>
+        </div>
+        {% endif %}
+      </div>
 
       <div class="d-flex align-items-center mb-4 pt-2">
         <!--
@@ -110,7 +92,7 @@
             <i class="fab fa-linkedin-in"></i>
           </a>
           <a class="text-dark px-2" href="">
-            <i class="fab fa-pinterest"></i>
+            <i class="fab fa-whatsapp"></i>
           </a>
         </div>
       </div>
@@ -122,40 +104,25 @@
     <div class="col-md-6 p-3 m-2 d-flex col-sm-12 col-12">
       {% for image in multiple_images %}
       <div class="text-start pb-2 m-1">
-        <img src="{{ image.images.url }}" alt="product image" onclick="imgClick(this.id)" class="image-fluid mx-auto m-sm-auto" height="150vw" width="150vw" id="{{ image.id}}">
+        <img src="{{ image.images.url }}" alt="product image" onclick="imgClick(this.id)"
+          class="image-fluid mx-auto m-sm-auto" height="150vw" width="150vw" id="{{ image.id}}">
       </div>
       {% endfor %}
-      
     </div>
   </div>
 
   <div class="row px-xl-5">
     <div class="col">
       <div class="nav nav-tabs justify-content-center border-secondary mb-4">
-        <a class="nav-item nav-link active" data-toggle="tab" href="#tab-pane-1"
-          >Description</a
-        >
-        <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-2"
-          >Information</a
-        >
-        <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-3"
-          >Reviews (0)</a
-        >
+        <a class="nav-item nav-link active" data-toggle="tab" href="#tab-pane-1">Description</a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-2">Information</a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-3">Reviews (0)</a>
       </div>
       <div class="tab-content">
         <div class="tab-pane fade show active" id="tab-pane-1">
           <h4 class="mb-3">Product Description</h4>
           <p>
-            Eos no lorem eirmod diam diam, eos elitr et gubergren diam sea.
-            Consetetur vero aliquyam invidunt duo dolores et duo sit. Vero diam
-            ea vero et dolore rebum, dolor rebum eirmod consetetur invidunt sed
-            sed et, lorem duo et eos elitr, sadipscing kasd ipsum rebum diam.
-            Dolore diam stet rebum sed tempor kasd eirmod. Takimata kasd ipsum
-            accusam sadipscing, eos dolores sit no ut diam consetetur duo justo
-            est, sit sanctus diam tempor aliquyam eirmod nonumy rebum dolor
-            accusam, ipsum kasd eos consetetur at sit rebum, diam kasd invidunt
-            tempor lorem, ipsum lorem elitr sanctus eirmod takimata dolor ea
-            invidunt.
+            {{ product.product_description}}
           </p>
           <p>
             Dolore magna est eirmod sanctus dolor, amet diam et eirmod et ipsum.
@@ -184,17 +151,16 @@
             <div class="col-md-6">
               <ul class="list-group list-group-flush">
                 <li class="list-group-item px-0">
-                  Sit erat duo lorem duo ea consetetur, et eirmod takimata.
+                  Material : Leather
                 </li>
                 <li class="list-group-item px-0">
-                  Amet kasd gubergren sit sanctus et lorem eos sadipscing at.
+                  Sole : PU
                 </li>
                 <li class="list-group-item px-0">
-                  Duo amet accusam eirmod nonumy stet et et stet eirmod.
+                  Water Durability
                 </li>
                 <li class="list-group-item px-0">
-                  Takimata ea clita labore amet ipsum erat justo voluptua.
-                  Nonumy.
+                  Lace : Nylone
                 </li>
               </ul>
             </div>
@@ -222,12 +188,7 @@
             <div class="col-md-6">
               <h4 class="mb-4">1 review for "Colorful Stylish Shirt"</h4>
               <div class="media mb-4">
-                <img
-                  src="img/user.jpg"
-                  alt="Image"
-                  class="img-fluid mr-3 mt-1"
-                  style="width: 45px"
-                />
+                <img src="img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px" />
                 <div class="media-body">
                   <h6>
                     John Doe<small> - <i>01 Jan 2045</i></small>
@@ -249,10 +210,8 @@
             </div>
             <div class="col-md-6">
               <h4 class="mb-4">Leave a review</h4>
-              <small
-                >Your email address will not be published. Required fields are
-                marked *</small
-              >
+              <small>Your email address will not be published. Required fields are
+                marked *</small>
               <div class="d-flex my-3">
                 <p class="mb-0 mr-2">Your Rating * :</p>
                 <div class="text-primary">
@@ -266,12 +225,7 @@
               <form>
                 <div class="form-group">
                   <label for="message">Your Review *</label>
-                  <textarea
-                    id="message"
-                    cols="30"
-                    rows="5"
-                    class="form-control"
-                  ></textarea>
+                  <textarea id="message" cols="30" rows="5" class="form-control"></textarea>
                 </div>
                 <div class="form-group">
                   <label for="name">Your Name *</label>
@@ -282,11 +236,7 @@
                   <input type="email" class="form-control" id="email" />
                 </div>
                 <div class="form-group mb-0">
-                  <input
-                    type="submit"
-                    value="Leave Your Review"
-                    class="btn btn-primary px-3"
-                  />
+                  <input type="submit" value="Leave Your Review" class="btn btn-primary px-3" />
                 </div>
               </form>
             </div>
@@ -312,7 +262,7 @@
         {% for item in products %}
         <div class="card product-item border-0">
           <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-            <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt=""/>
+            <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="" />
           </div>
           <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
             <h6 class="text-truncate mb-3"> {{ item.product_name }} </h6>
@@ -322,8 +272,10 @@
             </div>
           </div>
           <div class="card-footer d-flex justify-content-between bg-light border">
-            <a href="{{ item.get_url }}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-            <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
+            <a href="{{ item.get_url }}" class="btn btn-sm text-dark p-0"><i
+                class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+            <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To
+              Cart</a>
           </div>
         </div>
         {% endfor %}
@@ -337,10 +289,10 @@
 <script>
   function imgClick(id) {
 
-  let img = document.getElementById(id).src
-  document.getElementById('main-img').src = img
+    let img = document.getElementById(id).src
+    document.getElementById('main-img').src = img
 
-}
+  }
 </script>
 
 {% endblock %}

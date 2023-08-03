@@ -34,8 +34,8 @@ products-kickmart
                         </div>
                         {% for i in category_link %}
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="category-all">
-                            <label class="custom-control-label" for="category-all">{{ i.category_name }}</label>
+                            <input type="checkbox" class="custom-control-input"  id="{{ forloop.counter }}">
+                            <label class="custom-control-label" for="{{ forloop.counter }}">{{ i.category_name }}</label>
                         </div>
                         {% endfor %}
 
@@ -48,10 +48,10 @@ products-kickmart
                     <h5 class="font-weight-semi-bold mb-4">Choose your Brand</h5>
                     <form>
                         <!-- Loop for displaying all brands -->
-                        {% for i in brands %}
+                        {% for i in brand_link %}
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="brand-all">
-                            <label class="custom-control-label" for="brand-all">{{ i.brand_name }}</label>
+                            <input type="checkbox" class="custom-control-input" id="{{ forloop.counter }}">
+                            <label class="custom-control-label" for="{{ forloop.counter }}">{{ i.brand_name }}</label>
                         </div>
                         {% endfor %}
                     </form>

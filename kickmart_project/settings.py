@@ -68,6 +68,7 @@ TEMPLATES = [
                 'shop.context_processors.category_link',
                 'shop.context_processors.product_link',
                 'cart.context_processors.counter',
+                'shop.context_processors.brand_link',
             ],
         },
     },

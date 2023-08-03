@@ -5,11 +5,14 @@ from shop.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.contrib import messages
+from django.views.decorators.cache import cache_control
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
 
 def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0):
+    coupons = Coupons.objects.all().order_by('id')
     delivery_charge = 99
     if 'user' in request.session:
         my_user = request.user.id
@@ -49,6 +52,7 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0):
         'delivery_charge': delivery_charge,
         'tax': tax,
         'grand_total': grand_total,
+        'coupons': coupons,
     }
     return render(request, 'product/cart.html', context)
 
@@ -88,10 +92,16 @@ def add_cart(request, product_id):
         if 'user' in request.session:
             my_user = request.user
             cart_item = CartItem.objects.get(product=variant, customer=my_user)
-            cart_item.quantity += 1
+            if variant.stock > cart_item.quantity:
+                cart_item.quantity += 1
+            else:
+                messages.error(request, "stock exhausted")
         else:
             cart_item = CartItem.objects.get(product=variant, cart=cart)
-            cart_item.quantity += 1
+            if variant.stock > cart_item.quantity:
+                cart_item.quantity += 1
+            else:
+                messages.error(request, "stock exhausted")
         cart_item.save()
 
 
@@ -103,67 +113,74 @@ def add_cart(request, product_id):
         else:
             cart_item = CartItem.objects.create(product=variant, quantity=1, cart=cart)
         cart.save()
-        pass
 
     return redirect('cart')
 
 
-
+@cache_control(no_cache=True, no_store=True)
 def remove_cart(request, variant_id):
-    variant = get_object_or_404(ProductVariant, id=variant_id)
-    if 'user' in request.session:
-        my_user = request.user.id
-        try:
-            cart_item = CartItem.objects.get(product=variant, customer=my_user)
-            if cart_item.quantity > 1:
-                cart_item.quantity -= 1
-                cart_item.save()
-            else:
-                cart_item.delete()
-        except CartItem.DoesNotExist:
-            pass
+    if request.method == 'POST':
+        variant = get_object_or_404(ProductVariant, id=variant_id)
+        if 'user' in request.session:
+            my_user = request.user.id
+            try:
+                cart_item = CartItem.objects.get(product=variant, customer=my_user)
+                if cart_item.quantity > 1:
+                    cart_item.quantity -= 1
+                    cart_item.save()
+                else:
+                    cart_item.delete()
+            except CartItem.DoesNotExist:
+                pass
+        else:
+            cart = Cart.objects.get(cart_id=_cart_id(request))         # fetch the current cart, cart will be present in this case.
+            try:
+                cart_item = CartItem.objects.get(product=variant, cart=cart)    # fetch the cart item 
+                if cart_item.quantity > 1:
+                    cart_item.quantity = cart_item.quantity - 1
+                    cart_item.save()
+                else:
+                    cart_item.delete()
+            except CartItem.DoesNotExist:
+                pass
+        return redirect('cart')
     else:
-        cart = Cart.objects.get(cart_id=_cart_id(request))         # fetch the current cart, cart will be present in this case.
-        try:
-            cart_item = CartItem.objects.get(product=variant, cart=cart)    # fetch the cart item 
-            if cart_item.quantity > 1:
-                cart_item.quantity = cart_item.quantity - 1
-                cart_item.save()
-            else:
-                cart_item.delete()
-        except CartItem.DoesNotExist:
-            pass
-    return redirect('cart')
+        return redirect('cart')
 
 
+@cache_control(no_cache=True, no_store=True)
 def add_cart_quandity(request, variant_id):
-    variant = ProductVariant.objects.get(id=variant_id)
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    if 'user' in request.session:
-        my_user = request.user
+    if request.method == 'POST':
+        variant = ProductVariant.objects.get(id=variant_id)
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        if 'user' in request.session:
+            my_user = request.user
 
-        try:
-            cart_item = CartItem.objects.get(customer=my_user, product=variant)
-            if variant.stock > cart_item.quantity:
-                cart_item.quantity += 1
-            else:
-                messages.error(request, "No more products available in the current variant")
-            cart_item.save()
-        except CartItem.DoesNotExist:
-            pass
+            try:
+                cart_item = CartItem.objects.get(customer=my_user, product=variant)
+                if variant.stock > cart_item.quantity:
+                    cart_item.quantity += 1
+                else:
+                    messages.error(request, "No more products available in the current variant")
+                cart_item.save()
+            except CartItem.DoesNotExist:
+                pass
+        else:
+            try:
+                cart_item = CartItem.objects.get(cart=cart, product=variant)
+                if variant.stock > cart_item.quantity:
+                    cart_item.quantity += 1
+                else:
+                    messages.error(request, "No more products available in the current variant")
+                cart_item.save()
+            except CartItem.DoesNotExist:
+                pass
+        return redirect('cart')
     else:
-        try:
-            cart_item = CartItem.objects.get(cart=cart, product=variant)
-            if variant.stock > cart_item.quantity:
-                cart_item.quantity += 1
-            else:
-                messages.error(request, "No more products available in the current variant")
-            cart_item.save()
-        except CartItem.DoesNotExist:
-            pass
-    return redirect('cart')
+        return redirect('cart')
 
 
+@cache_control(no_cache=True, no_store=True)
 def delete_cart(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
     if 'user' in request.session:
