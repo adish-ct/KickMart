@@ -11,11 +11,15 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 
-def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0):
+
+def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, coupon=None):
     coupons = Coupons.objects.all().order_by('id')
     delivery_charge = 99
+
     if 'user' in request.session:
+        discount = 0
         my_user = request.user.id
+        
         try:
             cart_items = CartItem.objects.filter(customer=my_user).order_by('id') # fetch every cart items related with the cart
             for item in cart_items: 
@@ -23,13 +27,33 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0):
                 quantity += item.quantity
             if total > 2500:
                 delivery_charge = 0
-            else:
-                delivery_charge 
+             
             tax = (total * 3) / 100
-            grand_total = total + tax
+
+            if request.method == 'POST':
+                coupon_code = request.POST['coupon']
+                coupon = Coupons.objects.get(coupon_code__exact=coupon_code)
+                if coupon.active == True:
+                    minimum_amount = coupon.minimum_order_amount
+                    if total > minimum_amount:
+                        if coupon.discount_amount:
+                            discount = coupon.discount_amount
+                        elif coupon.discount:
+                            discount = ( total * coupon.discount ) / 100
+                        else:
+                            discount = 0
+                        messages.success(request, "coupon applied")
+                    else:
+                        messages.error(request, f"minimum purchase amount : Rs. {minimum_amount}")
+                else:
+                    messages.error(request, "coupon expired")
+            grand_total = total + tax - discount
+
         except ObjectDoesNotExist:
             pass
-    else:        
+     
+    else:
+        discount = 0        
         try:
             cart = Cart.objects.get(cart_id=_cart_id(request)) # fetching the cart id 
             cart_items = CartItem.objects.filter(cart=cart) # fetch every cart items related with the cart
@@ -41,10 +65,29 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0):
             else:
                 delivery_charge 
             tax = (total * 3) / 100
-            grand_total = total + tax
+
+            if request.method == 'POST':
+                coupon_code = request.POST['coupon']
+                coupon = Coupons.objects.get(coupon_code__exact=coupon_code)
+                if coupon.active == True:
+                    minimum_amount = coupon.minimum_order_amount
+                    if total > minimum_amount:
+                        if coupon.discount_amount:
+                            discount = coupon.discount_amount
+                        elif coupon.discount:
+                            discount = ( total * coupon.discount ) / 100
+                        else:
+                            discount = 0
+                        messages.success(request, "coupon applied")
+                    else:
+                        messages.error(request, f"minimum purchase amount : Rs. {minimum_amount}")
+                else:
+                    messages.error(request, "coupon expired")
+
+            grand_total = total + tax - discount
         except ObjectDoesNotExist:
             pass
-
+    
     context = {
         'total': total,
         'quantity': quantity,
@@ -53,6 +96,7 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0):
         'tax': tax,
         'grand_total': grand_total,
         'coupons': coupons,
+        'coupon_discount': discount,
     }
     return render(request, 'product/cart.html', context)
 

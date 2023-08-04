@@ -20,8 +20,9 @@ admin-product-interface
           <div class="col-md-6">
             <h5 class="card-title ">YOUR PRODUCT VARIANTS TABLE</h5>
           </div>
+          
           <div class="col-md-6 text-end">
-            <a href="" class="btn btn-primary bg-white text-dark" data-toggle="modal"><span>Create Variant</span></a>
+            <a href="{% url 'add_product_variant' product_id  %}" class="btn btn-primary bg-white text-dark" data-toggle="modal"><span>Create Variant</span></a>
           </div>
         </div>
 
@@ -65,13 +66,18 @@ admin-product-interface
                   data-stock="{{ i.stock }}">
                   Edit
                 </button>
-              </td>
-              <td>
                 {% if i.is_active %}
                 <a href="{% url 'product_variant_control' i.id %}" class="text-success">Active</a>
                 {% else %}
                 <a href="{% url 'product_variant_control' i.id %}" class="text-danger">Disabled</a>
                 {% endif %}
+              </td>
+              <td>
+                
+                <form action="{% url 'product_variant_delete' i.id %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="text-danger bg-transparent"> Delete  </button>
+                </form>
               </td>
             </tr>
             {% endfor %}

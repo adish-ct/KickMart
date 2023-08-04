@@ -182,8 +182,50 @@ def admin_product_variant(request, product_id):
     variant = ProductVariant.objects.filter(product=product_id)
     context = {
         'variants': variant,
+        'product_id': product_id,
     }
     return render(request, 'admin/admin_variant_product.html', context)
+
+
+
+@staff_member_required(login_url='admin_login')
+@cache_control(no_store=True, no_cache=True)
+def add_product_variant(request, product_id):
+    product = Product.objects.get(id=product_id)
+    product_variants = ProductVariant.objects.filter(product=product)
+    sizes = ProductSize.objects.all().order_by('id')
+    
+    if request.method == 'POST':
+        
+        size = request.POST['selectSize']
+        stock = request.POST['stock']
+        productPrice = request.POST['productPrice']
+        try:
+            variant = ProductVariant.objects.get(product=product, product_size=size)
+            
+            variant.stock = variant.stock + int(stock)
+            if productPrice:
+                variant.product_price = productPrice
+            variant.save()
+        except ProductVariant.DoesNotExist:
+            variant = ProductVariant.objects.create(
+                product = product,
+                product_size = size,
+                stock = stock,
+            )
+            variant.save()
+            if productPrice:
+                variant.product_price = productPrice
+        variant.save()
+        return redirect('admin_product_variant', product_id)
+
+    context = {
+        'product': product,
+        'sizes': sizes,
+        'product_variants': product_variants,
+    }
+
+    return render(request, 'admin/admin_add_variant.html', context)
 
 
 
@@ -215,6 +257,18 @@ def product_variant_control(request, variant_id):
     variant.save()
     return redirect('admin_product_variant', product_id)
 
+
+
+def product_variant_delete(request, variant_id):
+
+    if request.method == 'POST':
+        variant = ProductVariant.objects.get(id=variant_id)
+        product = variant.product
+        if variant:
+            variant.delete()
+        return redirect('admin_product_variant', product.id)
+    else:
+        return redirect('admin_dashboard')
 
 # Product section end -------------------------------------------------
 

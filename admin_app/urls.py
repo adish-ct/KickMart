@@ -13,6 +13,8 @@ urlpatterns = [
     path('admin-product-variant/<int:product_id>/', views.admin_product_variant, name="admin_product_variant"),
     path('product-variant-update/', views.product_variant_update, name="product_variant_update"),
     path('product-variant-control/<str:variant_id>/', views.product_variant_control, name="product_variant_control"),
+    path('add-product-variant/<int:product_id>/', views.add_product_variant, name="add_product_variant"),
+    path('product-variant-delete/<int:variant_id>/', views.product_variant_delete, name="product_variant_delete"),
 
     path('admin_users/', views.admin_users, name="admin_users"),
     path('admin_user_manage/<int:id>/', views.admin_user_manage, name="admin_user_manage"),

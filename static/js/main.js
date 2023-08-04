@@ -102,3 +102,32 @@
     
 })(jQuery);
 
+// ------------------------------ copy 
+
+document.addEventListener('DOMContentLoaded', function() {
+    var copyableTextElements = document.querySelectorAll('.copyable-text');
+
+    copyableTextElements.forEach(function(element) {
+        element.addEventListener('click', function() {
+            var textToCopy = element.getAttribute('data-text');
+            var range = document.createRange();
+            range.selectNode(element);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+
+            try {
+                // Now that we've selected the text, execute the copy command
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'Copied!' : 'Unable to copy. Please try again.';
+                console.log(msg);
+            } catch(err) {
+                console.error('Failed to copy text:', err);
+            }
+
+            // Clear the selection
+            window.getSelection().removeAllRanges();
+        });
+    });
+});
+
+
