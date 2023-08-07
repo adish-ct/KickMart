@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}
+confirmed
+{% endblock title %}
+
+{% block body %}
+
+<div class="container-fluid " style="background-color: rgba(229, 240, 247, 0.911);">
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <div class="text-center mb-5 mt-5">
+                <h1 class="" style="color: rgb(69, 212, 69); font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Congratulations, Your order has been placed </h1>
+            </div>
+            <div class="text-center">
+                <img class="img-fluid" src="https://cdn.dribbble.com/users/1238709/screenshots/4069900/success_celebration_800x600.gif" alt="">
+            </div>
+            <div class="text-center mt-5 mb-5">
+                <button class="btn btn-warning text-dark btn-lg my-auto"><a href="{% url 'index' %}" class="text-dark">Continue to home</a></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}

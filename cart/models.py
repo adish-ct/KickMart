@@ -1,11 +1,11 @@
 from django.db import models
 from shop.models import *
-from user_app.models import CustomUser
+from user_app.models import *
 # Create your models here.
 
 
 class Cart(models.Model):
-    cart_id = models.CharField(max_length=250, blank=True)
+    cart_id = models.CharField(max_length=250, blank=True)  
     date_added = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -30,3 +30,26 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"self.product.variant_name"
+    
+
+class Checkout(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    tax = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    grand_total = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    shipping = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=0, null=True)
+    coupon = models.ForeignKey(Coupons ,on_delete=models.SET_NULL, blank=True, null=True)
+    address = models.ForeignKey(UserAddress, on_delete=models.CASCADE, null=True, blank=True)
+    payment = models.CharField(max_length=100, null=True, blank=True)
+
+
+    class Meta:
+        ordering = ['user']
+        
+
+    def __str__(self):
+        return f"self.user.email"
+
+
+

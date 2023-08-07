@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -54,7 +54,7 @@ class CustomUser(AbstractUser):
         verbose_name = 'Custom User'
 
     def __str__(self):
-        return '{}'.format(self.phone)
+        return '{}'.format(self.email)
     
 
 
@@ -71,6 +71,6 @@ class UserAddress(models.Model):
 
 
     def __str__(self):
-        return f"self.user.email"
+        return f"{self.user.email}"
     
 

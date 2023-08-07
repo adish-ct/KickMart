@@ -66,7 +66,7 @@
             </div>
             <div class="col-lg-3 col-6 text-right">
                 {% if user.is_authenticated %}
-                <a href="{% url 'user_profile' user.id %}" class="btn border">
+                <a href="{% url 'user_profile' %}" class="btn border">
                     <i class="fas fa-user text-primary"></i>
                 </a>
                 {% endif %}

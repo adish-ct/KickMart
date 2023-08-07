@@ -45,6 +45,7 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet" />
     <link href="{% static 'css/style.min.css' %}" rel="stylesheet" />
 
+    
     <style>
       /* Add your CSS styles here */
       .button-size {
@@ -122,7 +123,7 @@
         </div>
         <div class="col-lg-3 col-6 text-right">
         {% if user.is_authenticated %}
-          <a href="{% url 'user_profile' user.id %}" class="btn border">
+          <a href="{% url 'user_profile' %}" class="btn border">
             <i class="fas fa-user text-primary"></i>
           </a>
         {% endif %}
@@ -326,12 +327,16 @@
   <script src="{% static 'js/zoomsl.min.js' %}"></script>
   <script src="{% static 'js/validation.js' %}"></script>
   <script type="text/javascript">
+    
     $(document).ready(function () {
       $(".big_img").imagezoomsl({
         zoomrange: [-3, -3],
       });
     });
   </script>
+
+  {% comment %} paypal script {% endcomment %}
+  <script src="https://www.paypal.com/sdk/js?client-id=AYuxgFTMCznitqsnmdNRJLSZJr_sTwpCOfYJegFK_GXEOTRCiwPdjjCbCA46V_RC3AJ9KpLFhROtv40b&currency=USD"></script>
 
   <script>
     let selectedButton = null;
@@ -375,6 +380,266 @@
         selection.removeAllRanges();
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="{% static 'js/validation.js' %}"></script>
+
+
+{% comment %} paypal script  {% endcomment %}
+<script>
+
+  paypal.Buttons({
+
+    // Order is created on the server and the order id is returned
+
+    createOrder() {
+
+      return fetch("/my-server/create-paypal-order", {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type": "application/json",
+
+        },
+
+        // use the "body" param to optionally pass additional order information
+
+        // like product skus and quantities
+
+        body: JSON.stringify({
+
+          cart: [
+
+            {
+
+              sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
+
+              quantity: "YOUR_PRODUCT_QUANTITY",
+
+            },
+
+          ],
+
+        }),
+
+      })
+
+      .then((response) => response.json())
+
+      .then((order) => order.id);
+
+    },
+
+    // Finalize the transaction on the server after payer approval
+
+    onApprove(data) {
+
+      return fetch("/my-server/capture-paypal-order", {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type": "application/json",
+
+        },
+
+        body: JSON.stringify({
+
+          orderID: data.orderID
+
+        })
+
+      })
+
+      .then((response) => response.json())
+
+      .then((orderData) => {
+
+        // Successful capture! For dev/demo purposes:
+
+        console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+
+        const transaction = orderData.purchase_units[0].payments.captures[0];
+
+        alert(`Transaction ${transaction.status}: ${transaction.id}\n\nSee console for all available details`);
+
+        // When ready to go live, remove the alert and show a success message within this page. For example:
+
+        // const element = document.getElementById('paypal-button-container');
+
+        // element.innerHTML = '<h3>Thank you for your payment!</h3>';
+
+        // Or go to another URL:  window.location.href = 'thank_you.html';
+
+      });
+
+    }
+
+  }).render('#paypal-button-container');
+
+</script>
+
+<script>
+
+  const { CLIENT_ID, APP_SECRET } = process.env;
+
+  const baseURL = {
+  
+      sandbox: "https://api-m.sandbox.paypal.com",
+  
+      production: "https://api-m.paypal.com"
+  
+  };
+  
+  
+  // allow json body
+  
+  app.use(express.json());
+  
+  
+  // create a new order
+  
+  app.post("/create-paypal-order", async (req, res) => {
+  
+    const order = await createOrder();
+  
+    res.json(order);
+  
+  });
+  
+  
+  // capture payment & store order information or fullfill order
+  
+  app.post("/capture-paypal-order", async (req, res) => {
+  
+    const { orderID } = req.body;
+  
+    const captureData = await capturePayment(orderID);
+  
+    // TODO: store payment information such as the transaction ID
+  
+    res.json(captureData);
+  
+  });
+  
+  
+  //////////////////////
+  
+  // PayPal API helpers
+  
+  //////////////////////
+  
+  
+  // use the orders api to create an order
+  
+  async function createOrder() {
+  
+    const accessToken = await generateAccessToken();
+  
+    const url = `${baseURL.sandbox}/v2/checkout/orders`;
+  
+    const response = await fetch(url, {
+  
+      method: "POST",
+  
+      headers: {
+  
+        "Content-Type": "application/json",
+  
+        Authorization: `Bearer ${accessToken}`,
+  
+      },
+  
+      body: JSON.stringify({
+  
+        intent: "CAPTURE",
+  
+        purchase_units: [
+  
+          {
+  
+            amount: {
+  
+              currency_code: "USD",
+  
+              value: "100.00",
+  
+            },
+  
+          },
+  
+        ],
+  
+      }),
+  
+    });
+  
+    const data = await response.json();
+  
+    return data;
+  
+  }
+  
+  
+  // use the orders api to capture payment for an order
+  
+  async function capturePayment(orderId) {
+  
+    const accessToken = await generateAccessToken();
+  
+    const url = `${baseURL.sandbox}/v2/checkout/orders/${orderId}/capture`;
+  
+    const response = await fetch(url, {
+  
+      method: "POST",
+  
+      headers: {
+  
+        "Content-Type": "application/json",
+  
+        Authorization: `Bearer ${accessToken}`,
+  
+      },
+  
+    });
+  
+    const data = await response.json();
+  
+    return data;
+  
+  }
+  
+  
+  // generate an access token using client id and app secret
+  
+  async function generateAccessToken() {
+  
+    const auth = Buffer.from(CLIENT_ID + ":" + APP_SECRET).toString("base64")
+  
+    const response = await fetch(`${baseURL.sandbox}/v1/oauth2/token`, {
+  
+      method: "POST",
+  
+      body: "grant_type=client_credentials",
+  
+      headers: {
+  
+        Authorization: `Basic ${auth}`,
+  
+      },
+  
+    });
+  
+    const data = await response.json();
+  
+    return data.access_token;
+  
+  }
+
+</script>
+
 
 
 </html>

@@ -1,4 +1,5 @@
 import os
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -12,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from .mail import *
 from shop.models import *
 from django.http import HttpResponse
+from urllib.parse import urlparse
 
 
 # Create your views here.
@@ -156,7 +158,20 @@ def user_login(request):
                     login(request, user)
                     request.session['user'] = email
                     messages.success(request, "logged in successfully, welcome")
-                    return redirect('index')
+
+                    # if the request is come from cart page we have to redirect the user into checkout page thats handle here
+                    url = request.META.get('HTTP-REFERER')
+                    try:
+                        query = requests.utils.urlparse(url).query
+
+                        params = dict(x.split('=') for x in query.split('&'))
+
+                        if 'next' in params:
+                            nextPage = params['next']
+                            return redirect(nextPage)
+                    except:
+                        return redirect('index')
+                    # sectio end 
                 else:
                     messages.error(request, "please submit valid credentials.")
             else:
@@ -181,8 +196,9 @@ def user_logout(request):
 
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
-def user_profile(request, user_id):
-    user = CustomUser.objects.get(id=user_id)
+def user_profile(request):
+    if 'user' in request.session:
+        user = request.user
     if request.method == 'POST':
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
@@ -201,14 +217,15 @@ def user_profile(request, user_id):
         user.last_name = last_name
         user.phone = phone
         user.save()
-        return redirect('user_profile', user.id)
+        return redirect('user_profile')
     return render(request, 'user/user_profile.html')
 
 
 
 
-def address_book(request, user_id):
-    user = CustomUser.objects.get(id=user_id)
+def address_book(request):
+    if 'user' in request.session:
+        user = request.user
     address = UserAddress.objects.filter(user=user)
     context = {
         'address': address,
@@ -217,8 +234,9 @@ def address_book(request, user_id):
 
 
 
-def add_address(request, user_id):
-    user = CustomUser.objects.get(id=user_id)
+def add_address(request, id):
+    if 'user' in request.session:
+        user = request.user
     if request.method == 'POST':
         name = request.POST['first_name']
         phone = request.POST['phone']
@@ -232,7 +250,11 @@ def add_address(request, user_id):
 
         user_address = UserAddress(user=user, name=name, alternative_mobile=phone, address=address, town=town, zip_code=zip, nearby_location=location, district=district, )
         user_address.save()
-        return redirect('address_book', user.id)
+
+        if id == 1:
+            return redirect('checkout')
+        else:
+            return redirect('address_book')
     return render(request, 'user/add_address.html')
 
 
@@ -241,6 +263,6 @@ def delete_address(request, address_id):
     user = request.user
     address = UserAddress.objects.get(id=address_id)
     address.delete()
-    return redirect('address_book', user.id)
+    return redirect('address_book')
 
 

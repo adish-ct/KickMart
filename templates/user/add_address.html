@@ -5,7 +5,7 @@
 
 <div class="col-lg-8">
     {% comment %} form start {% endcomment %}
-    <form action=""  method="POST">
+    <form action="{% url 'add_address' 0 %}"  method="POST">
       {% csrf_token %}
       <div class="card mb-4">
         <div class="card-body">
@@ -14,7 +14,7 @@
               <p class="mb-0">Name</p>
             </div>
             <div class="col-sm-8">
-              <input class="text-muted form-control mb-0 border" id="firstName" type="text" value="" name="first_name"/>
+              <input class="text-muted form-control mb-0 border" id="firstName" type="text" name="first_name"/>
               <small class="text-primary" id="fname-Error"></small>
             </div>
           </div>
@@ -24,7 +24,7 @@
               <p class="mb-0">Mobile</p>
             </div>
             <div class="col-sm-8">
-              <input class="text-muted mb-0 border form-control" id="text" type=text value="" name="phone" />
+              <input class="text-muted mb-0 border form-control" id="phoneNumber" type="text" name="phone" />
               <small id="mobile-Error"></small>
             </div>
           </div>
@@ -34,7 +34,7 @@
               <p class="mb-0">Address</p>
             </div>
             <div class="col-sm-8">
-              <input class="text-muted mb-0 border form-control" id="lastName" type="text" value="" name="address" required/>
+              <input class="text-muted mb-0 border form-control" id="lastName" type="text" name="address" required/>
             </div>
           </div>
           <hr>

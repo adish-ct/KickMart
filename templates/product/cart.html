@@ -183,7 +183,7 @@ cart-product
                 {{ coupon.coupon_code }}
               </label>
 
-              <small id="copy-button" class="text-info text-end ">copy</small>
+              <small id="copy-button" class="text-info text-end">copy</small>
             </div>
 
             {% endfor %}
@@ -191,52 +191,53 @@ cart-product
           
         </div>
         <!-- coupon end -->
-
-        <div class="card mb-4">
-          <div class="card-header py-3">
-            <h5 class="mb-0">Summary</h5>
+          <div class="card mb-4">
+            <div class="card-header py-3">
+              <h5 class="mb-0">Summary</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                  Total
+                  <span>Rs. {{ total }} </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  Shipping
+                  <span>{{ delivery_charge }} </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  Tax 3% (Included all)
+                  <span>{{ tax }} </span>
+                </li>
+                {% if coupon_discount %}
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  Coupon discount(applied)
+                  <span> {{ coupon_discount }} </span>                
+                </li>
+                {% else %}
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  Coupon discount
+                  <span> 00.00 </span>                
+                </li>
+                {% endif %}
+                <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                  <div>
+                    <strong>Grant Total</strong>
+                    <strong>
+                      <p class="mb-0">(including VAT)</p>
+                    </strong>
+                  </div>
+                  <span><strong> Rs. {{ grand_total }} /-</strong></span>
+                </li>
+              </ul>
+              <button  class="btn btn-primary btn-lg btn-block" type="button">
+                <a href="{% url 'checkout' %}" class="text-light" style="text-decoration: none;">
+                  Go to checkout
+                </a>
+              </button>
+            </div>
           </div>
-          <div class="card-body">
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                Total
-                <span>Rs. {{ total }} </span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                Shipping
-                <span>{{ delivery_charge }} </span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                Tax 3% (Included all)
-                <span>{{ tax }} </span>
-              </li>
-              {% if coupon_discount %}
-              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                Coupon discount(applied)
-                <span> {{ coupon_discount }} </span>                
-              </li>
-              {% else %}
-              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                Coupon discount
-                <span> 00.00 </span>                
-              </li>
-              {% endif %}
-              <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
-                <div>
-                  <strong>Grant Total</strong>
-                  <strong>
-                    <p class="mb-0">(including VAT)</p>
-                  </strong>
-                </div>
-                <span><strong> Rs. {{ grand_total }} /-</strong></span>
-              </li>
-            </ul>
-
-            <button type="button" class="btn btn-primary btn-lg btn-block">
-              Go to checkout
-            </button>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   </div>
@@ -244,15 +245,5 @@ cart-product
 
 {% endif %}
 
-
-{% comment %}
-decreasing and increasing button in cart.
-<button class="btn btn-light me-2" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
-  <i class="fa fa-minus mx-auto"></i>
-</button> {% endcomment %}
-{% comment %} <button class="btn ms-2" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
-  <i class="fa fa-plus mx-auto"></i>
-</button>
-{% endcomment %}
 
 {% endblock body %}

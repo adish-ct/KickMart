@@ -7,7 +7,7 @@ checkout-order-confirm
 <!-- Page Header Start -->
 <div class="container-fluid bg-secondary mb-5">
   <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
-    <h1 class="font-weight-semi-bold text-uppercase mb-3">Shopping Cart</h1>
+    <h1 class="font-weight-semi-bold text-uppercase mb-3"> Checkout </h1>
     <div class="d-inline-flex">
       <p class="m-0"><a href="{% url 'index' %}">Home</a></p>
       <p class="m-0 px-2">-</p>
@@ -18,115 +18,134 @@ checkout-order-confirm
 <!-- Page Header End -->
 
 
-{% if not cart_items %}
-
-<div class="text-center">
-  <div class="row">
-    <div class="col-4"></div>
-      <div class="col-4">
-        <h1 class="text-danger">Your Kickmart cart is empty!!!</h1>
-
-        <img src="https://static.vecteezy.com/system/resources/previews/004/964/514/original/young-man-shopping-push-empty-shopping-trolley-free-vector.jpg" alt="" class="im-fluid w-100">
-    </div>
-  </div>
-</div>
-<div class="text-center">
-  <h4 class="text-info m-4">Shop today's deal</h4>
-  <a href="{% url 'products' %}" class="btn btn-primary">Continue Shoping</a>
-  <p class="text-left m-5 text-dark">The price and availability of items at Amazon.in are subject to change. The shopping cart is a temporary place to store a list of your items and reflects each item's most recent price.
-    Do you have a promotional code? We'll ask you to enter your claim code when it's time to pay.</p>
-</div>
-
-{% else %}
-
 <section class="h-100 gradient-custom">
   <div class="container py-5">
     <div class="row d-flex justify-content-center my-4">
       <div class="col-md-8">
         <div class="card mb-4">
           <div class="card-header py-3">
-            <h5 class="mb-0">Cart Items</h5>
+            <div class="col-md-6">
+              <div class="d-flex gap-4">
+                <i class="bi bi-1-square-fill"></i>
+              <div class="">
+                LOGIN
+              </div>
+              </div>
+              <div class="">
+                {% if user.is_authenticated %}
+                <div class="">
+                  <p> {{ user.first_name }}  {{ user.phone }} </p>
+                  <p>  </p>
+                </div>
+                {% endif %}
+              </div>
+            </div>
           </div>
+
           <div class="card-body">
-
             <!-- Single item -->
-            {% for item in cart_items %}
-            <div class="card p-4 mb-3">
-              <div class="row">
-                <div class="col-lg-3 col-md-12 mb-2 mb-lg-0">
-                  <!-- Image -->
-                  <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
-                    <a href="{{ item.product.product.get_url }}">
-                      <img src="{{ item.product.product.product_image.url }}" class="w-100" alt="Blue Jeans Jacket" />
-                    </a>
-                    <a href="#!">
-                      <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
-                    </a>
-                  </div>
-                  <!-- Image -->
-                </div>
 
-                <div class="col-lg-5 col-md-6 mb-2 mb-lg-0">
-                  <!-- Data -->
-                  <p><strong> {{ item.product.product.product_name }} </strong></p>
-                  <p><strong>Offer: &nbsp <small class="text-primary">10 % Offer</small></strong></p>
-                  <p>Category: {{ item.product.product.category.category_name}},&nbsp Brand: {{ item.product.product.brand.brand_name }} </p>
-                  <p>Size: {{ item.product.product_size.size }} </p>
+            <form action="{% url 'checkout' %}" method="Post">
+              {% csrf_token %}
 
-                  <!-- Quantity -->
-                  <label class="form-label" for="form1">Qty : {{ item.quantity }} X Nos </label>
-                  <div class="d-flex mb-4" style="max-width: 300px">
-                    <form action="{% url 'remove_cart' item.product.id %}" method="POST">
-                      {% csrf_token %}
-                      {% if item.quantity > 0 %}
-                    <button class="text-center bg-transparent border " type="submit">
-                      <i class="fa fa-minus mx-auto"></i>
-                    </button>
-                    {% else %}
-                    {% endif %}
-                    </form>
-                    
-                    <div class="form-outline">
-                      <input id="form1" min="0" name="quantity" readonly value="{{ item.quantity }}" type="tel"
-                        class="form-control text-center" />
+            <div class="accordion" id="accordionPanelsStayOpenExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                    <div class="d-flex gap-3">
+                      <i class="bi bi-2-square-fill"></i>
+                      <h6>Your Addresses</h6>
                     </div>
-                    <form action="{% url 'add_cart_quandity' item.product.id %}" method="POST">
-                      {% csrf_token %}
-                      {% if item.quantity >= item.product.stock %}
-                    {% else %}
-                    <button class="text-center bg-transparent border">
-                      <i class="fa fa-plus mx-auto"></i>
-                    </button>
-                    {% endif %}
-                    </form>
                     
-                  </div>
-                  <!-- Quantity -->
-                  <button class="bg-transparent border-0">
-                    <a href="{% url 'delete_cart' item.product.id %}"><i class="fas fa-trash text-danger">&nbsp Remove
-                        item</i></a>
                   </button>
-                  <button class="bg-transparent border-0">
-                    <a href="#"><i class="fas fa-heart text-primary">&nbsp Wishlist</i></a>
-                  </button>
-                  <!-- Data -->
-                </div>
+                </h2>
+                <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                  <div class="accordion-body">
+                    {% comment %} loop for address {% endcomment %}
+                    {% if addresses %}
+                    {% for address in addresses %}
 
-                <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 align-content-middle">
-                  <!-- Price -->
-                  <p class="text-start text-md-center">
-                    <strong> Rs. {{ item.sub_total }} </strong>
-                    <br>
-                    <small class="text-muted">Rs. {{ item.product.product_price }} /- for each</small>
-                  </p>
-                  <!-- Price -->
+                    <div class="form-check mt-2 mb-2">
+                      <input type="radio" class="form-check-input" id="{{ address.id }}" name="selectAddress" value="{{ address.id }}" checked>
+                      <label class="form-check-label" for="{{ address.id }}">Address {{ forloop.counter }}</label>
+                      <div class="mt-2">
+                        <span class="fw-bold">{{ address.name }}</span>, &nbsp {{ address.alternative_mobile }} <br>
+                        {{ address.address }}, &nbsp {{ address.nearby_location }} <br>
+                        {{ address.town }}, &nbsp {{ address.zip_code }} <br>
+                        {{ address.district }}
+                      </div>
+                    </div>
+                    <hr class="w-70">
+                    {% endfor %}
+                    {% endif %}
+                    <div class="d-flex gap-2">
+                      <i class="bi bi-plus-lg text-info"></i>
+                        <a href="" type="button" class="text-info" data-bs-toggle="modal" data-bs-target="#exampleModal">Add new address</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                    <div class="d-flex gap-3">
+                      <i class="bi bi-3-square-fill"></i>
+                      <h6>Payment Methods</h6>
+                    </div>
+                  </button>
+                </h2>
+                <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+                  <div class="accordion-body">
+                    
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" value="cashonDelivery" name="paymentMethod" id="flexRadioDefault1">
+                      <label class="form-check-label" for="flexRadioDefault1">
+                        Cash on Delivery
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="paymentMethod" value="payOnline" id="flexRadioDefault2">
+                      <label class="form-check-label" for="flexRadioDefault2">
+                        Paypal Payment
+                      </label>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="paymentMethod" value="razorpayMethod" id="flexRadioDefault3" checked>
+                      <label class="form-check-label" for="flexRadioDefault3">
+                        Razorpay Payment
+                      </label>
+                    </div>
+
+                    <div class="text-end">
+                      <button type="submit" class="btn btn-primary bg-info text-white btn-lg w-50">
+                        Proceed to Order
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+                    Accordion Item #3
+                  </button>
+                </h2>
+                <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+                  <div class="accordion-body">
+                    {% comment %} delivery details {% endcomment %}
+                  </div>
                 </div>
               </div>
             </div>
-            {% endfor %}
+            
             <!-- Single item -->
-
             <hr class="my-4" />
+            </form>
+
           </div>
         </div>
         <div class="card mb-4">
@@ -152,69 +171,40 @@ checkout-order-confirm
       </div>
 
       <div class="col-md-4">
-        <form class="mb-5" action="{% url 'user_cart' %}" method="POST">
-          {% csrf_token %}
-          <div class="input-group">
-            <input type="text" class="form-control p-4" placeholder="Coupon Code" name="coupon">
-            <div class="input-group-append">
-              <button class="btn btn-primary" type="submit">Apply Coupon</button>
-            </div>
-          </div>
-          {% if messages %}
-              {% for message in messages %}
-              <span class="{{ message.tags }}"> {{ message }} </span>
-              {% endfor %}
-          {% endif %}
-        </form>
-
-        <!-- coupon start -->
-
-        <div class="card mb-4 p">
-          <div class="card-header py-3">
-            <h5 class="mb-0">Coupons</h5>
-          </div>
-          
-          <div class="card-body ps-5">
-            {% for coupon in coupons %}
-
-            <div class="form-check p-2">
-              <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="{{ coupon.id }}">
-              <label class="form-check-label " id="content-to-copy" for="exampleRadios1">
-                {{ coupon.coupon_code }}
-              </label>
-
-              <small id="copy-button" class="text-info text-end ">copy</small>
-            </div>
-
-            {% endfor %}
-          </div>
-          
-        </div>
-        <!-- coupon end -->
-
         <div class="card mb-4">
           <div class="card-header py-3">
-            <h5 class="mb-0">Summary</h5>
+            <h5 class="mb-0">Checkout Summary</h5>
           </div>
           <div class="card-body">
             <ul class="list-group list-group-flush">
               <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
                 Total
-                <span>Rs. {{ total }} </span>
+                <span>Rs. {{ checkout_items.total }} </span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                 Shipping
-                <span>{{ delivery_charge }} </span>
+                <span>{{ checkout_items.shipping }} </span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                 Tax 3% (Included all)
-                <span>{{ tax }} </span>
+                <span>{{ checkout_items.tax }} </span>
               </li>
-              {% if coupon_discount %}
+              <small class="list-group-item d-flex justify-content-between align-items-center px-0">
+                State Tax 1.5 % <br>
+                Central Tax 1.5 % <br>
+                Included all VAT and Taxes
+                
+              </small>
+              {% if checkout_items.discount %}
               <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                Coupon discount(applied)
-                <span> {{ coupon_discount }} </span>                
+                Coupon discount
+                <span> {{ checkout_items.discount }} </span>                
               </li>
+              <small class="list-group-item d-flex gap-3 align-items-center px-0 text-success">
+                {% if checkout_items.coupon %}
+                  {{ checkout_items.coupon }} <span class="text-dark">applied.</span>
+                {% endif %}
+              </small>
               {% else %}
               <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                 Coupon discount
@@ -228,13 +218,9 @@ checkout-order-confirm
                     <p class="mb-0">(including VAT)</p>
                   </strong>
                 </div>
-                <span><strong> Rs. {{ grand_total }} /-</strong></span>
+                <span><strong> Rs. {{ checkout_items.grand_total }} /-</strong></span>
               </li>
             </ul>
-
-            <button type="button" class="btn btn-primary btn-lg btn-block">
-              Go to checkout
-            </button>
           </div>
         </div>
       </div>
@@ -242,17 +228,135 @@ checkout-order-confirm
   </div>
 </section>
 
-{% endif %}
+{% comment %} address modal {% endcomment %}
 
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Enter the new delivery address</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+    
+        <form action="{% url 'add_address' 1 %}"  method="POST">
+          {% csrf_token %}
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-4">
+                  <p class="mb-0">Name</p>
+                </div>
+                <div class="col-sm-8">
+                  <input class="text-muted form-control mb-0 border" id="firstName" type="text" value="" name="first_name"/>
+                  <small class="text-primary" id="fname-Error"></small>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p class="mb-0">Mobile</p>
+                </div>
+                <div class="col-sm-8">
+                  <input class="text-muted mb-0 border form-control" id="phoneNumber" type=text value="" name="phone" />
+                  <small id="mobile-Error"></small>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p class="mb-0">Address</p>
+                </div>
+                <div class="col-sm-8">
+                  <input class="text-muted mb-0 border form-control" id="lastName" type="text" value="" name="address" required/>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p class="mb-0">Town</p>
+                </div>
+                <div class="col-sm-8">
+                  <input class="text-muted mb-0 border form-control" type="text"  value="" name="town" required/>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p class="mb-0">Zip code / Post code</p>
+                </div>
+                <div class="col-sm-8">
+                  <input class="text-muted mb-0 border form-control" type="number"  value="" name="zip" required/>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-4">
+                  <p class="mb-0">Near by location</p>
+                </div>
+                <div class="col-sm-8">
+                  <input class="text-muted mb-0 border form-control" type="text"  value="" name="location" required/>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                    <div class="col-sm-4">
+                        <label for="sel1">District:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="form-group">
+                        <select class="form-control" id="sel1" name="district" required>
+                            <option value=""> District </option>
+                            <option value="Kasarkode"> Kasarkode </option>
+                            <option value="Kannur"> Kannur </option>
+                            <option value="Wayanad"> Wayanad </option>
+                            <option value="Kozhikode"> Kozhikode </option>
+                            <option value="Malapuram"> Malapuram </option>
+                            <option value="Trissur"> Trissur </option>
+                            <option value="Palakkad">Palakkad</option>
+                            <option value="Idukki">Idukki</option>
+                            <option value="Kottayam">Kottayam</option>
+                            <option value="Alappuzha">Alappuzha</option>
+                            <option value="Pathanamthitta">Pathanamthitta</option>
+                            <option value="Kollam">Kollam</option>
+                            <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                        </select>
+                    </div>
+                  </div> 
+              </div>
+              <hr>
+ 
+              <input type="hidden" value=" {{ grand_total }} " name="grand_total">
+              <input type="hidden" value=" {{ coupon_discount }} " name="coupon_discount">
+              <input type="hidden" value=" {{ tax }} " name="tax">
+              <input type="hidden" value=" {{ delivery_charge }} " name="delivery_charge">
+              <input type="hidden" value=" {{ total }} " name="total">
+              {% if coupon %}
+              <input type="hidden" value=" {{ coupon }} " name="coupon">
+              {% endif %}
+        
 
-{% comment %}
-decreasing and increasing button in cart.
-<button class="btn btn-light me-2" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
-  <i class="fa fa-minus mx-auto"></i>
-</button> {% endcomment %}
-{% comment %} <button class="btn ms-2" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
-  <i class="fa fa-plus mx-auto"></i>
-</button>
-{% endcomment %}
+              <div class="row">
+                <div class="col-sm-12 text-center p-5">
+                    <div class="text-center">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-dark border-0 w-50">
+                        Create Address
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </form>
+
+      </div>
+      <div class="modal-footer">
+        
+      </div>
+    </div>
+  </div>
+</div>
+
 
 {% endblock body %}

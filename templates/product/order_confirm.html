@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}
+order-confirm
+{% endblock title %}
+
+{% block body %}
+
+<form action="{% url 'order_confirmed' %}" method="POST">
+{% csrf_token %}
+<section class="h-100 gradient-custom">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-lg-10 col-xl-8">
+          <div class="card" style="border-radius: 10px;">
+            <div class="card-header px-4 py-5">
+              <h5 class="text-muted mb-0">Confirm your order <span style="color: #a8729a;"> {{ request.user.first_name }} </span>!</h5>
+            </div>
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="lead fw-normal mb-0" style="color: #a8729a;">Order Items</p>
+                <p class="small text-muted mb-0">Payment Method : <span class="fw-bold lead"> {{ checkout_items.payment }} </span></p>
+              </div>
+              <input type="hidden" value="{{ checkout_items.payment }}" name="paymentMethod">
+
+              {% for item in cart_items %}
+              <div class="card shadow-0 border mb-4">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-2">
+                      <img src="{{ item.product.product.product_image.url }}"
+                        class="img-fluid" alt="Phone">
+                    </div>
+                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                      <p class="text-muted mb-0"> {{ item.product.product.product_name }} </p>
+                    </div>
+                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                      <p class="text-muted mb-0 small">Size: {{ item.product.product_size.size }}  </p>
+                    </div>
+                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                      <p class="text-muted mb-0 small">Category: {{ item.product.product.category.category_name }} </p>
+                    </div>
+                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                      <p class="text-muted mb-0 small">Qty: {{ item.quantity }}</p>
+                    </div>
+                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                      <p class="text-muted mb-0 small">Rs. {{ item.sub_total }} </p>
+                    </div>
+                  </div>
+                  <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
+
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+
+  
+              <div class="d-flex justify-content-between pt-2">
+                <p class="fw-bold mb-0">Delivery Address</p>
+                <p class="text-muted mb-0"><span class="fw-bold me-4">Total</span> {{ checkout_items.total }} </p>
+              </div>
+  
+              <div class="d-flex justify-content-between pt-2">
+                <p class="text-muted mb-0"> {{ checkout_items.address.name }},&nbsp{{ checkout_items.address.alternative_mobile }}  </p>
+                <p class="text-muted mb-0"><span class="fw-bold me-4">Discount</span> {{ checkout_items.discount }} </p>
+              </div>
+  
+              <div class="d-flex justify-content-between">
+                <p class="text-muted mb-0"> {{ checkout_items.address.address }}, &nbsp{{ checkout_items.address.nearby_location }} </p>
+                <p class="text-muted mb-0"><span class="fw-bold me-4"> Tax 3%</span> {{ checkout_items.tax }} </p>
+              </div>
+  
+              <div class="d-flex justify-content-between mb-5">
+                <p class="text-muted mb-0"> {{ checkout_items.address.town }}, &nbsp{{ checkout_items.address.zip_code }}, &nbsp{{ checkout_items.address.district }} </p>
+                <p class="text-muted mb-0"><span class="fw-bold me-4">Delivery Charges</span> {{ checkout_items.shipping }} </p>
+              </div>
+              <div class="d-flex justify-content-between mb-5">
+                {% if checkout_items.payment == 'cashonDelivery' %}
+                <button class="w-50 btn-lg btn-info" type="submit">
+                    Confirm Order
+                </button>
+                {% elif checkout_items.payment == 'razorpayMethod' %}
+                <button class="w-50 btn-lg btn-info" type="submit">
+                  make payment
+                </button>
+                {% else %}
+                <div id="paypal-button-container"></div>
+                
+                {% endif %}
+                <p class="text-muted mb-0"><span class="fw-bold me-4"><span class="h2 mb-0 ms-2"> Rs. {{ checkout_items.grand_total }} </span></h5> </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</form>
+
+
+
+
+{% endblock body  %}
+
