@@ -153,3 +153,7 @@ EMAIL_HOST_USER = 'adishathu525@gmail.com'
 EMAIL_HOST_PASSWORD = 'zczeepbhsxwzogpp'
 
 
+razor_pay_key_id = 'rzp_test_i0ukiADffB9XqG'
+key_secret = '0DHfTgRyHSYGQXwUQtWSPbZ6'
+
+

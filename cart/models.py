@@ -41,7 +41,9 @@ class Checkout(models.Model):
     discount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=0, null=True)
     coupon = models.ForeignKey(Coupons ,on_delete=models.SET_NULL, blank=True, null=True)
     address = models.ForeignKey(UserAddress, on_delete=models.CASCADE, null=True, blank=True)
+    payable_amount = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     payment = models.CharField(max_length=100, null=True, blank=True)
+    wallet = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0)
 
 
     class Meta:

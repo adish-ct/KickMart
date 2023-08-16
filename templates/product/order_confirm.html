@@ -5,7 +5,7 @@ order-confirm
 
 {% block body %}
 
-<form action="{% url 'order_confirmed' %}" method="POST">
+<form action="{% url 'order_confirmed' %}" method="POST" id="checkoutForm">
 {% csrf_token %}
 <section class="h-100 gradient-custom">
     <div class="container py-5 h-100">
@@ -68,25 +68,31 @@ order-confirm
                 <p class="text-muted mb-0"> {{ checkout_items.address.address }}, &nbsp{{ checkout_items.address.nearby_location }} </p>
                 <p class="text-muted mb-0"><span class="fw-bold me-4"> Tax 3%</span> {{ checkout_items.tax }} </p>
               </div>
-  
-              <div class="d-flex justify-content-between mb-5">
+
+              <div class="d-flex justify-content-between">
                 <p class="text-muted mb-0"> {{ checkout_items.address.town }}, &nbsp{{ checkout_items.address.zip_code }}, &nbsp{{ checkout_items.address.district }} </p>
                 <p class="text-muted mb-0"><span class="fw-bold me-4">Delivery Charges</span> {{ checkout_items.shipping }} </p>
               </div>
+  
+              <div class="d-flex justify-content-between mb-5">
+                <p class="text-muted mb-0"> </p>
+                <p class="text-muted mb-0"><span class="fw-bold me-4">Wallet Balance </span> {{ checkout_items.wallet }} </p>
+              </div>
+              
               <div class="d-flex justify-content-between mb-5">
                 {% if checkout_items.payment == 'cashonDelivery' %}
                 <button class="w-50 btn-lg btn-info" type="submit">
                     Confirm Order
                 </button>
                 {% elif checkout_items.payment == 'razorpayMethod' %}
-                <button class="w-50 btn-lg btn-info" type="submit">
+                <button class="w-50 btn-lg btn-info" type="submit" id="rzp-button1" onclick="return pay()">
                   make payment
                 </button>
                 {% else %}
                 <div id="paypal-button-container"></div>
                 
                 {% endif %}
-                <p class="text-muted mb-0"><span class="fw-bold me-4"><span class="h2 mb-0 ms-2"> Rs. {{ checkout_items.grand_total }} </span></h5> </p>
+                <p class="text-muted mb-0"><span class="fw-bold me-4"><span class="h2 mb-0 ms-2"> Rs. {% if checkout_items.payable_amount > 0 %} {{ checkout_items.payable_amount }} {% else %} 0.00 {% endif %}  </span></h5> </p>
               </div>
             </div>
 
@@ -97,8 +103,271 @@ order-confirm
   </section>
 </form>
 
+{% comment %} {% block payment %} {% endcomment %}
+<script src="https://code.jquery.com/jquery-3.7.0.slim.js" integrity="sha256-7GO+jepT9gJe9LB4XFf8snVOjX3iYNb0FHYr5LI1N5c=" crossorigin="anonymous"></script>
+<script>
+  
+  function pay(order){
+    var options = {
+        "key": "rzp_test_i0ukiADffB9XqG", // Enter the Key ID generated from the Dashboard
+        "amount": 123, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": "BOX TO BOX",
+        "description": "Test Transaction",
+        "image": "/logo.png",
+        "order_id": order.order_id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        "handler":()=>{
+alert('success')
+        },
+        "prefill": {
+            "name": "Gaurav Kumar",
+            "email": "gaurav.kumar@example.com",
+            "contact": "9000090000"
+        },
+        "notes": {
+            "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+  }
+</script>
 
+{% comment %} <script> 
+  var options = {
+      "key": "rzp_test_i0ukiADffB9XqG", // Enter the Key ID generated from the Dashboard
+      "amount": "{{ checkout_items.grand_total }}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      "currency": "INR",
+      "name": "KickMart Pvt Ltd.",
+      "description": "Purchased transaction",
+      "image": "https://example.com/your_logo",
+      "order_id": "order_IluGWxBm9U8zJ8", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      "handler": function (response){
+          alert(response.razorpay_payment_id);
+          alert(response.razorpay_order_id);
+          alert(response.razorpay_signature);
+      },
+      
+      "theme": {
+          "color": "#3399cc"
+      }
+  };
+  var rzp1 = new Razorpay(options);
+  rzp1.on('payment.failed', function (response){
+          alert(response.error.code);
+          alert(response.error.description);
+          alert(response.error.source);
+          alert(response.error.step);
+          alert(response.error.reason);
+          alert(response.error.metadata.order_id);
+          alert(response.error.metadata.payment_id);
+  });
+  document.getElementById('rzp-button1').onclick = function(e){
+      rzp1.open();
+      e.preventDefault();
+  }
+  </script>{% endcomment %}
+
+{% comment %} {% endblock payment %} {% endcomment %}
+
+
+{% comment %} <script>
+  $(document).ready(function () {
+
+    $("#payWithRazorpay").click(function (e) {
+        console.log("checkout.js loaded successfully");
+        console.log("im g=here");
+        e.preventDefault();
+
+        var first_name = $("[name='first_name']").val();
+        var last_name = $("[name='last_name']").val();
+        var email = $("[name='email']").val();
+        var address = $("[name='addressSelected']").val();
+        var phone = $("[name='phone']").val();
+        var address_line_1 = $("[name='address_line_1']").val();
+        var city = $("[name='city']").val();
+        var state = $("[name='state']").val();
+        var country = $("[name='country']").val();
+        var zip_code = $("[name='zip_code']").val();
+        var token = $("[name='csrfmiddlewaretoken']").val();
+        var grand_total = $("[name='grand_total']").val();
+        var couponCode = $("[name='couponCode']").val();
+        var couponDiscount = $("[name='couponDiscount']").val();
+        var amountToBePaid = $("[name='amountToBePaid']").val();
+      
+        console.log(first_name,last_name,email,phone,address_line_1,city,state,country,zip_code);
+
+
+        if (
+            first_name == "" ||
+
+            last_name == "" ||
+            email == "" ||
+            phone == "" ||
+            address_line_1 == "" ||
+            city == "" ||
+            state == "" ||
+            country == "" ||
+            zip_code == "" 
+
+        ) {
+            swal("alert", "All fields are mandatory", "error");
+            return false;
+        } else {
+            console.log("im in else");
+            console.log(amountToBePaid);
+
+    
+
+            
+            $.ajax({
+
+                method: "GET",
+                url: "proceed_to_pay/",
+                contentType: "application/json",
+                success: function (response) {
+                    console.log("im in se");
+
+                    console.log(response, amountToBePaid);
+                    var options = {
+                        key: "shoeplaza.settings.API_KEY", // Enter the Key ID generated from the Dashboard
+                        amount: amountToBePaid *100, //response.total_price *100 , // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                        currency: "INR",
+                        name: "Anurudh C",
+                        description: "Thank you",
+                        // image: "",
+                        handler: function (responseb) {
+                            // alert(responseb.razorpay_payment_id);
+                            console.log("56");
+                            data = {
+                                'first_name': first_name,
+                                'last_name': last_name,
+                                'email': email,
+                                'phone': phone,
+                                'address_line_1': address_line_1,
+                                'city': city,
+                                'state': state,
+                                'addressSelected': address,
+                                'country': country,
+                                'zip_code': zip_code,
+                                'payment_method': "Paid by Razorpay",
+                                'payment_id': responseb.razorpay_payment_id,
+                                'csrfmiddlewaretoken': token,
+                                'amountToBePaid': amountToBePaid,
+                                'couponCode': couponCode,
+                                'couponDiscount': couponDiscount,
+                                'grand_total': grand_total
+
+                            };
+                            console.log(grand_total)
+                            $.ajax({
+                                method: "POST",
+                                url: "place_order/",
+                                data: data,
+                                success: function (responsec) {
+                                    swal("Congratulations!", responsec.status, "success").then(
+                                        (value) => {
+                                            console.log("93");
+                                            window.location.href =
+                                                "order-complete/" +
+                                                "?payment_id=" +
+                                                data.payment_id;
+                                        }
+                                    );
+
+                                },
+                            });
+                            console.log("why not");
+                        },
+                        prefill: {
+
+                            email: email,
+                            contact: phone,
+                        },
+                        notes: {
+                            address: "Shoeplaza India Pvt Ltd",
+                        },
+                        theme: {
+                            color: "#3399cc",
+                        },
+                    };
+                    var rzp1 = new Razorpay(options);
+                    rzp1.open();
+                },
+            });
+        }
+    });
+})
+</script> {% endcomment %}
+
+{% comment %} 
+<script>
+  // Render the PayPal button into #paypal-button-container
+  paypal.Buttons({
+
+
+
+      // Call your server to set up the transaction
+      createOrder: function(data, actions) {
+          return fetch('/demo/checkout/api/paypal/order/create/', {
+              method: 'post'
+          }).then(function(res) {
+              return res.json();
+          }).then(function(orderData) {
+              return orderData.id;
+          });
+      },
+
+      // Call your server to finalize the transaction
+      onApprove: function(data, actions) {
+          return fetch('/demo/checkout/api/paypal/order/' + data.orderID + '/capture/', {
+              method: 'post'
+          }).then(function(res) {
+              return res.json();
+          }).then(function(orderData) {
+              // Three cases to handle:
+              //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+              //   (2) Other non-recoverable errors -> Show a failure message
+              //   (3) Successful transaction -> Show confirmation or thank you
+
+              // This example reads a v2/checkout/orders capture response, propagated from the server
+              // You could use a different API or structure for your 'orderData'
+              var errorDetail = Array.isArray(orderData.details) && orderData.details[0];
+
+              if (errorDetail && errorDetail.issue === 'INSTRUMENT_DECLINED') {
+                  return actions.restart(); // Recoverable state, per:
+                  // https://developer.paypal.com/docs/checkout/integration-features/funding-failure/
+              }
+
+              if (errorDetail) {
+                  var msg = 'Sorry, your transaction could not be processed.';
+                  if (errorDetail.description) msg += '\n\n' + errorDetail.description;
+                  if (orderData.debug_id) msg += ' (' + orderData.debug_id + ')';
+                  return alert(msg); // Show a failure message (try to avoid alerts in production environments)
+              }
+
+              // Successful capture! For demo purposes:
+              console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+              var transaction = orderData.purchase_units[0].payments.captures[0];
+              alert('Transaction '+ transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
+
+              // Replace the above to show a success message within this page, e.g.
+              // const element = document.getElementById('paypal-button-container');
+              // element.innerHTML = '';
+              // element.innerHTML = '<h3>Thank you for your payment!</h3>';
+              // Or go to another URL:  actions.redirect('thank_you.html');
+          });
+      }
+
+  }).render('#paypal-button-container');
+</script> {% endcomment %}
+{% comment %} end paypal {% endcomment %}
 
 
 {% endblock body  %}
+
+
 

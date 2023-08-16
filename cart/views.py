@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
+from order.models import *
 
 # Create your views here.
 
@@ -20,13 +21,15 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
         discount = 0
         my_user = request.user
         checkout_user = request.user.id
-        if Checkout.objects.get(user=checkout_user):
-            checkout = Checkout.objects.get(user=checkout_user)   
-        else:
+        try: # new change 10-08-23
+            if Checkout.objects.get(user=checkout_user):
+                checkout = Checkout.objects.get(user=checkout_user)   
+
+        except: 
             checkout = Checkout()
-        checkout.user = CustomUser.objects.get(id=checkout_user)  # checkout user saving
-        checkout.discount = 0       # initially discount should be zero
-        checkout.coupon = None
+            checkout.user = CustomUser.objects.get(id=checkout_user)  # checkout user saving
+            checkout.discount = 0       # initially discount should be zero
+            checkout.coupon = None
         
         try:
             cart_items = CartItem.objects.filter(customer=my_user).order_by('id') # fetch every cart items related with the cart
@@ -42,26 +45,39 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
             checkout.tax = tax      # checkout saving 
 
             if request.method == 'POST':
+                arr = []
+                orders = Order.objects.filter(user=checkout_user)
+                if orders:
+                    for order in orders:
+                        if order.coupon:
+                            arr.append(order.coupon.coupon_code)
+                        else:
+                            pass
                 coupon_code = request.POST['coupon']
                 coupon = Coupons.objects.get(coupon_code__exact=coupon_code)
-                if coupon.active == True:
-                    minimum_amount = coupon.minimum_order_amount
-                    if total > minimum_amount:
-                        if coupon.discount_amount:
-                            discount = coupon.discount_amount
-                            checkout.discount = discount
-                        elif coupon.discount:
-                            discount = ( total * coupon.discount ) / 100
-                            checkout.discount = discount
-                        else:
-                            discount = 0
-                            checkout.discount = discount        # checkout saving 
-                        checkout.coupon = coupon
-                        messages.success(request, "coupon applied")
-                    else:
-                        messages.error(request, f"minimum purchase amount : Rs. {minimum_amount}")
+
+                if coupon_code in arr:
+                    messages.error(request, "Coupon already taken")
                 else:
-                    messages.error(request, "coupon expired")
+                    if coupon.active == True:
+                        minimum_amount = coupon.minimum_order_amount
+                        if total > minimum_amount:
+                            if coupon.discount_amount:
+                                discount = coupon.discount_amount
+                                checkout.discount = discount
+                            elif coupon.discount:
+                                discount = ( total * coupon.discount ) / 100
+                                checkout.discount = discount
+                            else:
+                                discount = 0
+                            checkout.discount = discount        # checkout saving 
+                            checkout.coupon = coupon
+                            messages.success(request, "coupon applied")
+                        else:
+                            messages.error(request, f"minimum purchase amount : Rs. {minimum_amount}")
+                    else:
+                        messages.error(request, "coupon expired")
+                    
             grand_total = total + tax - discount
             checkout.grand_total = grand_total          # checkout saving 
             
@@ -212,7 +228,6 @@ def remove_cart(request, variant_id):
 def add_cart_quandity(request, variant_id):
     if request.method == 'POST':
         variant = ProductVariant.objects.get(id=variant_id)
-        cart = Cart.objects.get(cart_id=_cart_id(request))
         if 'user' in request.session:
             my_user = request.user
 
@@ -227,6 +242,7 @@ def add_cart_quandity(request, variant_id):
                 pass
         else:
             try:
+                cart = Cart.objects.get(cart_id=_cart_id(request)) 
                 cart_item = CartItem.objects.get(cart=cart, product=variant)
                 if variant.stock > cart_item.quantity:
                     cart_item.quantity += 1
@@ -256,6 +272,19 @@ def delete_cart(request, variant_id):
     return redirect('cart')
 
 
+
+@cache_control(no_cache=True, no_store=True)
+@login_required(login_url='user_login')
+def coupon_remove(request):
+    my_user = request.user
+    checkout = Checkout.objects.get(user=my_user)
+    checkout.coupon = None
+    checkout.discount = 0
+    checkout.save()
+    return redirect('cart')
+
+
+
 @login_required(login_url='user_login')
 def checkout(request):
     if 'user' in request.session:
@@ -271,16 +300,23 @@ def checkout(request):
             'addresses': address,
             'checkout_items': checkout_items,
         }
-        # return HttpResponse(context['addresses'])
 
+        # place holder handling logic
         if request.method == 'POST':
             delivery_address = UserAddress.objects.get(id=request.POST['selectAddress'])
             payment = request.POST['paymentMethod']
+            try:
+                wallet = request.POST['selectWallet']
+            except:
+                wallet = 0
+            checkout_items.wallet = wallet
             checkout_items.address = delivery_address
             checkout_items.payment = payment
+            
+            payable_amount = float(checkout_items.grand_total)
+            checkout_items.payable_amount = payable_amount
             checkout_items.save()
-
-            return redirect('order')        
+            return redirect('order')
         return render(request, "product/checkout.html", context)
+    
         
-

@@ -97,6 +97,19 @@ checkout-order-confirm
                 </h2>
                 <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
                   <div class="accordion-body">
+
+                    {% comment %} wallet {% endcomment %}
+                    {% if user.is_authenticated %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="{{ request.user.wallet }}" id="selectWallet" name="selectWallet" checked>
+                      <label class="form-check-label d-flex justify-content-between" for="selectWallet">
+                        <span class="text-info">Wallet Balance</span>
+                        <span class="small"> available balance : Rs. {{ request.user.wallet }} </span>
+                      </label>
+                    </div>
+                    {% endif %}
+
+                    <hr>
                     
                     <div class="form-check">
                       <input class="form-check-input" type="radio" value="cashonDelivery" name="paymentMethod" id="flexRadioDefault1">
@@ -119,9 +132,16 @@ checkout-order-confirm
                     </div>
 
                     <div class="text-end">
+                      {% if addresses %}
                       <button type="submit" class="btn btn-primary bg-info text-white btn-lg w-50">
                         Proceed to Order
                       </button>
+                      {% else %}
+                      <button type="submit" class="btn btn-primary bg-info text-white btn-lg w-50">
+                        <i class="bi bi-plus-lg text-white"></i>
+                          <a href="" type="button" class="text-white" data-bs-toggle="modal" data-bs-target="#exampleModal">Add address</a>
+                        </button>
+                      {% endif %}
                     </div>
                   </div>
                 </div>
@@ -195,7 +215,7 @@ checkout-order-confirm
                 Included all VAT and Taxes
                 
               </small>
-              {% if checkout_items.discount %}
+              {% if checkout_items.coupon %}
               <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                 Coupon discount
                 <span> {{ checkout_items.discount }} </span>                

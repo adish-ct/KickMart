@@ -178,8 +178,8 @@ cart-product
             {% for coupon in coupons %}
 
             <div class="form-check p-2">
-              <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="{{ coupon.id }}">
-              <label class="form-check-label " id="content-to-copy" for="exampleRadios1">
+              <input class="form-check-input" type="radio" name="exampleRadios" id="coupon-{{ coupon.id }}" value="{{ coupon.id }}">
+              <label class="form-check-label " id="content-to-copy" for="coupon-{{ coupon.id }}">
                 {{ coupon.coupon_code }}
               </label>
 
@@ -209,11 +209,18 @@ cart-product
                   Tax 3% (Included all)
                   <span>{{ tax }} </span>
                 </li>
-                {% if coupon_discount %}
+                {% if coupon_discount != 0 %}
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   Coupon discount(applied)
                   <span> {{ coupon_discount }} </span>                
                 </li>
+                  {% if coupon %}
+                  <li class="list-group-item d-flex justify-content-between small text-success align-items-center px-0">
+                    {{ coupon.coupon_code }}
+                    <span class="text-danger"> <a href="{% url 'coupon_remove' %}" class="text-danger">cancel </a> </span>
+                  </li>
+                  
+                  {% endif %}
                 {% else %}
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   Coupon discount

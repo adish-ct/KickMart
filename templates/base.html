@@ -336,7 +336,7 @@
   </script>
 
   {% comment %} paypal script {% endcomment %}
-  <script src="https://www.paypal.com/sdk/js?client-id=AYuxgFTMCznitqsnmdNRJLSZJr_sTwpCOfYJegFK_GXEOTRCiwPdjjCbCA46V_RC3AJ9KpLFhROtv40b&currency=USD"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AYuxgFTMCznitqsnmdNRJLSZJr_sTwpCOfYJegFK_GXEOTRCiwPdjjCbCA46V_RC3AJ9KpLFhROtv40b&currency=INR"></script>
 
   <script>
     let selectedButton = null;
@@ -357,6 +357,8 @@
       selectedValueInput.value = selectedValue;
     }
   </script>
+
+  {% comment %} for copy a content {% endcomment %}
   <script>
     // Get the copy button and the content to copy
     const copyButton = document.querySelectorAll("copy-button");
@@ -416,6 +418,8 @@
               sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
 
               quantity: "YOUR_PRODUCT_QUANTITY",
+
+              amount: "TOTAL_AMOUNT"
 
             },
 
@@ -639,7 +643,10 @@
   }
 
 </script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-
+{% block payment %}
+{% endblock payment %}
 
 </html>

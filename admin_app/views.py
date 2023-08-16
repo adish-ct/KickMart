@@ -7,6 +7,7 @@ from django.views.decorators.cache import cache_control
 from django.shortcuts import render, redirect, get_object_or_404
 from user_app.models import *
 from shop.models import *
+from order.models import *
 from django.http import HttpResponse
 
 
@@ -490,11 +491,77 @@ def activate_coupon(requset, coupon_id):
 # coupon section end ----------------------------------------------
 
 
+# order management section ----------------------------------------
+
+@staff_member_required(login_url='admin_login')
+def order_management(request):
+    orders = Order.objects.all()
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'admin/admin_order_management.html', context)
+
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def order_update(request, order_id):
+    order = Order.objects.get(id=order_id)
+    order_items = OrderProduct.objects.filter(order_id=order_id)
+    payment = order.payment
+    if request.method == 'POST':
+        order_status = request.POST.get('orderStatus', None)
+        if order_status:
+            order.status = order_status
+            order.save()
+        if order_status == 'Delivered':
+            payment.is_paid = True
+        else:
+            payment.is_paid = False
+        payment.save()
+    context = {
+        'order': order,
+        'order_items': order_items,
+    }
+    return render(request, 'admin/admin_order_update.html', context)
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def return_request(request, item_id):
+    order_item = OrderProduct.objects.get(id=item_id)
+    variant = order_item.variant
+    order = order_item.order_id
+    order_id = order.id
+    discount = order.discount
+    # return HttpResponse(discount)
+
+    coupon = order.coupon
+    quantity = order_item.quandity
+    user = order.user
+
+    if request.method == 'POST':
+        order_item.is_returned = True
+        variant.stock += quantity
+        amount = variant.product_price * quantity
+        refund_amount = float(amount) - float(discount)
+        user.wallet = float(user.wallet) + float(refund_amount)
+        order.discount = 0
+        order_item.save()
+        variant.save()
+        user.save()
+        order.save()
+    return redirect('order_update', order_id)
+
+
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_logout(request):
     logout(request)
     request.session.flush()
     return redirect('admin_login')
+
 
 

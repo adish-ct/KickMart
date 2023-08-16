@@ -30,5 +30,10 @@ urlpatterns = [
     path('edit-coupon/<int:coupon_id>/', views.edit_coupon, name="edit_coupon"),
     path('activate-coupon/<int:coupon_id>/', views.activate_coupon, name="activate_coupon"),
 
+    path('admin-order-management/', views.order_management, name="admin_order_management"),
+    path('order-update/<int:order_id>', views.order_update, name="order_update"),
+    path('return-request/<int:item_id>/', views.return_request, name="return_request"),
+    
+
     path('admin_logout/', views.admin_logout, name="admin_logout"),
 ]

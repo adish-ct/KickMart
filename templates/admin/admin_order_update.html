@@ -1,0 +1,170 @@
+{% extends "admin_base.html" %}
+{% block title %}
+order-management
+{% endblock title %}
+{% block body %}
+
+<div class="container-fluid">
+    <div class="table-wrapper bg-dark border">
+        <div class="table-title bg-dark">
+            <div class="row">
+                <div class="col-md-3 mt-5"></div>
+                <div class="col-md-6 text-center mt-5">
+                    <h2> ORDER DETAIL </h2>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-secondary p-5">
+            <div class="card-body" style="font-size: 1rem">
+              <h5 class="card-title text-white mb-5"> ORDER UPDATE </h5>
+
+              <!-- Edit product form  -->
+                {% if order %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                        </div>
+
+                        <div class="col-md-3 text-left" style="font-size: 20px;">
+                            <p> User Id </p>
+                            <p> Customer </p>
+                            <p> Payment  </p>
+                            <p> Delivery Address </p>
+                            <p> <br></p>
+                            <p> <br></p>
+                            <p> Paid Amount </p>
+                            <p> Order Note  </p>
+                            <p> Total   </p>
+                            <p> Order Total </p>
+                            <p> Discount </p>
+                            <p> Tax </p>
+                            <p> Status </p>
+                            <p><br></p>
+                            <p> Ip Address </p>
+                            <p> Is Ordered </p>
+                            <p> Coupon </p>
+                            <p> Order Items </p>
+                        </div>
+
+                        <div class="col-md-6 text-left" style="font-size: 20px;">
+                            <p> : {{ order.order_id }} </p>
+                            <p> : {{ order.user.email }} </p>
+                            <p> : {{ order.payment.payment_method }} </p>
+                            <p> : {{ order.address.name }}, {{ order.address.alternative_mobile}}, {{ order.address.address}},  </p>
+                            <p> : {{ order.address.nearby_location }}, {{ order.address.town}}, {{ order.address.zip_code}}, </p>
+                            <p> : {{ order.address.district }} </p>
+                            <p> : {{ order.paid_amount }} </p>
+                            <p> : {{ order.order_note }} </p>
+                            <p> : {{ order.total }} </p>
+                            <p> : {{ order.order_total }} </p>
+                            <p> : {{ order.discount }} </p>
+                            <p> : {{ order.tax }} </p>
+                            <p> : {{ order.status }}
+                                <select class="form-select" aria-label="Default select example" name="orderStatus">
+                                    {% for value, label in order.STATUS %}
+                                    <option value="{{ value }}" {% if value == order.status %} selected {% endif %} >  {{ label }} </option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+                            <p> : {{ order.ip }} </p>
+                            <p> : {{ order.is_ordered }} </p>
+                            <p> : {% if order.coupon %} {{ order.coupon.coupon_code }} {% else %} No coupon {% endif %}</p>
+                            {% for item in order_items %}
+                            <p> : {{ item.variant }} </p> <a href="" class="text-info" type="button" data-bs-toggle="modal" data-bs-target="#orderItemModal-{{ item.id }}">Details</a>
+                                   &nbsp
+                                  {% if item.return_request %}
+                                    {% if item.is_returned %}
+                                      <p class="text-primary">Item Returned</p>
+                                    {% else %}
+                                      <a href="" class="text-warning" type="button" data-bs-toggle="modal" data-bs-target="#retrunRequest-{{ item.id }}">request</a> 
+                                    {% endif %}
+                                  {% endif %}
+                            {% endfor %}
+                        </div> 
+
+                    </div>
+
+                  <!-- Description input -->
+                  <div class="form-outline mb-4">
+                    <textarea class="form-control bg-grey text-color" id="productDesc" rows="4"> {{ product.product_description|safe }}</textarea>
+                    <label class="form-label" for="productDesc">Product Description</label>
+                  </div>
+
+                  <!-- Submit button -->
+                  <div class="text-end">
+                      <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4">Save Product</button>
+                  </div>
+                </form>
+                {% endif %}
+                <!-- Edit product form end -->
+                <hr />
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %} modal for order item  {% endcomment %}
+  
+{% for item in order_items %}
+  <!-- Modal -->
+  <div class="modal fade" id="orderItemModal-{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel"> Order Item </h5>
+        </div>
+        <div class="modal-body">
+            <div class="row mb-4">                
+                <div class="col-md-12 text-left" style="font-size: 20px;">
+                    <p> Product : </p>
+                    <p> {{ item.variant }} </p>
+                    <p> Quandity :</p>
+                    <p> {{ item.quandity }} </p>
+                    <p> Price : </p>
+                    <p> {{ item.product_price }} </p>
+                    <p> Return request : </p>
+                    <p> {{ item.return_request }} </p>
+                    <p> Return reason :  </p>
+                    <p> {{ item.return_reason }} </p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+{% comment %} modal for request accept {% endcomment %}
+
+{% for item in order_items %}
+<!-- Modal -->
+<div class="modal fade" id="retrunRequest-{{ item.id }}" tabindex="-1" aria-labelledby="returnModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="{% url 'return_request' item.id %}" method="post">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-dark" id="returnModal">Request fo return </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h4 class="text-center text-dark"> Reason for return </h4>
+          <br>
+          <p class="text-dark "> {{ item.return_reason }} </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Reject</button>
+          <button type="submit" class="btn btn-primary"> Accept </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock body %}
+
