@@ -44,7 +44,7 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(blank=True, null=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
-    wallet = models.FloatField(default=0)
+    wallet = models.DecimalField(default=0, decimal_places=2, max_digits=10)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone']

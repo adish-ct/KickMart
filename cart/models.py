@@ -6,6 +6,7 @@ from user_app.models import *
 
 class Cart(models.Model):
     cart_id = models.CharField(max_length=250, blank=True)  
+    #user = onetoonefield()
     date_added = models.DateField(auto_now_add=True)
 
     def __str__(self):

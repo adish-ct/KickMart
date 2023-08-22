@@ -1,9 +1,9 @@
-const fnameError = document.getElementById("fname-Error")
 const lnameError = document.getElementById("lname-Error")
 const mobileError = document.getElementById("mobile-Error")
 const emailError = document.getElementById("email-Error")
 const passwordError = document.getElementById("password-Error")
 const cPasswordError = document.getElementById("cPassword-Error")
+const fnameError = document.getElementById("fname-Error")
 
 
 const nameRegex = /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/;

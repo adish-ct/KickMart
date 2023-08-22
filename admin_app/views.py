@@ -537,7 +537,10 @@ def return_request(request, item_id):
     order_id = order.id
     discount = order.discount
     # return HttpResponse(discount)
-
+    if order.total < 2500:
+        delivery_charge = 99
+    else:
+        delivery_charge = 0
     coupon = order.coupon
     quantity = order_item.quandity
     user = order.user
@@ -546,13 +549,15 @@ def return_request(request, item_id):
         order_item.is_returned = True
         variant.stock += quantity
         amount = variant.product_price * quantity
+        tax = (amount * 3) / 100
         refund_amount = float(amount) - float(discount)
-        user.wallet = float(user.wallet) + float(refund_amount)
+        user.wallet = float(user.wallet) + float(refund_amount) + float(tax)
         order.discount = 0
         order_item.save()
         variant.save()
         user.save()
         order.save()
+        
     return redirect('order_update', order_id)
 
 

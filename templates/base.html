@@ -302,8 +302,8 @@
               <p class="mb-md-0 text-center text-md-left text-dark">
                   &copy; <a class="text-dark font-weight-semi-bold" href="#">KickMart</a>. All Rights Reserved. Designed
                   by
-                  <a class="text-dark font-weight-semi-bold" href="https://htmlcodex.com">kickmart Pvt Ltd.</a><br>
-                  Distributed By <a href="https://themewagon.com" target="_blank">E-commerce</a>
+                  <a class="text-dark font-weight-semi-bold" href="#">kickmart Pvt Ltd.</a><br>
+                  Distributed By <a href="#" target="_blank">E-commerce</a>
               </p>
           </div>
           <div class="col-md-6 px-xl-0 text-center text-md-right">
@@ -314,339 +314,52 @@
     <a href="#" class="btn btn-primary back-to-top"
       ><i class="fa fa-angle-double-up"></i
     ></a>
-  </body>
+</body>
 
-  <!-- JavaScript Libraries -->
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-  <script src="{% static 'lib/easing/easing.min.js' %}"></script>
-  <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
 
-  <script src="{% static 'js/main.js' %}"></script>
-  <script src="{% static 'js/zoomsl.js' %}"></script>
-  <script src="{% static 'js/zoomsl.min.js' %}"></script>
-  <script src="{% static 'js/validation.js' %}"></script>
-  <script type="text/javascript">
-    
-    $(document).ready(function () {
-      $(".big_img").imagezoomsl({
-        zoomrange: [-3, -3],
-      });
-    });
-  </script>
 
-  {% comment %} paypal script {% endcomment %}
-  <script src="https://www.paypal.com/sdk/js?client-id=AYuxgFTMCznitqsnmdNRJLSZJr_sTwpCOfYJegFK_GXEOTRCiwPdjjCbCA46V_RC3AJ9KpLFhROtv40b&currency=INR"></script>
-
-  <script>
-    let selectedButton = null;
-    const selectedValueInput = document.getElementById("selectedValueInput");
-
-    function selectButton(buttonIndex) {
-      const buttonContainer = document.getElementById("buttonContainer");
-      const buttons = buttonContainer.getElementsByClassName("button-size");
-
-      if (selectedButton !== null) {
-        selectedButton.classList.remove("selected");
-      }
-
-      selectedButton = buttons[buttonIndex - 1];
-      selectedButton.classList.add("selected");
-
-      const selectedValue = selectedButton.getAttribute("data-value");
-      selectedValueInput.value = selectedValue;
-    }
-  </script>
-
-  {% comment %} for copy a content {% endcomment %}
-  <script>
-    // Get the copy button and the content to copy
-    const copyButton = document.querySelectorAll("copy-button");
-    const contentToCopy = document.querySelectorAll("content-to-copy");
-
-    // Add a click event listener to the copy button
-    copyButton.addEventListener("click", () => {
-        // Create a range to select the content
-        const range = document.createRange();
-        range.selectNode(contentToCopy);
-
-        // Create a selection and select the range
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        // Copy the selected content to the clipboard
-        document.execCommand("copy");
-
-        // Clean up the selection
-        selection.removeAllRanges();
-    });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'lib/easing/easing.min.js' %}"></script>
+<script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/zoomsl.js' %}"></script>
+<script src="{% static 'js/zoomsl.min.js' %}"></script>
 <script src="{% static 'js/validation.js' %}"></script>
 
+<script type="text/javascript">
+  $(document).ready(function () {
+    $(".big_img").imagezoomsl({
+      zoomrange: [-3, -3],
+    });
+  });
+</script>
 
-{% comment %} paypal script  {% endcomment %}
 <script>
-
-  paypal.Buttons({
-
-    // Order is created on the server and the order id is returned
-
-    createOrder() {
-
-      return fetch("/my-server/create-paypal-order", {
-
-        method: "POST",
-
-        headers: {
-
-          "Content-Type": "application/json",
-
-        },
-
-        // use the "body" param to optionally pass additional order information
-
-        // like product skus and quantities
-
-        body: JSON.stringify({
-
-          cart: [
-
-            {
-
-              sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
-
-              quantity: "YOUR_PRODUCT_QUANTITY",
-
-              amount: "TOTAL_AMOUNT"
-
-            },
-
-          ],
-
-        }),
-
-      })
-
-      .then((response) => response.json())
-
-      .then((order) => order.id);
-
-    },
-
-    // Finalize the transaction on the server after payer approval
-
-    onApprove(data) {
-
-      return fetch("/my-server/capture-paypal-order", {
-
-        method: "POST",
-
-        headers: {
-
-          "Content-Type": "application/json",
-
-        },
-
-        body: JSON.stringify({
-
-          orderID: data.orderID
-
-        })
-
-      })
-
-      .then((response) => response.json())
-
-      .then((orderData) => {
-
-        // Successful capture! For dev/demo purposes:
-
-        console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-
-        const transaction = orderData.purchase_units[0].payments.captures[0];
-
-        alert(`Transaction ${transaction.status}: ${transaction.id}\n\nSee console for all available details`);
-
-        // When ready to go live, remove the alert and show a success message within this page. For example:
-
-        // const element = document.getElementById('paypal-button-container');
-
-        // element.innerHTML = '<h3>Thank you for your payment!</h3>';
-
-        // Or go to another URL:  window.location.href = 'thank_you.html';
-
-      });
-
+  let selectedButton = null;
+  const selectedValueInput = document.getElementById("selectedValueInput");
+  function selectButton(buttonIndex) {
+    const buttonContainer = document.getElementById("buttonContainer");
+    const buttons = buttonContainer.getElementsByClassName("button-size");
+    if (selectedButton !== null) {
+      selectedButton.classList.remove("selected");
     }
-
-  }).render('#paypal-button-container');
-
+    selectedButton = buttons[buttonIndex - 1];
+    selectedButton.classList.add("selected");
+    const selectedValue = selectedButton.getAttribute("data-value");
+    selectedValueInput.value = selectedValue;
+  }
 </script>
 
-<script>
-
-  const { CLIENT_ID, APP_SECRET } = process.env;
-
-  const baseURL = {
-  
-      sandbox: "https://api-m.sandbox.paypal.com",
-  
-      production: "https://api-m.paypal.com"
-  
-  };
-  
-  
-  // allow json body
-  
-  app.use(express.json());
-  
-  
-  // create a new order
-  
-  app.post("/create-paypal-order", async (req, res) => {
-  
-    const order = await createOrder();
-  
-    res.json(order);
-  
-  });
-  
-  
-  // capture payment & store order information or fullfill order
-  
-  app.post("/capture-paypal-order", async (req, res) => {
-  
-    const { orderID } = req.body;
-  
-    const captureData = await capturePayment(orderID);
-  
-    // TODO: store payment information such as the transaction ID
-  
-    res.json(captureData);
-  
-  });
-  
-  
-  //////////////////////
-  
-  // PayPal API helpers
-  
-  //////////////////////
-  
-  
-  // use the orders api to create an order
-  
-  async function createOrder() {
-  
-    const accessToken = await generateAccessToken();
-  
-    const url = `${baseURL.sandbox}/v2/checkout/orders`;
-  
-    const response = await fetch(url, {
-  
-      method: "POST",
-  
-      headers: {
-  
-        "Content-Type": "application/json",
-  
-        Authorization: `Bearer ${accessToken}`,
-  
-      },
-  
-      body: JSON.stringify({
-  
-        intent: "CAPTURE",
-  
-        purchase_units: [
-  
-          {
-  
-            amount: {
-  
-              currency_code: "USD",
-  
-              value: "100.00",
-  
-            },
-  
-          },
-  
-        ],
-  
-      }),
-  
-    });
-  
-    const data = await response.json();
-  
-    return data;
-  
-  }
-  
-  
-  // use the orders api to capture payment for an order
-  
-  async function capturePayment(orderId) {
-  
-    const accessToken = await generateAccessToken();
-  
-    const url = `${baseURL.sandbox}/v2/checkout/orders/${orderId}/capture`;
-  
-    const response = await fetch(url, {
-  
-      method: "POST",
-  
-      headers: {
-  
-        "Content-Type": "application/json",
-  
-        Authorization: `Bearer ${accessToken}`,
-  
-      },
-  
-    });
-  
-    const data = await response.json();
-  
-    return data;
-  
-  }
-  
-  
-  // generate an access token using client id and app secret
-  
-  async function generateAccessToken() {
-  
-    const auth = Buffer.from(CLIENT_ID + ":" + APP_SECRET).toString("base64")
-  
-    const response = await fetch(`${baseURL.sandbox}/v1/oauth2/token`, {
-  
-      method: "POST",
-  
-      body: "grant_type=client_credentials",
-  
-      headers: {
-  
-        Authorization: `Basic ${auth}`,
-  
-      },
-  
-    });
-  
-    const data = await response.json();
-  
-    return data.access_token;
-  
-  }
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="{% static 'js/validation.js' %}"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-{% block payment %}
-{% endblock payment %}
+{% comment %} checkout script file for payment {% endcomment %}
+{% block scripts %}
+
+{% endblock scripts %}
+<script src="{% static 'js/checkout.js' %}"></script>
 
 </html>

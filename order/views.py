@@ -23,7 +23,6 @@ def order(request):
         'checkout_items': checkout_items,
         'cart_items': cart_items,
     }
-
     return render(request, 'product/order_confirm.html', context)
 
 
@@ -37,7 +36,6 @@ def order_confirmed(request):
         my_order = Order()
         my_order.user = my_user
         my_order.address = checkout.address
-        
         my_order.total = checkout.total
         my_order.order_total = checkout.grand_total
         my_order.discount = checkout.discount
@@ -82,7 +80,6 @@ def order_confirmed(request):
         payment.save()
 
         # payment method : cashon delivery
-
         if payment_type == 'cashonDelivery':
             payment.payment_method = 'Cashon Delivery'      # set current payment method
             payment_id = order_id + "COD"
@@ -90,32 +87,14 @@ def order_confirmed(request):
             payment.save()
 
         # payment method : razor pay
-             
-        elif payment_type == 'razorpayMethod':
-            # creating an instane of razorpay
-            client = razorpay.Client(auth=("rzp_test_i0ukiADffB9XqG", "0DHfTgRyHSYGQXwUQtWSPbZ6"))
-
-            order_data = {
-                'amount': int(float(total * 100)),    # 'amount': int(float(total)), optional
-                'currency': 'INR',
-                'receipt': order_id,
-                'payment_capture': '1',
-            }
-            
-            # creating an order with client instance
-            order = client.order.create(data=order_data)
-            responce_data = {
-                'payment_id': order['id'],
-                'orderId':order_id,
-            }
-
-            context = {
-                'order_data': order_data,
-            } 
-            return JsonResponse(responce_data)
+        if payment_type == 'razorpayMethod':
+            payment.payment_method = 'Razor Pay'      # set current payment method
+            payment.payment_id = payment_id
+            payment.is_paid = True
+            payment.save()
+            return JsonResponse({'status': "Transaction has been successfully completed"})
         
-        # payment method : paypal
-
+        # payment method : paypal pay
         else:
             pass
 
@@ -141,6 +120,16 @@ def order_confirmed(request):
   
     return render(request, 'product/order_confirmed.html')
 
+
+@login_required(login_url='user_login')
+def proceed_to_pay(request):
+    my_user = request.user
+    payable_amount = 0
+    checkout = Checkout.objects.get(user=my_user)
+    payable_amount = payable_amount + checkout.payable_amount
+    return JsonResponse({
+        'payable_amount': payable_amount,
+    })
 
 
 @login_required(login_url='user_login')
