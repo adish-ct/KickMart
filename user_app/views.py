@@ -14,6 +14,7 @@ from .mail import *
 from shop.models import *
 from django.http import HttpResponse
 from urllib.parse import urlparse
+from order.models import *
 
 
 # Create your views here.
@@ -25,6 +26,7 @@ from urllib.parse import urlparse
 def index(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
+   
     categories = Category.objects.all()
     # fetch product within a number of limit using slicing method
     products = Product.objects.all()[:4]
@@ -46,7 +48,6 @@ def index(request):
 def user_signup(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
-    # user is the key, created for normal users
     if 'user' in request.session:
         return redirect('index')
     else:
@@ -171,7 +172,7 @@ def user_login(request):
                             return redirect(nextPage)
                     except:
                         return redirect('index')
-                    # sectio end 
+                    # section end 
                 else:
                     messages.error(request, "please submit valid credentials.")
             else:
@@ -199,6 +200,9 @@ def user_logout(request):
 def user_profile(request):
     if 'user' in request.session:
         user = request.user
+    if user:
+        order = Order.objects.filter(user=user)
+        order_count = order.count()
     if request.method == 'POST':
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
@@ -218,11 +222,17 @@ def user_profile(request):
         user.phone = phone
         user.save()
         return redirect('user_profile')
-    return render(request, 'user/user_profile.html')
+    
+    context = {
+        'order': order,
+        'order_count': order_count,
+    }
+    
+    return render(request, 'user/user_profile.html', context)
 
 
 
-
+@login_required(login_url='index')
 def address_book(request):
     if 'user' in request.session:
         user = request.user
@@ -234,6 +244,8 @@ def address_book(request):
 
 
 
+@cache_control(no_cache=True, no_store=True)
+@login_required(login_url='index')
 def add_address(request, id):
     if 'user' in request.session:
         user = request.user

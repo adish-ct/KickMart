@@ -16,9 +16,11 @@ from order.models import *
 def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, coupon=None):
     coupons = Coupons.objects.all().order_by('id')
     delivery_charge = 99
+    total = 0
+    quantity = 0
+    discount = 0
 
     if 'user' in request.session:
-        discount = 0
         my_user = request.user
         checkout_user = request.user.id
         try: # new change 10-08-23
@@ -27,25 +29,28 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
 
         except: 
             checkout = Checkout()
-            checkout.user = CustomUser.objects.get(id=checkout_user)  # checkout user saving
-            checkout.discount = 0       # initially discount should be zero
-            checkout.coupon = None
+            checkout.user = CustomUser.objects.get(id=checkout_user)    # checkout user saving
+
+        checkout.discount = discount                                    # initially discount should be zero
+        checkout.coupon = None
         
         try:
             cart_items = CartItem.objects.filter(customer=my_user).order_by('id') # fetch every cart items related with the cart
             for item in cart_items: 
                 total += (item.product.product_price * item.quantity)
                 quantity += item.quantity
-            checkout.total = total  # checkout saving 
+            checkout.total = total                                      # checkout saving total
+
             if total > 2500:
                 delivery_charge = 0
-            checkout.shipping = delivery_charge     # checkout saving 
+            checkout.shipping = delivery_charge                         # checkout saving delivery charge
              
             tax = (total * 3) // 100
-            checkout.tax = tax      # checkout saving 
-
+            checkout.tax = tax                                          # checkout saving tax
+            
+            # after submiting the coupon form. Coupon handling logic
             if request.method == 'POST':
-                arr = []
+                arr = []                                                # for storing used coupon
                 orders = Order.objects.filter(user=checkout_user)
                 if orders:
                     for order in orders:
@@ -64,30 +69,29 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
                         if total > minimum_amount:
                             if coupon.discount_amount:
                                 discount = coupon.discount_amount
-                                checkout.discount = discount
                             elif coupon.discount:
                                 discount = ( total * coupon.discount ) / 100
-                                checkout.discount = discount
                             else:
                                 discount = 0
                             checkout.discount = discount        # checkout saving 
                             checkout.coupon = coupon
                             messages.success(request, "coupon applied")
                         else:
-                            messages.error(request, f"minimum purchase amount : Rs. {minimum_amount}")
+                            messages.error(request, f"minimum purchase amount : Rs. { minimum_amount }")
                     else:
                         messages.error(request, "coupon expired")
-                    
-            grand_total = total + tax - discount
-            checkout.grand_total = grand_total          # checkout saving 
+                checkout.save()
+                   
+            grand_total = (total + tax + delivery_charge) - discount  # calculating grand total.
+            checkout.grand_total = grand_total          # checkout saving grand total.
             
         except ObjectDoesNotExist:
             pass
 
         checkout.save()
- 
+
+    # anonymous user handling
     else:
-        discount = 0        
         try:
             cart = Cart.objects.get(cart_id=_cart_id(request)) # fetching the cart id 
             cart_items = CartItem.objects.filter(cart=cart) # fetch every cart items related with the cart
@@ -96,8 +100,7 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
                 quantity += item.quantity
             if total > 2500:
                 delivery_charge = 0
-            else:
-                delivery_charge 
+            
             tax = (total * 3) / 100
 
             if request.method == 'POST':
@@ -118,7 +121,7 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
                 else:
                     messages.error(request, "coupon expired")
 
-            grand_total = total + tax - discount
+            grand_total = (total + delivery_charge + tax) - discount
         except ObjectDoesNotExist:
             pass
     
@@ -285,6 +288,7 @@ def coupon_remove(request):
 
 
 
+@cache_control(no_cache=True, no_store=True)
 @login_required(login_url='user_login')
 def checkout(request):
     if 'user' in request.session:
@@ -301,7 +305,7 @@ def checkout(request):
             'checkout_items': checkout_items,
         }
 
-        # place holder handling logic
+        # place holder handling logic after form submission.
         if request.method == 'POST':
             delivery_address = UserAddress.objects.get(id=request.POST['selectAddress'])
             payment = request.POST['paymentMethod']
@@ -312,11 +316,27 @@ def checkout(request):
             checkout_items.wallet = wallet
             checkout_items.address = delivery_address
             checkout_items.payment = payment
-            
-            payable_amount = float(checkout_items.grand_total)
-            checkout_items.payable_amount = payable_amount
+
             checkout_items.save()
+
+            # wallet handling
+            if float(checkout_items.grand_total) > float(checkout_items.wallet):
+                checkout_items.payable_amount = float(checkout_items.grand_total) - float(checkout_items.wallet)
+                my_user.wallet = float(my_user.wallet) - float(checkout_items.wallet) 
+
+            elif float(checkout_items.grand_total) < float(checkout_items.wallet):
+                checkout_items.payable_amount = 0
+                my_user.wallet = float(checkout_items.wallet) - float(checkout_items.grand_total) 
+
+            else:
+                checkout_items.payable_amount = 0
+                my_user.wallet = float(my_user.wallet) - float(checkout_items.grand_total)
+                
+            checkout_items.save()
+            my_user.save()
+                
             return redirect('order')
+        
         return render(request, "product/checkout.html", context)
     
         

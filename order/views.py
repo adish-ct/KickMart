@@ -36,68 +36,38 @@ def order_confirmed(request):
         my_order = Order()
         my_order.user = my_user
         my_order.address = checkout.address
-        my_order.total = checkout.total
-        my_order.order_total = checkout.grand_total
+        my_order.paid_amount = checkout.payable_amount
+        my_order.total = checkout.total                     # product's total amount. 
+        my_order.order_total = checkout.grand_total         # total amount including tax and other charges.
         my_order.discount = checkout.discount
-        my_order.tax = checkout.tax
         my_order.wallet_amount = checkout.wallet
-        my_order.is_ordered = True
+        my_order.tax = checkout.tax
         my_order.ip = request.META.get('REMOTE_ADDR')
+        my_order.is_ordered = True
         my_order.coupon = checkout.coupon
 
-        if float(checkout.grand_total) > float(checkout.wallet):
-                checkout.payable_amount = float(checkout.grand_total) - float(checkout.wallet)
-                checkout.save()
-                my_order.paid_amount = checkout.payable_amount
-                my_user.wallet = float(my_user.wallet) - float(checkout.wallet)
-        elif float(checkout.grand_total) < float(checkout.wallet):
-                checkout.payable_amount = 0
-                checkout.save()
-                my_order.paid_amount = checkout.payable_amount
-                my_user.wallet = float(my_user.wallet) - float(checkout.grand_total)
-        else:
-            checkout.payable_amount = 0
-            checkout.save()
-            my_order.paid_amount = 0
-            my_user.wallet = 0
-
         my_order.save()
-        my_user.save()
 
+        # creating order with current date and order id
         yr = int(datetime.date.today().strftime('%Y'))
         dt = int(datetime.date.today().strftime('%d'))
         mt = int(datetime.date.today().strftime('%m'))
         d = datetime.date(yr, mt, dt)
         current_date = d.strftime("%Y%m%d")
-        order_id = current_date + str(my_order.id)
+        order_id = current_date + str(my_order.id)          # creating order id
         my_order.order_id = order_id
+
         my_order.save()
 
-        payment_type = request.POST['paymentMethod']
-        payment = Payments()
-        payment.user = my_user
-        payment.total_amount = checkout.grand_total
-        payment.save()
-
-        # payment method : cashon delivery
-        if payment_type == 'cashonDelivery':
-            payment.payment_method = 'Cashon Delivery'      # set current payment method
-            payment_id = order_id + "COD"
-            payment.payment_id = payment_id
-            payment.save()
-
-        # payment method : razor pay
-        if payment_type == 'razorpayMethod':
-            payment.payment_method = 'Razor Pay'      # set current payment method
-            payment.payment_id = payment_id
-            payment.is_paid = True
-            payment.save()
-            return JsonResponse({'status': "Transaction has been successfully completed"})
+        # creating object for payment.
+        payment_type = request.POST.get('paymentMode')
+        payment = Payments.objects.create(
+            user = my_user,
+            total_amount = checkout.grand_total,
+            is_paid = False,
+        )
         
-        # payment method : paypal pay
-        else:
-            pass
-
+        # creating order items
         cart_items = CartItem.objects.filter(customer=my_user)
         for item in cart_items:
             variant = ProductVariant.objects.get(id=item.product.id)
@@ -110,11 +80,32 @@ def order_confirmed(request):
                 product_price = item.product.product_price,
                 ordered = True,
             )
-            my_order.payment = payment
             variant.stock = variant.stock - item.quantity
             variant.save()
-            my_order.save()
             item.delete()
+
+        # payment method : cashon delivery
+        if payment_type == 'cashonDelivery':
+            payment.payment_method = 'Cashon Delivery'      # set current payment method
+            payment_id = order_id + "COD"
+            payment.payment_id = payment_id
+            payment.save()
+
+        # payment method : razor pay
+        if payment_type == 'razorpayMethod':
+            payment.payment_method = 'Razor Pay'      # set current payment method
+            payment.payment_id = payment_id           # check this payment_id
+            # this is the error occuring portion
+            payment.is_paid = True
+            payment.save()
+            return JsonResponse({'status': "Transaction has been successfully completed"})
+        
+        # payment method : paypal pay
+        else:
+            pass
+        
+        my_order.payment = payment
+        my_order.save()
                       
         return redirect('order_confirmed')
   
@@ -136,7 +127,7 @@ def proceed_to_pay(request):
 def order_view(request):
     if 'user' in request.session:
         my_user = request.user
-        orders = OrderProduct.objects.filter(customer=my_user).order_by('id')
+        orders = OrderProduct.objects.filter(customer=my_user).order_by('-order_id')
         
         # return HttpResponse(orders)
         context = {
@@ -156,30 +147,36 @@ def order_details(request, order_id):
 @login_required(login_url='user_login')
 def order_cancel(requset, order_id):
     order_product = OrderProduct.objects.get(id=order_id)
+    variant = order_product.variant
     order = order_product.order_id
     payment = order.payment
-    # return HttpResponse(order)
+
     if requset.method == 'POST':
         reason = requset.POST['cancelReason']
         if reason:
             order_product.return_reason = reason
         order.status = "Cancelled"
         payment.status = 'Order cancelled'
+        variant.stock += order_product.quandity
+        if payment.payment_method != "Cashon Delivery":
+            #cash back logic should be handle here.
+            pass
         order.save()
         order_product.save()
+        variant.save()
         payment.save()
     return redirect('order_view' )
 
 
-
+@cache_control(no_cache=True, no_store=True)
+@login_required(login_url='user_login')
 def order_return(request, order_id):
     order_item = OrderProduct.objects.get(id=order_id)
-    # return HttpResponse(order_item)
     if request.method == 'POST':
-        return_reason = request.POST['returnReason']
+        return_reason = request.POST.get('returnReason', None)
         if return_reason:
             order_item.return_reason = return_reason
         order_item.return_request = True
-        order_item.save()
+    order_item.save()
 
     return redirect('order_view')

@@ -24,59 +24,67 @@ products-kickmart
         <div class="row px-xl-5">
             <!-- Shop Sidebar Start -->
             <div class="col-lg-2 col-md-12">
-                <!-- Category Start -->
-                <div class="border-bottom mb-4 pb-4">
-                    <h5 class="font-weight-semi-bold mb-4">Category</h5>
-                    <form>
+                <form action="{% url 'products' %}" method="POST">
+                    {% csrf_token %}
+                    <!-- Category Start -->
+                    <div class="border-bottom mb-4 pb-4">
+                        <h5 class="font-weight-semi-bold mb-4">Category</h5>
                         <!-- Loop for displaying all category -->
                         <div class="mb-3">
                             <a href="{% url 'products' %}">All Products</a>
                         </div>
                         {% for i in category_link %}
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input"  id="{{ forloop.counter }}">
-                            <label class="custom-control-label" for="{{ forloop.counter }}">{{ i.category_name }}</label>
+                            <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxCategory" value="{{ i.category_name }}"  id="productCategory-{{ i.id }}">
+                            <label class="custom-control-label" for="productCategory-{{ i.id }}">{{ i.category_name }}</label>
                         </div>
                         {% endfor %}
+                    </div>
+                    <!-- Category End -->
 
-                    </form>
-                </div>
-                <!-- Category End -->
-
-                <!-- Brand Start -->
-                <div class="border-bottom mb-4 pb-4">
-                    <h5 class="font-weight-semi-bold mb-4">Choose your Brand</h5>
-                    <form>
+                    <!-- Brand Start -->
+                    <div class="border-bottom mb-4 pb-4">
+                        <h5 class="font-weight-semi-bold mb-4">Choose your Brand</h5>
                         <!-- Loop for displaying all brands -->
-                        {% for i in brand_link %}
+                        {% for brand in brands %}
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="{{ forloop.counter }}">
-                            <label class="custom-control-label" for="{{ forloop.counter }}">{{ i.brand_name }}</label>
+                            <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxBrand" value="{{ brand.brand_name }}" id="productBrand-{{ brand.id }}">
+                            <label class="custom-control-label" for="productBrand-{{ brand.id }}">{{ brand.brand_name }}</label>
                         </div>
                         {% endfor %}
-                    </form>
-                </div>
-                <!-- Brand End -->
+                    </div>
+                    <!-- Brand End -->
 
-                <!-- Size Start -->
-
-                <!-- hide for future scope
-
-                <div class="mb-5">
-                    <h5 class="font-weight-semi-bold mb-4">Filter</h5>
-                    <form>
+                    <!-- Size Start -->
+                    <div class="border-bottom mb-4 pb-4">
+                        <h5 class="font-weight-semi-bold mb-4">Choose your size</h5>
+                        <!-- Loop for displaying all brands -->
+                        {% for size in sizes %}
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="size-all">
-                            <label class="custom-control-label" for="size-all">All Size</label>
-                            <span class="badge border font-weight-normal">1000</span>
+                            <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxSize" value="{{ size.id }}" id="productSize-{{ size.id }}">
+                            <label class="custom-control-label" for="productSize-{{ size.id }}">{{ size.size }}</label>
                         </div>
-                    </form>
-                </div>
-                -->
+                        {% endfor %}
+                    </div>
 
-                <!-- Size End -->
-
+                    <div class="border-bottom mb-4 pb-4">
+                        <h5 class="font-weight-semi-bold mb-4">Price range</h5>
+                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                            <input type="number" class="form-outline border-0 bg-secondary" min="0" name="minPrice" id="minPrice" placeholder="minimum amount">
+                        </div>
+                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                            <input type="number" class="form-outline border-0 bg-secondary" name="maxPrice" id="maxPrice" placeholder="maximum amount">
+                        </div>
+                    </div>
+                    
+                    <!-- Size End -->
+                    <div class="text-end">
+                        <button type="submit" class="text-warning bg-transparent border-0">Filter</button>
+                    </div>
+                </form>
             </div>
+
+
             <!-- Shop Sidebar End -->
 
             <!-- Shop Product Start -->
@@ -122,7 +130,9 @@ products-kickmart
                         <div class="card product-item border-0 mb-4">
                             <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
                                 {% if item.product_image %}
+                                <a href="{{ item.get_url}}">
                                     <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="">
+                                </a>
                                 {% endif %}
                             </div>
                             <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
@@ -133,7 +143,7 @@ products-kickmart
                             </div>
                             <div class="card-footer d-flex justify-content-between bg-light border">
                                 <a href="{{ item.get_url}}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                                <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
+                                {% comment %} <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a> {% endcomment %}
                             </div>
                         </div>
                     </div>

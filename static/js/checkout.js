@@ -2,7 +2,7 @@ $(document).ready(function () {
     
     $('.payWithRazorpay').click(function (e) {
         e.preventDefault();
-        var paymentMode = $("[name = 'paymentMode']").val();
+        var paymentMethod = $("[name = 'paymentMode']").val();
         var token = $("[name='csrfmiddlewaretoken']").val();
         // fetch values
 
@@ -22,7 +22,7 @@ $(document).ready(function () {
                     "handler": function (response_a){
                         alert(response_a.razorpay_payment_id);
                         data = {
-                            'paymentMode': paymentMode,
+                            'paymentMethod': paymentMethod,
                             'payment_id': response_a.razorpay_payment_id,
                             csrfmiddlewaretoken: token,
                         }

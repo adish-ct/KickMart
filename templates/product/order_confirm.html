@@ -28,7 +28,7 @@ order-confirm
                   <div class="row">
                     <div class="col-md-2">
                       <img src="{{ item.product.product.product_image.url }}"
-                        class="img-fluid" alt="Phone">
+                        class="img-fluid" alt="product image">
                     </div>
                     <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
                       <p class="text-muted mb-0"> {{ item.product.product.product_name }} </p>
@@ -47,13 +47,10 @@ order-confirm
                     </div>
                   </div>
                   <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
-
-                  </div>
                 </div>
               </div>
               {% endfor %}
 
-  
               <div class="d-flex justify-content-between pt-2">
                 <p class="fw-bold mb-0">Delivery Address</p>
                 <p class="text-muted mb-0"><span class="fw-bold me-4">Total</span> {{ checkout_items.total }} </p>
@@ -81,9 +78,9 @@ order-confirm
               
               <div class="d-flex justify-content-between mb-5">
                 {% if checkout_items.payment == 'cashonDelivery' %}
-                <button class="w-50 btn-lg btn-info" type="submit">
-                    Confirm Order
-                </button>
+                  <button class="w-50 btn-lg btn-info" type="submit">
+                      Confirm Order
+                  </button>
                 {% elif checkout_items.payment == 'razorpayMethod' %}
                 <button class="w-50 btn-lg btn-info payWithRazorpay" type="button" id="rzp-button1">
                   make payment
@@ -92,17 +89,17 @@ order-confirm
                 <div id="paypal-button-container"></div>
                 
                 {% endif %}
-                <p class="text-muted mb-0"><span class="fw-bold me-4"><span class="h2 mb-0 ms-2"> Rs. {% if checkout_items.payable_amount > 0 %} {{ checkout_items.payable_amount }} {% else %} 0.00 {% endif %}  </span></h5> </p>
+                <p class="text-muted mb-0"><span class="fw-bold me-4"><span class="h2 mb-0 ms-2"> Rs. {{ checkout_items.payable_amount }} </span></h5> </p>
                 <input type="hidden" name="paymentMode" value="{{ checkout_items.payment }}">
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </section>
 </form>
+
 
 {% endblock body  %}
 

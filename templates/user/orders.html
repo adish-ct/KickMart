@@ -8,9 +8,9 @@ your-orders
 <section class="h-100 gradient-custom">
     <div class="container py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-lg-10 col-xl-8">
+        <div class="col-lg-10 col-xl-10">
           <div class="card" style="border-radius: 10px;">
-            <div class="card-header px-4 py-5">
+            <div class="card-header px-5 py-5">
               <h5 class="text-muted mb-0"><span style="color: #a8729a;">Your Orders</span>!</h5>
             </div>
 
@@ -19,13 +19,7 @@ your-orders
             {% if orders %}
             {% for order in orders %}
 
-            <div class="card-body p-4">
-                {% comment %}
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                  <p class="lead fw-normal mb-0" style="color: #a8729a;">Receipt</p>
-                  <p class="small text-muted mb-0">Receipt Voucher : 1KAU9-84UIL</p>
-                </div>
-                {% endcomment %}
+            <div class="card-body p-3">
               <div class="card shadow-0 border mb-4">
                 <div class="card-body">
                   <div class="row">
@@ -51,10 +45,11 @@ your-orders
                     <div class="col-md-4">
                       <p class="text-info mb-0" data-bs-target="#myModal-{{ order.id }}" type="button" data-bs-toggle="modal" class="btn btn-primary">Track Order</p>
                     </div>
+                    {% if order.order_id.status == 'Cancelled' %}
                     <div class="col-md-4">
-                        {% comment %} <p class="text-primary mb-0" data-bs-target="#orderModal" type="button" data-bs-toggle="modal" class="btn btn-primary">Order Details</p> {% endcomment %}
-                        <a href="{% url 'order_details' order.id %}" class="text-primary" style="text-decoration: None;"> Order details</a>
+                        <a href="#" class="text-primary" style="text-decoration: None;"> Order details </a>
                     </div>
+                    {% endif %}
                     {% if order.order_id.status == 'Cancelled' %}
                     <div class="col-md-4">
                       <p class="text-danger"> Cancelled </p>
@@ -108,14 +103,16 @@ your-orders
     </div>
   </section>
   
+
+{% comment %} modal for track order {% endcomment %}
+
 {% if orders %}
 {% for order in orders %}
-{% comment %} modal for track order {% endcomment %}
   <div class="modal fade" id="myModal-{{ order.id }}" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Track your order {{ order.order_id }} </h4>
+          <h4 class="modal-title">Track your order #{{ order.order_id }} </h4>
         </div>
         
         <div class="modal-body text-center">
@@ -255,40 +252,6 @@ your-orders
 {% endfor %}
 {% endif %}
 
-{% comment %} modal for order details {% endcomment %}
-
-<div class="modal fade" id="orderModal" role="dialog">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">Order Details</h4>
-        </div>
-        <div class="d-flex justify-content-around align-items-center mb-4">
-            <p class="lead fw-normal mb-0" style="color: #a8729a;">Order Id:</p>
-            <p class="small text-muted mb-0">Receipt Voucher : 1KAU9-84UIL</p>
-          </div>
-        <div class="modal-body text-center">
-            <div class="col-md-12">
-                <div class="progress" style="height: 6px; border-radius: 16px;">
-                  {% comment %} provide condition here {% endcomment %}
-
-                  <div class="progress-bar" role="progressbar"
-                    style="width: 20%; border-radius: 16px; background-color: #a8729a;" aria-valuenow="80"
-                    aria-valuemin="0" aria-valuemax="100">
-                  </div>
-                </div>
-                <div class="d-flex justify-content-around mb-1">
-                  <p class="text-muted mt-1 mb-0 small ms-xl-5">Confirmed</p>
-                  <p class="text-muted mt-1 mb-0 small ms-xl-5">Shipped</p>
-                  <p class="text-muted mt-1 mb-0 small ms-xl-5">Ready to deliver</p>
-                  <p class="text-muted mt-1 mb-0 small ms-xl-5">Delivered</p>
-                </div>
-              </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 {% comment %} modal for cancel order {% endcomment %}
 

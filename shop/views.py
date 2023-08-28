@@ -17,6 +17,8 @@ def products(request, category_slug=None):
     
     categories = None
     all_products = None
+    brands = ProductBrand.objects.all()
+    sizes = ProductSize.objects.all()
 
     if category_slug !=None:
         category = Category.objects.get(slug=category_slug)
@@ -33,9 +35,57 @@ def products(request, category_slug=None):
         paged_products = paginator.get_page(page)
         product_count = all_products.count()
 
+    if request.method == "POST":
+        filter_products = Product.objects.all()
+        try:
+            if request.POST['checkboxCategory'] or request.POST['checkboxBrand'] or request.POST['checkboxSize']:
+                selected_category = request.POST.getlist('checkboxCategory')
+                selected_brand = request.POST.getlist('checkboxBrand')
+                selected_size = request.POST.getlist('checkboxSize')
+                minimum_price = request.POST['minPrice']
+                if not minimum_price:
+                    minimum_price = 0
+                maximum_price = request.POST['maxPrice']
+                if not maximum_price:
+                    maximum_price = 10000
+                
+                if selected_category:
+                    filter_products = filter_products.filter(category__category_name__in=selected_category)
+
+                if selected_brand:
+                    filter_products = filter_products.filter(brand__brand_name__in=selected_brand)
+
+                if selected_size:
+                    product_names = filter_products.values_list('product_name', flat=True)
+                    suitable_products = ProductVariant.objects.filter(
+                        product__product_name__in=product_names,
+                        product_size__size__in=selected_size
+                    ).values_list('id', flat=True)
+                    filter_products = filter_products.filter(id__in=suitable_products)
+
+
+                    return HttpResponse(filter_products)
+                if minimum_price and maximum_price:
+                    filter_products = filter_products.filter(selling_price__gte=minimum_price, selling_price__lte=maximum_price)
+
+                
+                
+                # return HttpResponse(filter_products)
+
+        except:
+            pass
+
+        paginator = Paginator(filter_products, 9)
+        page = request.GET.get('page')
+        paged_products = paginator.get_page(page)
+        product_count = filter_products.count()
+    
+
     context = {
         'products': paged_products,
         'product_count': product_count,
+        'brands': brands,
+        'sizes': sizes,
     }
     return render(request, 'product/product.html', context)
 

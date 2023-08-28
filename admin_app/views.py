@@ -9,6 +9,9 @@ from user_app.models import *
 from shop.models import *
 from order.models import *
 from django.http import HttpResponse
+from django.db.models import Sum
+from django.utils import timezone
+from datetime import date
 
 
 # Create your views here.
@@ -20,12 +23,10 @@ def admin_login(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
-
-        # authenticating user, checking user is valid or not
-        admin = authenticate(email=email, password=password)
+        
+        admin = authenticate(email=email, password=password)            # authenticating user, checking user is valid or not   
         if admin:
-            # checking if the admin has is_superuser is true or not.
-            if admin.is_superuser:
+            if admin.is_superuser:                                      # checking if the admin is super user or not.
                 login(request, admin)
                 request.session['email'] = email
                 return redirect('admin_dashboard')
@@ -36,9 +37,33 @@ def admin_login(request):
     return render(request, 'admin/admin_login.html')
 
 
+
 @staff_member_required(login_url='admin_login')
 def admin_dashboard(request):
-    return render(request, 'admin/admin_dashboard.html')
+    orders = Order.objects.all()
+    order_count = orders.count()
+    order_total = Order.objects.aggregate(total=Sum('order_total'))['total']
+    today = date.today()
+    today_count = Order.objects.filter(created__date=today).count()
+    today_revenue = Order.objects.filter(created__date=today).aggregate(total=Sum('order_total'))['total']
+
+    # return HttpResponse(today_revenue)
+    ar = [2020,2021,2022, 2023]
+    sales =[10000 ,2500,1200, 3500]
+
+    month = ['June', 'July', 'Aug', 'Oct', 'Nov', 'Dec']
+    order = [0, 0, order_count, 0, 0]
+    context = {
+        'year': ar,
+        'sales': sales,
+        'month': month,
+        'order': order,
+        'order_count': order_count,
+        'order_total': order_total,
+        'today_count': today_count,
+        'today_revenue': today_revenue,
+    }
+    return render(request, 'admin/admin_dashboard.html', context)
 
 
 
@@ -495,7 +520,7 @@ def activate_coupon(requset, coupon_id):
 
 @staff_member_required(login_url='admin_login')
 def order_management(request):
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by('-order_id')
     context = {
         'orders': orders,
     }
@@ -517,13 +542,13 @@ def order_update(request, order_id):
             order.save()
         if order_status == 'Delivered':
             payment.is_paid = True
-        else:
-            payment.is_paid = False
+        
         payment.save()
     context = {
         'order': order,
         'order_items': order_items,
     }
+
     return render(request, 'admin/admin_order_update.html', context)
 
 
@@ -535,24 +560,27 @@ def return_request(request, item_id):
     variant = order_item.variant
     order = order_item.order_id
     order_id = order.id
-    discount = order.discount
-    # return HttpResponse(discount)
-    if order.total < 2500:
+    coupon = order.coupon
+    user = order.user
+    deduct_discount = order.discount
+
+    if order.total < 2500:                      # delivery charge logic.
         delivery_charge = 99
     else:
         delivery_charge = 0
-    coupon = order.coupon
-    quantity = order_item.quandity
-    user = order.user
 
     if request.method == 'POST':
         order_item.is_returned = True
-        variant.stock += quantity
-        amount = variant.product_price * quantity
-        tax = (amount * 3) / 100
-        refund_amount = float(amount) - float(discount)
-        user.wallet = float(user.wallet) + float(refund_amount) + float(tax)
-        order.discount = 0
+        variant.stock += order_item.quandity
+        amount = variant.product_price * order_item.quandity
+        if coupon:
+            if order.total - amount >= coupon.minimum_order_amount:
+                deduct_discount = 0
+            else:
+                order.discount = 0
+
+        refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)           # calculating refund amount.
+        user.wallet = float(user.wallet) + float(refund_amount) 
         order_item.save()
         variant.save()
         user.save()
