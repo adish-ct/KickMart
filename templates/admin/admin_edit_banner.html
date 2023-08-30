@@ -1,0 +1,105 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+create-new-banner
+{% endblock %}
+{% load static %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="table-wrapper bg-dark border">
+            <div class="table-title bg-dark">
+                <div class="row">
+                    <div class="col-md-3 mt-5"></div>
+                    <div class="col-md-6 text-center mt-5">
+						<h2 class="text-white">UPDATE BANNER </h2>
+					</div>
+                </div>
+            </div>
+
+            <div class="card bg-secondary">
+                <div class="card-body">
+                  <h5 class="card-title mb-5 text-white">Update Banner Table</h5>
+
+                  <!-- Create banner form  -->
+                  {% if banner %}
+                    <form enctype="multipart/form-data" method="post" action="{% url 'update_banner' banner.id %}">
+                        {% csrf_token %}
+                        <div class="row mb-4">
+                            <div class="col">
+                              <div class="form-outline">
+                                  <input type="text" id="addSection" class="form-control bg-dark text-white" name="section" value="{{ banner.section }}"/>
+                                  <label class="form-label" for="addSection">Banner Section </label>
+
+                              </div>
+                            </div>
+
+                            <div class="col">
+                                <input type="text" id="exactLocation" class="form-control bg-dark text-white" name="identifier" value="{{ banner.identifier }}" />
+                                <label for="exactLocation" class="control-label">Exact Location :</label>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <input type="text" id="description" class="form-control bg-dark text-white" name="description" value="{{ banner.description }}" />
+                                <label for="description" class="control-label">Description :</label>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="col">
+                                    <div class="form-outline">
+                                        <input type="text" name="offer" id="offerDetails" class="form-control bg-dark text-white"style="width: 50%" value="{{ banner.offer_detail }}" />
+                                        <label class="form-label" for="offerDetails">Offer Details :</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="col">
+                                    <div class="form-outline">
+                                        <input type="text" name="titles" id="title" class="form-control bg-dark text-white" style="width: 50%" value="{{ banner.title }}" />
+                                        <label class="form-label" for="title">Title : </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+           
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="mb-4 d-flex justify-content-center align-items-center gap-3">
+                                    <label for="currentFile" class="form-label">Current Image</label>
+                                    {% if banner.image %}
+                                        <img src="{{ banner.image.url }}"
+                                        alt="example placeholder" style="width: 20vw;" id="currentFile" />
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <input class="form-control" type="file" id="formFiless" name="image">
+                                    <label for="formFiless" class="form-label">Choose your image</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                      <!-- Message input -->
+                      <div class="form-outline mb-4">
+                        <textarea class="form-control bg-dark text-white" id="adminNotes" rows="4" name="notes"> {{ banner.notes }} </textarea>
+                        <label class="form-label" for="adminNotes">Admin Notes : </label>
+                      </div>
+
+                      <!-- Submit button -->
+                      <div class="text-center">
+                          <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4 w-50">Update Banner</button>
+                      </div>
+                    </form>
+                {% endif %}
+                    <hr />
+
+                  <!-- Edit product form end -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

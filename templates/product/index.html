@@ -147,16 +147,22 @@
                 <!--  Carousel for banner front page -->
                 <div id="header-carousel" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner">
-                        <div class="carousel-item active" style="height: 410px;">
-                            <img class="img-fluid" src= "{% static 'img/carousel-1.jpg' %}" alt="Image">
+                        {% comment %} Handle for loop here {% endcomment %}
+
+                        {% if main_banner %}
+                        {% for banner in main_banner %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}" style="height: 410px;">
+                            <img class="img-fluid" src="{{ banner.image.url }}" alt="Image">
                             <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
                                 <div class="p-3" style="max-width: 700px;">
-                                    <h4 class="text-light text-uppercase font-weight-medium mb-3">10% Off Your First Order</h4>
-                                    <h3 class="display-4 text-white font-weight-semi-bold mb-4">Fashionable Footwear</h3>
-                                    <a href="" class="btn btn-light py-2 px-3">Shop Now</a>
+                                    <h4 class="text-light text-uppercase font-weight-medium mb-3">{{ banner.offer_detail }}</h4>
+                                    <h3 class="display-4 text-white font-weight-semi-bold mb-4">{{ banner.description }}</h3>
+                                    <a href="{% url 'products' %}" class="btn btn-light py-2 px-3">Shop Now</a>
                                 </div>
                             </div>
                         </div>
+                        {% endfor %}
+                        {% else %}
                         <div class="carousel-item" style="height: 410px;">
                             <img class="img-fluid" src="{% static 'img/carousel-2.jpg' %}" alt="Image">
                             <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
@@ -167,6 +173,8 @@
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
+
                     </div>
                     <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
                         <div class="btn btn-dark" style="width: 45px; height: 45px;">
@@ -244,8 +252,20 @@
     <!-- Offer Start -->
     <div class="container-fluid offer pt-5">
         <div class="row px-xl-5">
+
+            {% if sub_banner_left %}
             <div class="col-md-6 pb-4">
-                <div class="position-relative bg-secondary text-center text-md-right text-white mb-2 py-5 px-5">
+                <div class="position-relative text-center text-md-right text-white mb-2 py-5 px-5" style="background-image: url({{ sub_banner_left.image.url }}); height: 350px">
+                    <div class="position-relative" style="z-index: 1;">
+                        <h5 class="text-uppercase text-primary mb-3"> {{ sub_banner_left.offer_detail }} </h5>
+                        <h1 class="mb-5 font-weight-semi-bold text-warning"> {{ sub_banner_left.description }} </h1>
+                        <a href="" class="btn btn-outline-primary py-md-2 px-md-3">Shop Now</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-md-6 pb-4">
+                <div class="position-relative text-center text-md-right text-white mb-2 py-5 px-5">
                     <img src="{% static 'img/offer-1.png' %}" alt="">
                     <div class="position-relative" style="z-index: 1;">
                         <h5 class="text-uppercase text-primary mb-3">20% off the all order</h5>
@@ -254,8 +274,21 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
+
+            {% if sub_banner_right %}
             <div class="col-md-6 pb-4">
-                <div class="position-relative bg-secondary text-center text-md-left text-white mb-2 py-5 px-5">
+                <div class="position-relative text-center text-md-left text-white mb-2 py-5 px-5" style="background-image: url({{ sub_banner_right.image.url }}); height: 350px">
+                    <div class="position-relative" style="z-index: 1;">
+                        <h5 class="text-uppercase text-primary mb-3"> {{ sub_banner_right.offer_detail }} </h5>
+                        <h1 class="mb-5 font-weight-semi-bold"> {{ sub_banner_right.description }} </h1>
+                        <a href="" class="btn btn-outline-primary py-md-2 px-md-3">Shop Now</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-md-6 pb-4">
+                <div class="position-relative text-center text-md-left text-white mb-2 py-5 px-5" >
                     <img src="{% static 'img/offer-2.png' %}" alt="">
                     <div class="position-relative" style="z-index: 1;">
                         <h5 class="text-uppercase text-primary mb-3">20% off the all order</h5>
@@ -264,6 +297,8 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
+
         </div>
     </div>
     <!-- Offer End -->
@@ -282,6 +317,11 @@
             <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
                 <div class="card product-item border-0 mb-4">
                     <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                        {% if item.category.offer != 0 %}
+                        <div class="promotion-badge">
+                            <span class="cross-icon">X</span> Special Offer
+                        </div>
+                        {% endif %}
                         <a href="{{ item.get_url }}">
                             <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="">
                         </a>
@@ -298,6 +338,7 @@
                     </div>
                 </div>
             </div>
+
             {% endfor %}
             <!-- single products end -->
 

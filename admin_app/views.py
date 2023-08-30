@@ -157,23 +157,24 @@ def admin_add_product(request):
     }
     if request.method == 'POST':
         product = Product()
-        product_name = request.POST['name']
         category = request.POST['selectOption']
         brand = request.POST['selectBrand']
-        original_price = request.POST['originalPrice']
         selling_price = request.POST['sellingPrice']
-        product_description = request.POST['description']
+        if category.offer != 0:
+            discount_amount = (selling_price * category.offer) / 100
+            selling_price = selling_price - discount_amount
+        
         # single image fetching
         product_image = request.FILES.get('image', None)
         if product_image:
             product.product_image = product_image
   
-        product.product_name = product_name
+        product.product_name = request.POST['name']
         product.category = Category.objects.get(id=category)
         product.brand = ProductBrand.objects.get(id=brand)
-        product.original_price = original_price
+        product.original_price = request.POST['originalPrice']
         product.selling_price = selling_price
-        product.product_description = product_description
+        product.product_description = request.POST['description']
         product.save()
 
         # multiple image fetching
@@ -186,9 +187,11 @@ def admin_add_product(request):
                 )
             
         messages.success(request, "Product added successfully")
+        
         return redirect('admin_product')
 
     return render(request, 'admin/admin_add_product.html', context)
+
 
 
 @cache_control(no_store=True, no_cache=True)
@@ -200,7 +203,9 @@ def admin_delete_product(request, id):
             os.remove(prod.product_image.path)
     prod.delete()
     messages.success(request, "Product deleted successfully")
+
     return redirect('admin_product')
+
 
 
 @staff_member_required(login_url='admin_login')
@@ -210,6 +215,7 @@ def admin_product_variant(request, product_id):
         'variants': variant,
         'product_id': product_id,
     }
+
     return render(request, 'admin/admin_variant_product.html', context)
 
 
@@ -222,27 +228,22 @@ def add_product_variant(request, product_id):
     sizes = ProductSize.objects.all().order_by('id')
     
     if request.method == 'POST':
-        
         size = request.POST['selectSize']
         stock = request.POST['stock']
         productPrice = request.POST['productPrice']
         try:
             variant = ProductVariant.objects.get(product=product, product_size=size)
-            
             variant.stock = variant.stock + int(stock)
-            if productPrice:
-                variant.product_price = productPrice
-            variant.save()
         except ProductVariant.DoesNotExist:
             variant = ProductVariant.objects.create(
                 product = product,
                 product_size = size,
                 stock = stock,
             )
-            variant.save()
-            if productPrice:
-                variant.product_price = productPrice
+        if productPrice:
+            variant.product_price = productPrice
         variant.save()
+
         return redirect('admin_product_variant', product_id)
 
     context = {
@@ -267,6 +268,7 @@ def product_variant_update(request):
         variant.product_price = price
         variant.stock = stock
         variant.save()
+
         return redirect('admin_product_variant', product_id.id)
 
 
@@ -281,6 +283,7 @@ def product_variant_control(request, variant_id):
     else:
         variant.is_active = True
     variant.save()
+    
     return redirect('admin_product_variant', product_id)
 
 
@@ -308,7 +311,9 @@ def admin_users(request):
     context = {
         'users': users,
     }
+
     return render(request, 'admin/admin_users.html', context)
+
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -321,6 +326,7 @@ def admin_user_manage(request, id):
     else:
         user.is_active = True
         user.save()
+
     return redirect('admin_users')
 
 
@@ -336,11 +342,13 @@ def admin_user_manage(request, id):
 
 @staff_member_required(login_url='admin_login')
 def admin_category(request):
-    categories = Category.objects.all()
+    categories = Category.objects.all().order_by('id')
     context = {
         'categories': categories
     }
+
     return render(request, 'admin/admin_category.html', context)
+
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -352,15 +360,21 @@ def admin_add_category(request):
         if exist_category.exists():
             messages.error(request, "This is an existing category")
             return redirect('admin_add_category')
-        category_description = request.POST['description']
         if len(request.FILES['image']):
             category_image = request.FILES['image']
-        category = Category(category_name=category_name, category_image=category_image,
-                            category_description=category_description)
+        category = Category(
+            category_name = category_name,
+            category_image = category_image,
+            category_description = request.POST['description'],
+            offer = request.POST['category_offer'],
+            )
         category.save()
         messages.success(request, "Successfully added new category")
+
         return redirect('admin_category')
+    
     return render(request, 'admin/admin_add_category.html')
+
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -371,19 +385,21 @@ def admin_edit_category(request, id):
         'category': category,
     }
     if request.method == 'POST':
-        category_name = request.POST['name']
-        description = request.POST['description']
         if len(request.FILES) != 0:
             if category.category_image:
                 if len(category.category_image) > 0:
                     os.remove(category.category_image.path)
             category.category_image = request.FILES['image']
-        category.category_name = category_name
-        category.category_description = description
+        category.category_name = request.POST['name']
+        category.category_description = request.POST['description']
+        category.offer = request.POST['category_offer']
         category.save()
         messages.success(request, "Category updated successfully")
+
         return redirect('admin_category')
+    
     return render(request, 'admin/admin_edit_category.html', context)
+
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -394,6 +410,7 @@ def admin_delete_category(request, id):
         if len(category.category_image) > 0:
             os.remove(category.category_image.path)
     category.delete()
+
     return redirect('admin_category')
 
 
@@ -588,6 +605,80 @@ def return_request(request, item_id):
         
     return redirect('order_update', order_id)
 
+
+# -------------------------- Banner Management --------------------------
+
+
+@staff_member_required(login_url='admin_login')
+def banner_management(request):
+    banners = Banner.objects.all().order_by('id')
+    context = {
+        'banners': banners,
+    }
+    return render(request, 'admin/admin_banner.html', context)
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def create_banner(request):
+    if request.method == 'POST':
+        banner = Banner.objects.create(
+            section = request.POST.get('section', None), 
+            identifier = request.POST.get('identifier', None),
+            description = request.POST.get('description', None),
+            offer_detail = request.POST.get('offer', None),
+            title = request.POST.get('title', None) ,
+            notes = request.POST.get('notes', None) ,
+        )
+        if request.FILES['image']:
+            image = request.FILES['image']
+            banner.image = image
+        banner.save() 
+
+        return redirect('banner_management')
+
+    return render(request, 'admin/admin_add_banner.html')
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def update_banner(request, banner_id):
+    banner = Banner.objects.get(id=banner_id)
+    
+    if request.method == 'POST':
+        banner.section = request.POST['section']        
+        banner.identifier = request.POST['identifier']
+        banner.description = request.POST['description']
+        banner.offer_detail = request.POST['offer']
+        banner.title = request.POST.get('title', None)
+        banner.notes = request.POST['notes']
+        if len(request.FILES) != 0:
+            if banner.image:
+                os.remove(banner.image.path)
+            banner.image = request.FILES['image']
+        banner.save()
+
+        return redirect('banner_management')
+    
+    context = {
+        'banner': banner,
+    }
+
+    return render(request, 'admin/admin_edit_banner.html', context)
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
+def delete_banner(request, banner_id):
+    banner = Banner.objects.get(id=banner_id)
+    banner.delete()
+    return redirect('banner_management')
+
+
+# -------------------------- Admin Logout --------------------------
 
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')

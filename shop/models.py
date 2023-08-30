@@ -10,6 +10,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=100, unique=True, blank=True)
     category_description = models.TextField(null=True)
     category_image = models.ImageField(upload_to='category_images/')
+    offer = models.IntegerField(default=0, null=True, blank=True)
 
     class Meta:
         ordering = ['category_name']
@@ -116,6 +117,23 @@ class Coupons(models.Model):
 
     def __str__(self):
         return self.coupon_code
+    
+
+class Banner(models.Model):
+    image = models.ImageField(upload_to="banner_images", null=True, blank=True)
+    section = models.CharField(max_length=250, null=True, blank=True)
+    identifier = models.CharField(max_length=250, null=True, blank=True)
+    description = models.TextField(blank=True, null=True)
+    offer_detail = models.CharField(blank=True, null=True)
+    title = models.CharField(max_length=250, null=True, blank=True, default='banner')
+    notes = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.section} - location  : {self.identifier}"
+    
+
+
+    
     
 
 

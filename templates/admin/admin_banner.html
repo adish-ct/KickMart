@@ -1,0 +1,95 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+banner-management
+{% endblock %}
+{% load static %}
+{% block body %}
+<div class="container-fluid">
+    <div class="table-wrapper bg-dark border">
+        <div class="table-title bg-dark">
+            <div class="row">
+                <div class="col-md-3 mt-5"></div>
+                <div class="col-md-6 text-center mt-5 mb-5">
+                    <h1 class="text-white">BANNER </h1>
+                </div>
+
+            </div>
+        </div>
+        <div class="card bg-secondary">
+            <div class="card-body">
+                <div class="d-flex justify-content-spacebetween p-3 mt- col-md-12">
+                    <div class="col-md-6">
+                        <h5 class="card-title text-white mb-4">ALL YOUR WEBSITE BANNERS </h5>
+                    </div>
+                    {% if messages %}   
+                    <p>
+                        {% for message in messages %}
+                        <span class="text-center text-success">{{ message }}</span>
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    <div class="col-md-6 text-end">
+                        <a href="{% url 'create_banner' %}" class="btn bg-white" data-toggle="modal">
+                            <span class="text-dark">CREATE BANNER</span></a>
+                    </div>
+                </div>
+
+                <!-- Table  -->
+
+                <div class="col-12">
+                    <div class="bg-secondary rounded h-100 p-4">
+                        <div class="table-responsive">
+                            <table class="table" id="sortTable" style="font-size: 20px;">
+                                <thead>
+                                    <tr class="border">
+                                        <th scope="col">#</th>
+                                        <th scope="col">Id</th>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Section</th>
+                                        <th scope="col">Identifier</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">title</th>
+                                        <th scope="col">Operations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in banners %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ i.id }}</td>
+                                        <td>
+                                            {% if i.image %}
+                                            <div style="width: 80px; height: 8  0px;">
+                                                <img src="{{ i.image.url }}" alt="Small Image"
+                                                    style="max-width: 100%; max-height: 100%;">
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ i.section }}</td>
+                                        <td>{{ i.identifier }}</td>
+                                        <td>{{ i.description }}</td>
+                                        <td>{{ i.title }}</td>
+                                        <td>
+                                            <a href="{% url 'update_banner' i.id %}" class="edit"><i
+                                                    class="material-icons" data-toggle="tooltip"
+                                                    title="Edit">&#xE254;</i></a>
+                                            <a href="{% url 'delete_banner' i.id %}" class="delete"><i
+                                                    class="material-icons" data-toggle="tooltip"
+                                                    title="Delete">&#xE872;</i></a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}

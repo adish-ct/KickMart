@@ -26,17 +26,23 @@ from order.models import *
 def index(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
-   
-    categories = Category.objects.all()
-    # fetch product within a number of limit using slicing method
+    
+    categories = Category.objects.all().order_by('id')
     products = Product.objects.all()[:4]
     latest_product = Product.objects.all().order_by('created_date')[:4:-1]
-    brands = ProductBrand.objects.all()
+    brands = ProductBrand.objects.all().order_by('id')
+    main_banner = Banner.objects.filter(section='index', identifier='main')
+    sub_banner_left = Banner.objects.filter(section='index', identifier='first').order_by('-id')
+    sub_banner_right = Banner.objects.filter(section='index', identifier='second').order_by('-id')
+
     context = {
         'categories': categories,
         'products': products,
         'latest_poduct': latest_product,
         'brands': brands,
+        'main_banner': main_banner,
+        'sub_banner_left': sub_banner_left[0],
+        'sub_banner_right': sub_banner_right[0],
     }
     
     return render(request, 'product/index.html', context)

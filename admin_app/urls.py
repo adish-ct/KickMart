@@ -33,6 +33,11 @@ urlpatterns = [
     path('admin-order-management/', views.order_management, name="admin_order_management"),
     path('order-update/<int:order_id>', views.order_update, name="order_update"),
     path('return-request/<int:item_id>/', views.return_request, name="return_request"),
+
+    path('banner-management/', views.banner_management, name="banner_management"),
+    path('create-banner/', views.create_banner, name="create_banner"),
+    path('update-banner/<int:banner_id>/', views.update_banner, name="update_banner"),
+    path('delete-banner/<int:banner_id>/', views.delete_banner, name="delete_banner"),
     
 
     path('admin_logout/', views.admin_logout, name="admin_logout"),
