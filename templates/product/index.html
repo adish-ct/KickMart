@@ -135,7 +135,7 @@
                                 <span class="bg-white {{ message.tags }} mt-3 me-4"> {{ message }} </span>
                             {% endfor %}
                                 <a href="" class="nav-item nav-link">{{ user.first_name }}</a>
-                                <a href="{% url 'user_logout' %}" type="submit" class="nav-item nav-link">Logout</a>
+                                <a href="{% url 'user_logout' %}" type="submit" class="nav-item nav-link text-danger">Logout</a>
                             {% else %}
                                 <a href="{% url 'user_login' %}" class="nav-item nav-link">Login</a>
                                 <a href="{% url 'user_signup' %}" class="nav-item nav-link">Register</a>
@@ -234,9 +234,9 @@
             <!-- single category item -->           
             {% for category in category_link %}
                 <div class="col-lg-4 col-md-6 pb-1">
-                    <div class="cat-item d-flex flex-column border mb-4" style="padding: 30px;">
+                    <div class="cat-item d-flex flex-column border-0 mb-4" style="padding: 75px;">
                         <a href="{{ category.get_url }}" class="cat-img position-relative overflow-hidden mb-3">
-                            <img class="img-fluid w-100" src="{{ category.category_image.url }}" alt="">
+                            <img class="img-fluid w-100" src="{{ category.category_image.url }}" alt="category image">
                         </a>
                         <h3 class="font-weight-semi-bold m-0">{{ category.category_name }}'s Shoes</h3>
                     </div>
@@ -318,12 +318,12 @@
                 <div class="card product-item border-0 mb-4">
                     <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
                         {% if item.category.offer != 0 %}
-                        <div class="promotion-badge">
-                            <span class="cross-icon">X</span> Special Offer
-                        </div>
+                            <div class="promotion-badge">
+                                <span class="cross-icon text-danger"> {{ item.category.offer }} % OFF,  </span> Special Offer
+                            </div>
                         {% endif %}
                         <a href="{{ item.get_url }}">
-                            <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="">
+                            <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="product image">
                         </a>
                     </div>
                     <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
@@ -380,6 +380,11 @@
             <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
                 <div class="card product-item border-0 mb-4">
                     <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                        {% if item.category.offer != 0 %}
+                            <div class="promotion-badge">
+                                <span class="cross-icon text-danger"> {{ item.category.offer }} % OFF,  </span> Special Offer
+                            </div>
+                        {% endif %}
                         <a href="{{ item.get_url }}">
                             <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="">
                         </a>

@@ -4,7 +4,11 @@ from django.db.models import QuerySet, Q
 from django.core.paginator import PageNotAnInteger, Paginator, EmptyPage
 from django.http import HttpResponse
 from shop.models import *
+from django.views.decorators.cache import cache_control
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from cart.models import *
+from order.models import *
 
 
 
@@ -91,22 +95,36 @@ def products(request, category_slug=None):
 
 
 def detail_view(request, category_slug, product_slug):
+    rating = [1, 2, 3, 4, 5]
+    avarage_rating = 5
     try:
         single_product = Product.objects.get(category__slug=category_slug, slug=product_slug)
     except Exception as e:
         raise e
     current_user = request.user
+    reviews = Review.objects.filter(product=single_product)
+    reviews_count = reviews.count()
     user_id = current_user.id
     product_id = single_product.id
     all_products = Product.objects.all()
     variant = ProductVariant.objects.filter(product=product_id)
     multiple_images = MultipleImages.objects.filter(product=product_id)
+    if reviews:
+        rating_total = 0
+        for i in reviews:
+            rating_total += i.rating
+        avarage_rating = rating_total // reviews_count
+    
     context = {
         'product': single_product,
         'variant': variant,
         'products': all_products,
         'multiple_images': multiple_images,
         'user_id': user_id,
+        'reviews': reviews,
+        'rating': rating,
+        'reviews_count': reviews_count,
+        'avarage_rating': avarage_rating,
     }
 
     return render(request, 'product/viewproduct.html', context)
@@ -148,3 +166,29 @@ def search_by_name(request):
         }
        
     return render(request, 'product/product.html', context)
+
+
+
+@cache_control(no_cache=True, no_store=True)
+@login_required(login_url='user_login')
+def review(request):
+    my_user = request.user
+    orders = OrderProduct.objects.filter(customer=my_user)
+    order_items = []
+    for i in orders:
+        order_items.append(i.variant.product.id)
+    if request.method == 'POST':
+        product = Product.objects.get(id=request.POST['product'])
+        category_slug = product.category.slug
+        product_slug = product.slug
+        if product.id in order_items:
+            product_review = Review.objects.create(
+                user = my_user,
+                product = product,
+                rating = request.POST['rating'],
+                review = request.POST['review'],
+            )
+        else:
+            messages.error(request, "You are not purchsed these item!")
+
+    return redirect(detail_view, category_slug, product_slug)

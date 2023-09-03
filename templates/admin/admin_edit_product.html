@@ -75,8 +75,17 @@ admin-product-interface
                             <div class="col-md-4">
                                 <div class="col">
                                     <div class="form-outline">
-                                        <input type="" id="productUpdate" value="{{ product.updated_date }}" class="form-control bg-grey text-dark" min="1" step="any" style="width: 50%" readonly/>
+                                        <input type="" id="productUpdate" value="{{ product.updated_date }}" class="form-control bg-dark text-white" min="1" step="any" style="width: 50%" readonly/>
                                         <label class="form-label" for="productUpdate">Last Update Date</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="col">
+                                    <div class="form-outline">
+                                        <input type="" id="productOffer" value="{{ product.offer }}" class="form-control bg-dark text-white" min="0" step="any" style="width: 50%" readonly/>
+                                        <label class="form-label" for="productUpdate">Product Offer </label>
                                     </div>
                                 </div>
                             </div>
@@ -108,15 +117,19 @@ admin-product-interface
                                     {% endfor %}  
                                 {% endif %}
                             </div>
-                             <div class="col-md-6 mx-auto">
-                                <label class="text-danger">*Select two or more images for adding
-                                    multiple images *</label>
-                                <div class="mb-3">
-                                    <input class="form-control" type="file" id="formFile" multiple id="formFile" name="multipleImage">
-                                    <label for="formFile" class="form-label">Choose your image</label>
-                                </div>
-                            </div>
                         </div>
+
+                        <div class="row">
+                            <!-- Multiple Image -->
+                            <div class="col-md-6">
+                               <label class="text-danger">*Select two or more images for adding
+                                   multiple images *</label>
+                               <div class="mb-3">
+                                   <input class="form-control" type="file" id="formFile" multiple id="formFile" name="multipleImage">
+                                   <label for="formFile" class="form-label">Choose your image</label>
+                               </div>
+                           </div>
+                       </div>
 
                       <!-- Description input -->
                       <div class="form-outline mb-4">

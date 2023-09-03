@@ -45,7 +45,8 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet" />
     <link href="{% static 'css/style.min.css' %}" rel="stylesheet" />
 
-    
+    {% block css %}
+    {% endblock css %}
     <style>
       /* Add your CSS styles here */
       .button-size {
@@ -226,7 +227,7 @@
               </div>
               <div class="navbar-nav ml-auto py-0">
                 {% if user.is_authenticated %}
-                <a href="{% url 'user_logout' %}" class="nav-item nav-link"
+                <a href="{% url 'user_logout' %}" class="nav-item nav-link text-danger "
                   >Logout</a
                 >
                 {% else %}
@@ -314,9 +315,13 @@
     <a href="#" class="btn btn-primary back-to-top"
       ><i class="fa fa-angle-double-up"></i
     ></a>
+
+
+  
 </body>
 
-
+{% block js %}
+{% endblock js %}
 
 <!-- JavaScript Libraries -->
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -327,6 +332,7 @@
 <script src="{% static 'js/zoomsl.js' %}"></script>
 <script src="{% static 'js/zoomsl.min.js' %}"></script>
 <script src="{% static 'js/validation.js' %}"></script>
+<script src="{% static 'js/update_cart.js' %}"></script>
 
 <script type="text/javascript">
   $(document).ready(function () {

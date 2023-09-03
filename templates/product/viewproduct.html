@@ -1,4 +1,27 @@
 {% extends 'base.html' %} {% load static %} {% block title %} products-kickmart
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  .rating {
+    display: inline-block;
+  }
+  .rating input {
+    display: none;
+  }
+  .rating label {
+    font-size: 24px;
+    color: gray;
+    cursor: pointer;
+    transform: scaleX(-1);
+  }
+  .rating label:before {
+    content: '\2605'; /* Unicode character for a star */
+  }
+  .rating input:checked ~ label {
+    color: gold;
+  }
+</style>
+{% endblock css %}
 {% endblock %} {% block body %}
 
 <!-- Shop Detail Start -->
@@ -15,13 +38,20 @@
       <h3 class="font-weight-semi-bold">{{ product.product_name }}</h3>
       <div class="d-flex mb-3">
         <div class="text-primary mr-2">
-          <small class="fas fa-star"></small>
-          <small class="fas fa-star"></small>
-          <small class="fas fa-star"></small>
-          <small class="fas fa-star-half-alt"></small>
-          <small class="far fa-star"></small>
+          {% for i in rating %}
+          {% if i == avarage_rating %}
+            <small class="fas fa-star"></small>
+          {% else %}
+            {% if i < avarage_rating %}
+              <small class="fas fa-star"></small>
+            {% else %}
+            <small class="far fa-star"></small>
+            {% endif %}
+          {% endif %}
+          
+          {% endfor %}
         </div>
-        <small class="pt-1">(50 Reviews)</small>
+        <small class="pt-1">({{ reviews_count }} Reviews)</small>
       </div>
       <div class="d-flex">
         <h4 class="font-weight-semi-bold mb-4">
@@ -95,7 +125,7 @@
       <div class="nav nav-tabs justify-content-center border-secondary mb-4">
         <a class="nav-item nav-link active" data-toggle="tab" href="#tab-pane-1">Description</a>
         <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-2">Information</a>
-        <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-3">Reviews (0)</a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-3">Reviews ({% if reviews.count > 0 %}{{ reviews_count }} {% else %} 0 {% endif %})</a>
       </div>
       <div class="tab-content">
         <div class="tab-pane fade show active" id="tab-pane-1">
@@ -165,59 +195,74 @@
         <div class="tab-pane fade" id="tab-pane-3">
           <div class="row">
             <div class="col-md-6">
-              <h4 class="mb-4">1 review for "Colorful Stylish Shirt"</h4>
-              <div class="media mb-4">
-                <img src="img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px" />
-                <div class="media-body">
-                  <h6>
-                    John Doe<small> - <i>01 Jan 2045</i></small>
-                  </h6>
-                  <div class="text-primary mb-2">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star-half-alt"></i>
-                    <i class="far fa-star"></i>
+              <h4 class="mb-4">  {{ reviews_count }} review for "{{ product.product_name }}"</h4>
+
+              {% for review in reviews %}
+                <div class="media mb-4">
+                  <img src="{{ review.user.image.url }}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px" />
+                  <div class="media-body">
+                    <h6>
+                      {{ review.user.first_name }} <small> - <i> {{ review.created }} </i></small>
+                    </h6>
+                    <div class="text-primary mb-2">
+                      {% for i in rating %}
+                      {% if i == review.rating %}
+                        <i class="fas fa-star"></i>
+                      {% else %}
+                        {% if i < review.rating %}
+                          <i class="fas fa-star"></i>
+                        {% else %}
+                          <i class="far fa-star"></i>
+                        {% endif %}
+                      {% endif %}
+                      {% comment %} <i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i> {% endcomment %}
+                      {% endfor %}
+                    </div>
+                    <p>
+                      {{ review.review }}
+                    </p>
                   </div>
-                  <p>
-                    Diam amet duo labore stet elitr ea clita ipsum, tempor
-                    labore accusam ipsum et no at. Kasd diam tempor rebum magna
-                    dolores sed sed eirmod ipsum.
-                  </p>
                 </div>
-              </div>
+              {% endfor %}
+
             </div>
             <div class="col-md-6">
-              <h4 class="mb-4">Leave a review</h4>
-              <small>Your email address will not be published. Required fields are
-                marked *</small>
-              <div class="d-flex my-3">
-                <p class="mb-0 mr-2">Your Rating * :</p>
-                <div class="text-primary">
-                  <i class="far fa-star"></i>
-                  <i class="far fa-star"></i>
-                  <i class="far fa-star"></i>
-                  <i class="far fa-star"></i>
-                  <i class="far fa-star"></i>
+
+              <form action="{% url 'review' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" value="{{ product.id }}" name="product">
+                <h4 class="mb-4">Leave a review</h4>
+                <small class="text-warning">Your email address will not be published.</small>
+
+                <div class="d-flex my-3">
+                  <p class="mb-0 mr-2">Your Rating * :</p>
+                  <div class="text-primary rating">
+                    <input type="radio" id="star1" name="rating" value="5">
+                    <label for="star1"></label>
+                    <input type="radio" id="star2" name="rating" value="4">
+                    <label for="star2"></label>
+                    <input type="radio" id="star3" name="rating" value="3">
+                    <label for="star3"></label>
+                    <input type="radio" id="star4" name="rating" value="2">
+                    <label for="star4"></label>
+                    <input type="radio" id="star5" name="rating" value="1" checked>
+                    <label for="star5"></label>
+                  </div>
                 </div>
-              </div>
-              <form>
+                
                 <div class="form-group">
                   <label for="message">Your Review *</label>
-                  <textarea id="message" cols="30" rows="5" class="form-control"></textarea>
+                  <textarea id="message" cols="30" rows="5" class="form-control" name="review" required></textarea>
                 </div>
-                <div class="form-group">
-                  <label for="name">Your Name *</label>
-                  <input type="text" class="form-control" id="name" />
-                </div>
-                <div class="form-group">
-                  <label for="email">Your Email *</label>
-                  <input type="email" class="form-control" id="email" />
-                </div>
+                
                 <div class="form-group mb-0">
                   <input type="submit" value="Leave Your Review" class="btn btn-primary px-3" />
                 </div>
               </form>
+
             </div>
           </div>
         </div>

@@ -68,5 +68,5 @@ class OrderProduct(models.Model):
     return_reason = models.TextField(blank=True)
 
     def __str__(self):
-        return self.customer.email
+        return f"{self.customer.email} - {self.variant.product.product_name}" 
     

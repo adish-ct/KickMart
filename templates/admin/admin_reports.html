@@ -1,0 +1,101 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+product-reports
+{% endblock %}
+{% load static %}
+
+{% block body %}
+
+
+<!-- Recent Sales Start -->
+ <div class="container-fluid pt-4 px-4">
+    <div class="table-wrapper bg-dark border">
+      <div class="row">
+        <div class="col-md-3 mt-5"></div>
+        <div class="col-md-6 text-center mt-5">
+          <h2 class="text-white">REPORTS </h2>
+        </div>
+      </div>
+    </div>
+
+  <div class="bg-secondary text-center rounded p-4">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+          <h3 class="mb-0">Stock Reports</h3>
+          <a href="">Show All</a>
+      </div>
+      <div class="table-responsive">
+          <table class="table text-start align-middle table-bordered table-hover mb-2" id="sortTable">
+              <thead class="mt-2" style="font-size: 20px;">
+                  <tr class="text-white">
+                      <th scope="col">Sr No:</th>
+                      <th scope="col">Item Id</th>
+                      <th scope="col">Product</th>
+                      <th scope="col">Size</th>
+                      <th scope="col">Stock</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Action</th>
+                  </tr>
+              </thead>
+              <tbody>
+                {% for variant in variants %}
+                  <tr style="font-size: 18px;">
+                      <td> {{ forloop.counter }} </td>
+                      <td> {{ variant.id }} </td>
+                      <td> {{ variant.product }} </td>
+                      <td> {{ variant.product_size.size }} </td>
+                      <td> {{ variant.stock }} </td>
+                      <td> {{ variant.product_price }} </td>
+                      <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+      </div>
+  </div>
+
+<!-- Order Cancel table --> 
+
+  <div class="bg-secondary text-center rounded p-4 mt-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="m5">Stock Reports</h3>
+        <a href="">Show All</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table text-start align-middle table-bordered table-hover mb-2" id="sortTable">
+            <thead class="mt-2" style="font-size: 20px;">
+                <tr class="text-white">
+                    <th scope="col">Sr No:</th>
+                    <th scope="col">Item Id</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for variant in variants %}
+                <tr style="font-size: 18px;">
+                    <td> {{ forloop.counter }} </td>
+                    <td> {{ variant.id }} </td>
+                    <td> {{ variant.product }} </td>
+                    <td> {{ variant.product_size.size }} </td>
+                    <td> {{ variant.stock }} </td>
+                    <td> {{ variant.product_price }} </td>
+                    <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div>
+
+
+
+<p> hello </p>
+
+
+            
+{% endblock %}

@@ -11,7 +11,8 @@ from order.models import *
 from django.http import HttpResponse
 from django.db.models import Sum
 from django.utils import timezone
-from datetime import date
+from datetime import date, datetime
+
 
 
 # Create your views here.
@@ -40,14 +41,20 @@ def admin_login(request):
 
 @staff_member_required(login_url='admin_login')
 def admin_dashboard(request):
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by('-id')
     order_count = orders.count()
     order_total = Order.objects.aggregate(total=Sum('order_total'))['total']
     today = date.today()
     today_count = Order.objects.filter(created__date=today).count()
     today_revenue = Order.objects.filter(created__date=today).aggregate(total=Sum('order_total'))['total']
+    if request.method == 'POST':
+        try:
+            date_from = request.POST.get('startDate')
+            date_to = request.POST.get('endDate')
+            orders = Order.objects.filter(created__range=(date_from, date_to))
+        except:
+            pass
 
-    # return HttpResponse(today_revenue)
     ar = [2020,2021,2022, 2023]
     sales =[10000 ,2500,1200, 3500]
 
@@ -58,6 +65,7 @@ def admin_dashboard(request):
         'sales': sales,
         'month': month,
         'order': order,
+        'orders': orders,
         'order_count': order_count,
         'order_total': order_total,
         'today_count': today_count,
@@ -159,7 +167,12 @@ def admin_add_product(request):
         product = Product()
         category = request.POST['selectOption']
         brand = request.POST['selectBrand']
+        original_price = request.POST['originalPrice']
         selling_price = request.POST['sellingPrice']
+        product_offer = request.POST['productOffer']
+        if product_offer != 0:
+            off_amount = (original_price * product_offer) / 100
+            selling_price = original_price - off_amount
         if category.offer != 0:
             discount_amount = (selling_price * category.offer) / 100
             selling_price = selling_price - discount_amount
@@ -172,9 +185,10 @@ def admin_add_product(request):
         product.product_name = request.POST['name']
         product.category = Category.objects.get(id=category)
         product.brand = ProductBrand.objects.get(id=brand)
-        product.original_price = request.POST['originalPrice']
+        product.original_price = original_price
         product.selling_price = selling_price
         product.product_description = request.POST['description']
+        product.offer = product_offer
         product.save()
 
         # multiple image fetching
@@ -187,7 +201,7 @@ def admin_add_product(request):
                 )
             
         messages.success(request, "Product added successfully")
-        
+
         return redirect('admin_product')
 
     return render(request, 'admin/admin_add_product.html', context)
@@ -676,6 +690,18 @@ def delete_banner(request, banner_id):
     banner = Banner.objects.get(id=banner_id)
     banner.delete()
     return redirect('banner_management')
+
+
+
+@staff_member_required(login_url='admin_login')
+def reports(request):
+    variants = ProductVariant.objects.all()
+    return
+    context = {
+        'variants': variants,
+        
+    }
+    return render(request, 'admin/admin_reports.html', context)
 
 
 # -------------------------- Admin Logout --------------------------

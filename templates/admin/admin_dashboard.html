@@ -133,7 +133,7 @@ admin-dashboard
                             <i class="fa fa-chart-area fa-3x text-primary"></i>
                             <div class="ms-3">
                                 <p class="mb-2">Today Revenue</p>
-                                <h6 class="mb-0">₹ {{ today_revenue }} </h6>
+                                <h6 class="mb-0">₹ {% if today_revenue %} {{ today_revenue }} {% else %} 0 {% endif %}</h6>
                             </div>
                         </div>
                     </div>
@@ -169,9 +169,7 @@ admin-dashboard
             <!-- Sales Chart End -->
 
 
-            <!-- Recent Sales Start -->
-            
-            <!-- Recent Sales End -->
+  
 
 
             <!-- Widgets Start -->
@@ -185,6 +183,57 @@ admin-dashboard
                     </div>
                 </div>
             </div>
+
+
+                      <!-- Recent Sales Start -->
+ <div class="container-fluid pt-4 px-4">
+  <div class="bg-secondary text-center rounded p-4">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+          <h6 class="mb-0">Sales Reports</h6>
+          <a href="">Show All</a>
+      </div>
+      <div class="table-responsive">
+          <table class="table text-start align-middle table-bordered table-hover mb-2" id="sortTable">
+            <div class="d-flex justify-content-end gap-3 mb-4">
+              <form action="" class="" method="POST">
+                {% csrf_token %}
+                <label for="startDate">Start Date</label>
+                <input type="date" class="form-outline" placeholder="start date" id="startDate" name="startDate">
+                <label for="endDate">End Date</label>
+                <input type="date" class="form-outline" placeholder="end date" id="endDate" name="endDate">
+                <button type="submit" class="btn-primary"> Filter </button>
+              </form>
+            </div>
+            
+              <thead class="mt-2" style="font-size: 20px;">
+                  <tr class="text-white">
+                      <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                      <th scope="col">Date</th>
+                      <th scope="col">Order</th>
+                      <th scope="col">Customer</th>
+                      <th scope="col">Amount</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Action</th>
+                  </tr>
+              </thead>
+              <tbody>
+                {% for order in orders %}
+                  <tr style="font-size: 18px;">
+                      <td><input class="form-check-input" type="checkbox"></td>
+                      <td> {{ order.created }} </td>
+                      <td> {{ order.order_id }} </td>
+                      <td> {{ order.user.email }} </td>
+                      <td> {{ order.order_total }} </td>
+                      <td> {{ order.status }} </td>
+                      <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+      </div>
+  </div>
+</div>
+<!-- Recent Sales End -->
             
             
             

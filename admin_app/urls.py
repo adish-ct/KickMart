@@ -38,7 +38,8 @@ urlpatterns = [
     path('create-banner/', views.create_banner, name="create_banner"),
     path('update-banner/<int:banner_id>/', views.update_banner, name="update_banner"),
     path('delete-banner/<int:banner_id>/', views.delete_banner, name="delete_banner"),
-    
+
+    path('reports/', views.reports, name="reports"),
 
     path('admin_logout/', views.admin_logout, name="admin_logout"),
 ]

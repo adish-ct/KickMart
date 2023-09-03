@@ -90,25 +90,22 @@ def order_confirmed(request):
             payment_id = order_id + "COD"
             payment.payment_id = payment_id
             payment.save()
-
-        # payment method : razor pay
-        if payment_type == 'razorpayMethod':
-            payment.payment_method = 'Razor Pay'      # set current payment method
-            payment.payment_id = payment_id           # check this payment_id
-            # this is the error occuring portion
-            payment.is_paid = True
-            payment.save()
-            return JsonResponse({'status': "Transaction has been successfully completed"})
+            my_order.payment = payment
+            my_order.save()
+            return render(request, 'product/order_confirmed.html')
         
-        # payment method : paypal pay
-        else:
-            pass
-        
+        payment.payment_method = 'Razor Pay'                            # set current payment method
+        payment.payment_id = request.POST.get('payment_id')             # check this payment_id
+        payment.is_paid = True
+        payment.save()
         my_order.payment = payment
         my_order.save()
-                      
-        return redirect('order_confirmed')
-  
+       
+        return JsonResponse({
+            'status': True,
+        })
+        
+    
     return render(request, 'product/order_confirmed.html')
 
 
@@ -116,8 +113,8 @@ def order_confirmed(request):
 def proceed_to_pay(request):
     my_user = request.user
     payable_amount = 0
-    checkout = Checkout.objects.get(user=my_user)
-    payable_amount = payable_amount + checkout.payable_amount
+    checkout = Checkout.objects.get(user=my_user.id)
+    payable_amount = int(payable_amount + checkout.grand_total)
     return JsonResponse({
         'payable_amount': payable_amount,
     })
@@ -139,7 +136,6 @@ def order_view(request):
 
 @login_required(login_url='user_login')
 def order_details(request, order_id):
-    order = Order.objects.get()
     return render(request, 'user/order_details.html')
 
 
@@ -147,20 +143,39 @@ def order_details(request, order_id):
 @login_required(login_url='user_login')
 def order_cancel(requset, order_id):
     order_product = OrderProduct.objects.get(id=order_id)
-    variant = order_product.variant
+    variant = ProductVariant.objects.get(id=order_product.variant.id)
     order = order_product.order_id
     payment = order.payment
+    coupon = order.coupon
+    user = order.user
+    deduct_discount = order.discount
 
     if requset.method == 'POST':
         reason = requset.POST['cancelReason']
         if reason:
             order_product.return_reason = reason
+        
         order.status = "Cancelled"
         payment.status = 'Order cancelled'
         variant.stock += order_product.quandity
         if payment.payment_method != "Cashon Delivery":
             #cash back logic should be handle here.
-            pass
+
+            if order.total < 2500:                      # delivery charge logic.
+                delivery_charge = 99
+            else:
+                delivery_charge = 0
+            amount = variant.product_price * order_product.quandity
+            if coupon:
+                if order.total - amount >= coupon.minimum_order_amount:
+                    deduct_discount = 0
+                else:
+                    order.discount = 0
+            
+            refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)           # calculating refund amount.
+            user.wallet = float(user.wallet) + float(refund_amount) 
+            user.save()
+            
         order.save()
         order_product.save()
         variant.save()
@@ -180,3 +195,8 @@ def order_return(request, order_id):
     order_item.save()
 
     return redirect('order_view')
+
+
+
+def order_success(request):
+    return render(request, 'product/success.html')

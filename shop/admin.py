@@ -19,9 +19,14 @@ class VariantAdmin(admin.ModelAdmin):
     list_display = ('id', 'product',)
 
 
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('user', 'product', 'rating',)
+
+
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(ProductBrand, BrandAdmin)
 admin.site.register(ProductSize)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductVariant, VariantAdmin)
 admin.site.register(MultipleImages)
+admin.site.register(Review, ReviewAdmin)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
+from user_app.models import *
 
 
 # Create your models here.
@@ -61,6 +62,7 @@ class Product(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
+    offer = models.IntegerField(default=0, null=True, blank=True)
 
     class Meta:
         ordering = ['product_name']
@@ -130,6 +132,20 @@ class Banner(models.Model):
 
     def __str__(self):
         return f"{self.section} - location  : {self.identifier}"
+    
+
+
+class Review(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    review = models.TextField(null=True, blank=True)
+    rating = models.IntegerField(default=0, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    like = models.IntegerField(default=0, null=True, blank=True)
+    dislike = models.IntegerField(default=0, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.product}"
     
 
 

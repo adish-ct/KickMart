@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from order.models import *
+from django.http import JsonResponse
+
 
 # Create your views here.
 
@@ -196,21 +198,119 @@ def add_cart(request, product_id):
     return redirect('cart')
 
 
+# @cache_control(no_cache=True, no_store=True)
+# def remove_cart(request, variant_id):
+#     if request.method == 'POST':
+#         variant = get_object_or_404(ProductVariant, id=variant_id)
+#         if 'user' in request.session:
+#             my_user = request.user.id
+#             try:
+#                 cart_item = CartItem.objects.get(product=variant, customer=my_user)
+#                 if cart_item.quantity > 1:
+#                     cart_item.quantity -= 1
+#                     cart_item.save()
+#                 else:
+#                     cart_item.delete()
+#             except CartItem.DoesNotExist:
+#                 pass
+#         else:
+#             cart = Cart.objects.get(cart_id=_cart_id(request))         # fetch the current cart, cart will be present in this case.
+#             try:
+#                 cart_item = CartItem.objects.get(product=variant, cart=cart)    # fetch the cart item 
+#                 if cart_item.quantity > 1:
+#                     cart_item.quantity = cart_item.quantity - 1
+#                     cart_item.save()
+#                 else:
+#                     cart_item.delete()
+#             except CartItem.DoesNotExist:
+#                 pass
+#         return redirect('cart')
+#     else:
+#         return redirect('cart')
+
+
+# @cache_control(no_cache=True, no_store=True)
+# def add_cart_quandity(request, variant_id):
+#     if request.method == 'POST':
+#         variant = ProductVariant.objects.get(id=variant_id)
+#         if 'user' in request.session:
+#             my_user = request.user
+
+#             try:
+#                 cart_item = CartItem.objects.get(customer=my_user, product=variant)
+#                 if variant.stock > cart_item.quantity:
+#                     cart_item.quantity += 1
+#                 else:
+#                     messages.error(request, "No more products available in the current variant")
+#                 cart_item.save()
+#             except CartItem.DoesNotExist:
+#                 pass
+#         else:
+#             try:
+#                 cart = Cart.objects.get(cart_id=_cart_id(request)) 
+#                 cart_item = CartItem.objects.get(cart=cart, product=variant)
+#                 if variant.stock > cart_item.quantity:
+#                     cart_item.quantity += 1
+#                 else:
+#                     messages.error(request, "No more products available in the current variant")
+#                 cart_item.save()
+#             except CartItem.DoesNotExist:
+#                 pass
+#         return redirect('cart')
+#     else:
+#         return redirect('cart')
+
+
 @cache_control(no_cache=True, no_store=True)
-def remove_cart(request, variant_id):
+def remove_cart_quandity(request):
+    
     if request.method == 'POST':
-        variant = get_object_or_404(ProductVariant, id=variant_id)
+        grant_total = 0
+        delivery_charge = 99
+        total_amount = 0
+        variant_id = request.POST.get('product_id')
+        product_quantity = request.POST.get('product_quandity')
+        variant = ProductVariant.objects.get(id=variant_id)
+
         if 'user' in request.session:
             my_user = request.user.id
             try:
                 cart_item = CartItem.objects.get(product=variant, customer=my_user)
                 if cart_item.quantity > 1:
                     cart_item.quantity -= 1
-                    cart_item.save()
+                    
                 else:
                     cart_item.delete()
+
+                cart_item.save()
+                product_quantity = cart_item.quantity
+                total = cart_item.product.product_price * cart_item.quantity
+
+                cart_items = CartItem.objects.filter(customer=my_user).order_by('id')
+                for item in cart_items: 
+                    grant_total += (item.product.product_price * item.quantity)
+
             except CartItem.DoesNotExist:
                 pass
+
+            try:
+                #check out handling
+                checkout = Checkout.objects.get(user=my_user)
+                
+                checkout.total = grant_total
+                if grant_total > 2500:
+                    delivery_charge = 0
+                checkout.shipping = delivery_charge                         # checkout saving delivery charge
+             
+                tax = (grant_total * 3) // 100
+                checkout.tax = tax
+                total_amount = (grant_total + tax + delivery_charge)  # calculating grand total.
+                checkout.grand_total = total_amount
+
+                checkout.save()
+            except Checkout.DoesNotExist:
+                pass
+
         else:
             cart = Cart.objects.get(cart_id=_cart_id(request))         # fetch the current cart, cart will be present in this case.
             try:
@@ -220,17 +320,35 @@ def remove_cart(request, variant_id):
                     cart_item.save()
                 else:
                     cart_item.delete()
+                product_quantity = cart_item.quantity
             except CartItem.DoesNotExist:
                 pass
-        return redirect('cart')
+
+            return redirect('cart')
+
+        return JsonResponse({
+            'quantity': product_quantity,
+            'total': total,
+            'grant_total': grant_total,
+            'total_amount': checkout.grand_total,
+            'tax': checkout.tax,
+            })
     else:
         return redirect('cart')
 
 
+
+
 @cache_control(no_cache=True, no_store=True)
-def add_cart_quandity(request, variant_id):
+def add_cart_quandity(request):
     if request.method == 'POST':
+        grant_total = 0
+        delivery_charge = 99
+        total_amount = 0
+        variant_id = request.POST.get('product_id')
+        product_quantity = request.POST.get('product_quandity')
         variant = ProductVariant.objects.get(id=variant_id)
+        
         if 'user' in request.session:
             my_user = request.user
 
@@ -240,21 +358,59 @@ def add_cart_quandity(request, variant_id):
                     cart_item.quantity += 1
                 else:
                     messages.error(request, "No more products available in the current variant")
+
                 cart_item.save()
+                product_quantity = cart_item.quantity
+                total = cart_item.product.product_price * cart_item.quantity
+
+                cart_items = CartItem.objects.filter(customer=my_user)
+                
+                for item in cart_items: 
+                    grant_total += (item.product.product_price * item.quantity)
+
             except CartItem.DoesNotExist:
                 pass
+
+            try:
+                #check out handling
+                checkout = Checkout.objects.get(user=my_user.id)
+                
+                checkout.total = grant_total
+                if grant_total > 2500:
+                    delivery_charge = 0
+                checkout.shipping = delivery_charge                         # checkout saving delivery charge
+             
+                tax = (grant_total * 3) // 100
+                checkout.tax = tax
+                total_amount = (grant_total + tax + delivery_charge)  # calculating grand total.
+                checkout.grand_total = total_amount
+
+                checkout.save()
+            except Checkout.DoesNotExist:
+                pass
+
         else:
             try:
                 cart = Cart.objects.get(cart_id=_cart_id(request)) 
                 cart_item = CartItem.objects.get(cart=cart, product=variant)
                 if variant.stock > cart_item.quantity:
                     cart_item.quantity += 1
+                    product_quantity += 1
                 else:
                     messages.error(request, "No more products available in the current variant")
                 cart_item.save()
+                total = cart_item.product.product_price * cart_item.quantity
+
+                
             except CartItem.DoesNotExist:
                 pass
-        return redirect('cart')
+        return JsonResponse({
+            'quantity': product_quantity,
+            'total': total,
+            'grant_total': grant_total,
+            'total_amount': checkout.grand_total,
+            'tax': checkout.tax,
+            })
     else:
         return redirect('cart')
 
@@ -319,7 +475,7 @@ def checkout(request):
 
             checkout_items.save()
 
-            # wallet handling
+            # wallet handling must accept this condition on the time of order submit.
             if float(checkout_items.grand_total) > float(checkout_items.wallet):
                 checkout_items.payable_amount = float(checkout_items.grand_total) - float(checkout_items.wallet)
                 my_user.wallet = float(my_user.wallet) - float(checkout_items.wallet) 

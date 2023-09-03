@@ -77,13 +77,25 @@ admin-product-interface
            
                         <div class="row mb-4">
                             <div class="col-md-4">
+                                <div class="col">
+                                    <div class="form-outline">
+                                        <input type="number" name="productOffer" id="productOffer" class="form-control bg-dark text-white" min="0" step="any" style="width: 50%" required/>
+                                        <label class="form-label" for="productOffer">Product offer</label>
+                                    </div>
+                                </div>
+                            </div> 
+                            
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <input class="form-control" type="file" id="formFiless" name="image">
                                     <label for="formFiless" class="form-label">Choose your image</label>
                                 </div>
-                            </div>
+                            </div>                            
+                        </div>
+
+                        <div class="row mb-4">
                             <!-- Multiple Image -->
-                            <div class="col-md-4 mx-auto">
+                            <div class="col-md-4">
                                 <label class="text-danger">*Select two or more images for adding
                                     multiple images *</label>
                                 <div class="mb-3">
@@ -91,9 +103,8 @@ admin-product-interface
                                     <label for="formFile" class="form-label">Choose your image</label>
                                 </div>
                             </div>
-                        </div>
 
-                        
+                        </div>
                         
                         
 
