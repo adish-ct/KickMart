@@ -9,6 +9,7 @@ import razorpay
 import datetime
 from decimal import Decimal
 from django.http import JsonResponse
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
 
@@ -18,6 +19,8 @@ def order(request):
     user = request.user
     checkout_items = Checkout.objects.get(user=user)
     cart_items = CartItem.objects.filter(customer=user)
+    if not cart_items:
+        return redirect('index')
     
     context = {
         'checkout_items': checkout_items,
@@ -26,10 +29,15 @@ def order(request):
     return render(request, 'product/order_confirm.html', context)
 
 
+@never_cache
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def order_confirmed(request):
     my_user = request.user
+    try:
+        cart_items = CartItem.objects.filter(customer=my_user)
+    except:
+        return redirect('index')
     checkout = Checkout.objects.get(user=my_user)
     if request.method == 'POST':
         total = checkout.grand_total
@@ -46,6 +54,12 @@ def order_confirmed(request):
         my_order.is_ordered = True
         my_order.coupon = checkout.coupon
 
+        if float(checkout.grand_total) < float(checkout.wallet):
+            my_user.wallet = float(checkout.wallet) - float(checkout.grand_total)
+        else:
+            my_user.wallet = 0
+
+        my_user.save() 
         my_order.save()
 
         # creating order with current date and order id
@@ -83,6 +97,10 @@ def order_confirmed(request):
             variant.stock = variant.stock - item.quantity
             variant.save()
             item.delete()
+        try:
+            cart_items.delete()
+        except:
+            pass
 
         # payment method : cashon delivery
         if payment_type == 'cashonDelivery':
@@ -157,7 +175,9 @@ def order_cancel(requset, order_id):
         
         order.status = "Cancelled"
         payment.status = 'Order cancelled'
+        order_product.item_cancel = True
         variant.stock += order_product.quandity
+        
         if payment.payment_method != "Cashon Delivery":
             #cash back logic should be handle here.
 

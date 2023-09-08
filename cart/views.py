@@ -158,9 +158,18 @@ def add_cart(request, product_id):
 
     # getting variant of product
     if request.method == 'POST':
-        product = Product.objects.get(id=product_id)
-        size = request.POST['selectedValue']
-        variant = ProductVariant.objects.get(Q(product=product), Q(product_size__size=size))
+        try:
+            product = Product.objects.get(id=product_id)
+            category_slug = product.category.slug
+            product_slug = product.slug
+            size = request.POST['selectedValue']
+            if size:
+                variant = ProductVariant.objects.get(Q(product=product), Q(product_size__size=size))
+            else:
+                messages.error(request, 'choose a size')
+                return redirect('detail_view', category_slug, product_slug)
+        except ProductVariant.DoesNotExist:
+            return redirect('detail_view', category_slug, product_slug)
 
     # getting cart    
     try:
@@ -278,13 +287,15 @@ def remove_cart_quandity(request):
                 cart_item = CartItem.objects.get(product=variant, customer=my_user)
                 if cart_item.quantity > 1:
                     cart_item.quantity -= 1
+                    cart_item.save()
                     
                 else:
                     cart_item.delete()
-
-                cart_item.save()
+                
                 product_quantity = cart_item.quantity
                 total = cart_item.product.product_price * cart_item.quantity
+                if total <= 0:
+                    delivery_charge = 0
 
                 cart_items = CartItem.objects.filter(customer=my_user).order_by('id')
                 for item in cart_items: 
@@ -329,6 +340,7 @@ def remove_cart_quandity(request):
         return JsonResponse({
             'quantity': product_quantity,
             'total': total,
+            'delivery_charge': delivery_charge,
             'grant_total': grant_total,
             'total_amount': checkout.grand_total,
             'tax': checkout.tax,
@@ -360,9 +372,9 @@ def add_cart_quandity(request):
                     messages.error(request, "No more products available in the current variant")
 
                 cart_item.save()
+
                 product_quantity = cart_item.quantity
                 total = cart_item.product.product_price * cart_item.quantity
-
                 cart_items = CartItem.objects.filter(customer=my_user)
                 
                 for item in cart_items: 
@@ -449,13 +461,20 @@ def coupon_remove(request):
 def checkout(request):
     if 'user' in request.session:
         my_user = request.user
+        cart_items = CartItem.objects.filter(customer=my_user)
+        if not cart_items:
+            return redirect('index')
         checkout_user = my_user.id
         try:
             checkout_items = Checkout.objects.get(user=checkout_user)
         except Checkout.DoesNotExist:
             checkout_items = None
-        address = UserAddress.objects.filter(user=my_user)
-        
+        try:
+            address = UserAddress.objects.filter(user=my_user)
+        except Exception as e:
+            print(e)
+            messages.error(request, "choose address")
+            return redirect('checkout')
         context = {
             'addresses': address,
             'checkout_items': checkout_items,
@@ -463,8 +482,14 @@ def checkout(request):
 
         # place holder handling logic after form submission.
         if request.method == 'POST':
-            delivery_address = UserAddress.objects.get(id=request.POST['selectAddress'])
-            payment = request.POST['paymentMethod']
+            try:
+                delivery_address = UserAddress.objects.get(id=request.POST['selectAddress'])
+                payment = request.POST['paymentMethod']
+            except Exception as e:
+                messages.error(request, "Choose delivery address")
+                return redirect('checkout')
+            
+            # wallet is selected or not.
             try:
                 wallet = request.POST['selectWallet']
             except:
@@ -478,17 +503,18 @@ def checkout(request):
             # wallet handling must accept this condition on the time of order submit.
             if float(checkout_items.grand_total) > float(checkout_items.wallet):
                 checkout_items.payable_amount = float(checkout_items.grand_total) - float(checkout_items.wallet)
-                my_user.wallet = float(my_user.wallet) - float(checkout_items.wallet) 
+                # my_user.wallet = float(my_user.wallet) - float(checkout_items.wallet) 
 
             elif float(checkout_items.grand_total) < float(checkout_items.wallet):
                 checkout_items.payable_amount = 0
-                my_user.wallet = float(checkout_items.wallet) - float(checkout_items.grand_total) 
+                # my_user.wallet = float(checkout_items.wallet) - float(checkout_items.grand_total) 
 
             else:
                 checkout_items.payable_amount = 0
-                my_user.wallet = float(my_user.wallet) - float(checkout_items.grand_total)
+                # my_user.wallet = float(my_user.wallet) - float(checkout_items.grand_total)
                 
             checkout_items.save()
+
             my_user.save()
                 
             return redirect('order')

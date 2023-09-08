@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.http import HttpResponse
+from .utils import generate_referal_code
 
 
 # app : user_app
@@ -40,7 +42,8 @@ class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
     phone = models.CharField(max_length=10, unique=True)
-    image = models.ImageField(upload_to='profile_images', blank=True, null=True)
+    image = models.ImageField(upload_to='profile_images', blank=True, null=True, default="{% static "
+                                                                                         "'img/none_user.jpg' %}")
     date_of_birth = models.DateField(blank=True, null=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
@@ -73,5 +76,38 @@ class UserAddress(models.Model):
 
     def __str__(self):
         return f"{self.user.email}"
+    
+
+class PasswordControl(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    forgot_password_token = models.CharField(max_length=150, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.email
+    
+
+class Profile(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True, null=True)
+    referal_code = models.CharField(max_length=12, blank=True, null=True)
+    refered_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='referrals')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.first_name}-{self.referal_code}"
+
+    def get_recommened_profiles(self):
+        pass
+
+    def save(self, *args, **kwargs):
+        if self.referal_code == "":
+            code = generate_referal_code()
+            self.referal_code = code
+        super().save(*args, **kwargs)
+
+
+    
     
 

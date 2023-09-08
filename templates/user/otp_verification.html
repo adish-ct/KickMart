@@ -21,6 +21,10 @@
       rel="stylesheet"
     />
 
+       <!--Alertify CSS and styles -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css"/>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -250,4 +254,14 @@
       </div>
     </div>
   </body>
+  <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+
+    <script>
+
+      {% for message in messages %}
+        alertify.set('notifier','position', 'top-right');
+        alertify.success('{{message}}');
+      {% endfor %}
+    </script>
+    
 </html>

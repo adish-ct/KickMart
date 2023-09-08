@@ -11,20 +11,19 @@ from cart.models import *
 from order.models import *
 
 
-
 # app : shop
 
 # Create your views here.
 def products(request, category_slug=None):
     if 'email' in request.session:
         return redirect('admin_dashboard')
-    
+
     categories = None
     all_products = None
     brands = ProductBrand.objects.all()
     sizes = ProductSize.objects.all()
 
-    if category_slug !=None:
+    if category_slug != None:
         category = Category.objects.get(slug=category_slug)
         all_products = Product.objects.filter(category=category, is_available=True)
         paginator = Paginator(all_products, 9)
@@ -32,7 +31,7 @@ def products(request, category_slug=None):
         paged_products = paginator.get_page(page)
         product_count = all_products.count()
 
-    else:    
+    else:
         all_products = Product.objects.all()
         paginator = Paginator(all_products, 9)
         page = request.GET.get('page')
@@ -52,7 +51,7 @@ def products(request, category_slug=None):
                 maximum_price = request.POST['maxPrice']
                 if not maximum_price:
                     maximum_price = 10000
-                
+
                 if selected_category:
                     filter_products = filter_products.filter(category__category_name__in=selected_category)
 
@@ -67,13 +66,11 @@ def products(request, category_slug=None):
                     ).values_list('id', flat=True)
                     filter_products = filter_products.filter(id__in=suitable_products)
 
-
                     return HttpResponse(filter_products)
                 if minimum_price and maximum_price:
-                    filter_products = filter_products.filter(selling_price__gte=minimum_price, selling_price__lte=maximum_price)
+                    filter_products = filter_products.filter(selling_price__gte=minimum_price,
+                                                             selling_price__lte=maximum_price)
 
-                
-                
                 # return HttpResponse(filter_products)
 
         except:
@@ -83,7 +80,6 @@ def products(request, category_slug=None):
         page = request.GET.get('page')
         paged_products = paginator.get_page(page)
         product_count = filter_products.count()
-    
 
     context = {
         'products': paged_products,
@@ -114,7 +110,7 @@ def detail_view(request, category_slug, product_slug):
         for i in reviews:
             rating_total += i.rating
         avarage_rating = rating_total // reviews_count
-    
+
     context = {
         'product': single_product,
         'variant': variant,
@@ -130,15 +126,14 @@ def detail_view(request, category_slug, product_slug):
     return render(request, 'product/viewproduct.html', context)
 
 
-
 def search(request):
     if 'search' in request.GET:
         keyword = request.GET['search']
         if keyword:
             products = Product.objects.order_by('created_date').filter(
-                Q(product_name__icontains = keyword) |
-                Q(product_description__icontains = keyword) |
-                Q(category__category_name__icontains = keyword)
+                Q(product_name__icontains=keyword) |
+                Q(product_description__icontains=keyword) |
+                Q(category__category_name__icontains=keyword)
             ).filter(is_available=True)
             products_count = products.count()
         else:
@@ -148,7 +143,6 @@ def search(request):
             'product_count': products_count,
         }
     return render(request, 'product/product.html', context)
-
 
 
 def search_by_name(request):
@@ -164,9 +158,8 @@ def search_by_name(request):
             'products': products,
             'product_count': product_count,
         }
-       
-    return render(request, 'product/product.html', context)
 
+    return render(request, 'product/product.html', context)
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -183,12 +176,16 @@ def review(request):
         product_slug = product.slug
         if product.id in order_items:
             product_review = Review.objects.create(
-                user = my_user,
-                product = product,
-                rating = request.POST['rating'],
-                review = request.POST['review'],
+                user=my_user,
+                product=product,
+                rating=request.POST['rating'],
+                review=request.POST['review'],
             )
         else:
             messages.error(request, "You are not purchsed these item!")
 
     return redirect(detail_view, category_slug, product_slug)
+
+
+def error_404(request, exception):
+    return render(request, "404error.html")

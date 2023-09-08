@@ -21,7 +21,10 @@ product-reports
   <div class="bg-secondary text-center rounded p-4">
       <div class="d-flex align-items-center justify-content-between mb-4">
           <h3 class="mb-0">Stock Reports</h3>
-          <a href="">Show All</a>
+          <div class="d-flex flex-column gap-3">
+            <button class="btn btn-sm btn-warning" onclick="printTable()">Download <i class="bi bi-filetype-pdf"></i> </button>
+            <button class="btn btn-sm btn-warning" onclick="exportReportToExcel()">Download <i class="bi bi-file-earmark-excel"></i></button>
+        </div>
       </div>
       <div class="table-responsive">
           <table class="table text-start align-middle table-bordered table-hover mb-2" id="sortTable">
@@ -45,7 +48,7 @@ product-reports
                       <td> {{ variant.product_size.size }} </td>
                       <td> {{ variant.stock }} </td>
                       <td> {{ variant.product_price }} </td>
-                      <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
+                      <td></td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -57,31 +60,36 @@ product-reports
 
   <div class="bg-secondary text-center rounded p-4 mt-5">
     <div class="d-flex align-items-center justify-content-between mb-4">
-        <h3 class="m5">Stock Reports</h3>
-        <a href="">Show All</a>
+        <h3 class="m5">Cancel Reports</h3>
+        <div class="d-flex flex-column gap-3">
+          <button class="btn btn-sm btn-warning" onclick="printCancelTable()">Download <i class="bi bi-filetype-pdf"></i> </button>
+          <button class="btn btn-sm btn-warning" onclick="exportCancelTable()">Download <i class="bi bi-file-earmark-excel"></i></button>
+      </div>
     </div>
     <div class="table-responsive">
-        <table class="table text-start align-middle table-bordered table-hover mb-2" id="sortTable">
+        <table class="table text-start align-middle table-bordered table-hover mb-2" id="customTable">
             <thead class="mt-2" style="font-size: 20px;">
                 <tr class="text-white">
                     <th scope="col">Sr No:</th>
                     <th scope="col">Item Id</th>
                     <th scope="col">Product</th>
                     <th scope="col">Size</th>
-                    <th scope="col">Stock</th>
+                    <th scope="col">Reason</th>
                     <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
-              {% for variant in variants %}
+              {% for order in cancel_orders %}
                 <tr style="font-size: 18px;">
                     <td> {{ forloop.counter }} </td>
-                    <td> {{ variant.id }} </td>
-                    <td> {{ variant.product }} </td>
-                    <td> {{ variant.product_size.size }} </td>
-                    <td> {{ variant.stock }} </td>
-                    <td> {{ variant.product_price }} </td>
+                    <td> {{ order.id }} </td>
+                    <td> {{ order.variant.product.product_name }} </td>
+                    <td> {{ order.variant.product_size.size }} </td>
+                    <td> {{ order.return_reason }} </td>
+                    <td> {{ order.product_price }} </td>
+                    <td> {{ order.quandity }} </td>
                     <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
                 </tr>
               {% endfor %}
@@ -92,10 +100,8 @@ product-reports
 
 </div>
 
+{% block js %}
+<script src="{% static 'js/print.js' %}"></script>
+{% endblock js %}
 
-
-<p> hello </p>
-
-
-            
 {% endblock %}

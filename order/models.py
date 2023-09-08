@@ -66,6 +66,7 @@ class OrderProduct(models.Model):
     return_accept = models.BooleanField(default=False)
     is_returned = models.BooleanField(default=False)
     return_reason = models.TextField(blank=True)
+    item_cancel = models.BooleanField(default=False, blank=True, null=True)
 
     def __str__(self):
         return f"{self.customer.email} - {self.variant.product.product_name}" 

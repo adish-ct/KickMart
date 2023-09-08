@@ -139,6 +139,7 @@ cart-product
               </div>
             </div>
             {% endfor %} {% endcomment %}
+            
             {% for item in cart_items %}
             <div class="card p-4 mb-3 product_data">
               <div class="row">
@@ -179,12 +180,12 @@ cart-product
                   <div class="d-flex mb-4" style="max-width: 300px">
                       {% if item.quantity <= item.product.stock %}
                         {% if item.quantity > 0 %}
-                          <button class="text-center bg-transparent border decreaseQuantity">
+                          <button class="text-center bg-transparent border decreaseQuantity" onclick="click()">
                             <i class="fa fa-minus mx-auto"></i>
                           </button>
                         {% endif %}
                       {% else %}
-                        <button class="text-center bg-transparent border decreaseQuantity">
+                        <button class="text-center bg-transparent border decreaseQuantity" onclick="click()">
                           <i class="fa fa-minus mx-auto"></i>
                         </button>
                       {% endif %}
@@ -263,11 +264,6 @@ cart-product
               <button class="btn btn-primary" type="submit">Apply Coupon</button>
             </div>
           </div>
-          {% if messages %}
-              {% for message in messages %}
-              <span class="{{ message.tags}}"> {{ message }} </span>
-              {% endfor %}
-          {% endif %}
         </form>
 
         <!----------------------- coupon start ------------------------------>
@@ -276,25 +272,28 @@ cart-product
           <div class="card-header py-3">
             <h5 class="mb-0">Coupons</h5>
           </div>
-          <div class="card-body ps-3">
+          <div class="card-body">
+
             {% for coupon in coupons %}
-
-            <div class="form-check p-2">
-              {% comment %} <input class="form-check-input" type="radio" name="exampleRadios" id="coupon-{{ coupon.id }}" value="{{ coupon.id }}"> {% endcomment %}
-              <a href="" disable><i class="bi bi-plus-lg me-2"></i></a>
-              <label class="form-check-label " id="content-to-copy" for="coupon-{{ coupon.id }}">
-                {{ coupon.coupon_code }}
-              </label>
-
-              <small id="copy-button" class="text-info text-end">copy</small>
+            <div class="form-check p-2 d-flex justify-content-between">
+              <div class="">
+                  <a href="" disable><i class="bi bi-plus-lg me-2"></i></a>
+                  <label class="form-check-label " id="content-to-copy" for="coupon-{{ coupon.id }}">
+                    {{ coupon.coupon_code }}
+                  </label>
+              </div>
+              <small class="text-success" id="copyAlert-{{ coupon.id }}"></small>
+              <input type="hidden" id="copyContent-{{ coupon.id }}" value="{{ coupon.coupon_code }}">
+              <button id="copyButton-{{ coupon.id }}" class=" text-end border-0 bg-transparent" onclick="copy({{coupon.id}})"><i class="fa fa-clone" style="color: gray;"></i></button>
             </div>
-
+            
             {% endfor %}
+
           </div>
         </div>
 
-
-        <!-- coupon end -->
+        <!---------------------- coupon end ----------------------------------->
+        
           <div class="card mb-4">
             <div class="card-header py-3">
               <h5 class="mb-0">Summary</h5>

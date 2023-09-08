@@ -44,6 +44,7 @@ order-management
                                         <th scope="col">Customer</th>
                                         <th scope="col">Amount</th>
                                         <th scope="col">Payment</th>
+                                        <th scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -58,6 +59,7 @@ order-management
                                         <td> {{ order.user.email }} </td>
                                         <td> {{ order.order_total }} </td>
                                         <td>  {% if order.payment.is_paid %} Paid {% else %} Pending {% endif %} </td>
+                                        <td>  {% if order.status %} {{ order.status     }} {% else %} Pending {% endif %} </td>
                                         <td><a class="btn btn-sm btn-warning" href="{% url 'order_update' order.id %}">Detail</a></td>
                                     </tr>                                  
 

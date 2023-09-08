@@ -1,21 +1,22 @@
 import os
 import requests
+import uuid
+from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.utils.crypto import get_random_string
-from django.core.mail import send_mail
 from user_app.models import *
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from .mail import *
+from .sendMail import *
 from shop.models import *
 from django.http import HttpResponse
 from urllib.parse import urlparse
 from order.models import *
-
 
 # Create your views here.
 
@@ -26,7 +27,7 @@ from order.models import *
 def index(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
-    
+
     categories = Category.objects.all().order_by('id')
     products = Product.objects.all()[:4]
     latest_product = Product.objects.all().order_by('created_date')[:4:-1]
@@ -44,12 +45,70 @@ def index(request):
         'sub_banner_left': sub_banner_left[0],
         'sub_banner_right': sub_banner_right[0],
     }
-    
+
     return render(request, 'product/index.html', context)
 
 
 """ User can create new account, user sign up function"""
 
+
+# def user_signup(request, *args, **kwargs):
+#     if 'email' in request.session:
+#         return redirect('admin_dashboard')
+#     if 'user' in request.session:
+#         return redirect('index')
+#     else:
+#         try:
+#             code = kwargs.get('referal_code')
+#             try:
+#                 profile = Profile.objects.get(referal_code=code)
+#                 request.session['referal'] = profile.id
+#                 print('id', profile.id)
+#             except Exception as e:
+#                 print(e)
+#
+#             if request.method == 'POST':
+#                 first_name = request.POST['firstname']
+#                 last_name = request.POST['lastname']
+#                 username = request.POST['username']
+#                 email = request.POST['email']
+#                 phone = request.POST['phone']
+#                 password = request.POST['password']
+#                 c_password = request.POST['c_password']
+#
+#                 # exist_email will not null if the given email is already in the CustomerUser table.
+#                 exist_email = CustomUser.objects.filter(email=email)
+#                 exist_phone = CustomUser.objects.filter(phone=phone)
+#
+#                 # check if the email is already exist or not
+#                 if exist_email:
+#                     messages.error(request, "E-mail is already taken.")
+#                 elif exist_phone:
+#                     messages.error(request, "Phone number is already taken.")
+#                 else:
+#                     if password == c_password:
+#                         # Custom user is customised created model inherited by AbstractUser.
+#                         # create_user is customised created function it save and return user.
+#                         user = CustomUser.objects.create_user(email, password=password, phone=phone, first_name=first_name)
+#
+#                         # generate otp
+#                         otp = get_random_string(length=6, allowed_chars='1234567890')
+#
+#                         send_otp(email, otp)
+#                         user.otp = otp
+#                         user.save()
+#
+#                         return redirect('otp_verification', user.id)
+#                     else:
+#                         messages.error(request, "Password didn't match.")
+#
+#                         return redirect('user_signup')
+#                 return redirect('user_signup')
+#             else:
+#
+#                 return render(request, 'user/signup.html')
+#         except Exception as e:
+#             print(e)
 
 def user_signup(request):
     if 'email' in request.session:
@@ -57,49 +116,50 @@ def user_signup(request):
     if 'user' in request.session:
         return redirect('index')
     else:
-        if request.method == 'POST':
-            first_name = request.POST['firstname']
-            last_name = request.POST['lastname']
-            username = request.POST['username']
-            email = request.POST['email']
-            phone = request.POST['phone']
-            password = request.POST['password']
-            c_password = request.POST['c_password']
+        try:
+            if request.method == 'POST':
+                first_name = request.POST['firstname']
+                last_name = request.POST['lastname']
+                username = request.POST['username']
+                email = request.POST['email']
+                phone = request.POST['phone']
+                password = request.POST['password']
+                c_password = request.POST['c_password']
 
-            # exist_email will not null if the given email is already in the CustomerUser table.
-            exist_email = CustomUser.objects.filter(email=email)
-            exist_phone = CustomUser.objects.filter(phone=phone)
+                # exist_email will not null if the given email is already in the CustomerUser table.
+                exist_email = CustomUser.objects.filter(email=email)
+                exist_phone = CustomUser.objects.filter(phone=phone)
 
-            # check if the email is already exist or not
-            if exist_email:
-                messages.error(request, "E-mail is already existing")
-            elif exist_phone:
-                messages.error(request, "Phone is already existing")
-            else:
-                if password == c_password:
-                    # Custom user is customised created model inherited by AbstractUser.
-                    # create_user is customised created function it save and return user.
-                    user = CustomUser.objects.create_user(email, password=password, phone=phone, first_name=first_name)
-                    user_id = user.id
-                    # generate otp
-                    otp = get_random_string(length=6, allowed_chars='1234567890')
-
-                    # send mail with generated otp to the user's email from email host , check settings.py
-                    subject = 'Verify your account'
-                    message = f'Your OTP for account verification is {otp}'
-                    email_from = settings.EMAIL_HOST_USER
-                    recipient_list = [email, ]
-                    send_mail(subject, message, email_from, recipient_list)
-
-                    # save the otp in database,
-                    user.otp = otp
-                    user.save()
-                    return redirect('otp_verification', user_id)
+                # check if the email is already exist or not
+                if exist_email:
+                    messages.error(request, "E-mail is already taken.")
+                elif exist_phone:
+                    messages.error(request, "Phone number is already taken.")
                 else:
-                    messages.error(request, "Password didn't match..")
-                    return redirect('user_signup')
-        else:
-            return render(request, 'user/signup.html')
+                    if password == c_password:
+                        # Custom user is customised created model inherited by AbstractUser.
+                        # create_user is customised created function it save and return user.
+                        user = CustomUser.objects.create_user(email, password=password, phone=phone,
+                                                              first_name=first_name)
+
+                        # generate otp
+                        otp = get_random_string(length=6, allowed_chars='1234567890')
+
+                        send_otp(email, otp)
+                        user.otp = otp
+                        user.save()
+
+                        return redirect('otp_verification', user.id)
+                    else:
+                        messages.error(request, "Password didn't match.")
+
+                        return redirect('user_signup')
+                return redirect('user_signup')
+            else:
+
+                return render(request, 'user/signup.html')
+        except Exception as e:
+            print(e)
 
 
 @cache_control(no_store=True, no_cache=True)
@@ -114,20 +174,22 @@ def otp_verification(request, user_id):
     }
     if request.method == 'POST':
         otp = request.POST['otp']
+
         if len(otp) == 6:
             if otp == user.otp:
                 user.is_verified = True
                 user.otp = ''
                 user.save()
-                messages.success(request, "Account successfully verified, login now.")
+                messages.success(request, "Account verified.")
                 return redirect('user_login')
             else:
-                messages.error(request, 'Invalid OTP, try again')
+                messages.error(request, 'Invalid OTP.')
                 return redirect('otp_verification', user.id)
         else:
-            messages.error(request, 'Please enter a valid OTP....')
-    else:
-        return render(request, 'user/otp_verification.html', context)
+            messages.error(request, "Invalid OTP")
+            return redirect('otp_verification', user.id)
+
+    return render(request, 'user/otp_verification.html', context)
 
 
 @cache_control(no_store=True, no_cache=True)
@@ -164,7 +226,7 @@ def user_login(request):
                 if user.is_verified and user.is_superuser == False:
                     login(request, user)
                     request.session['user'] = email
-                    messages.success(request, "logged in successfully, welcome")
+                    messages.success(request, "logged in successfully")
 
                     # if the request is come from cart page we have to redirect the user into checkout page thats handle here
                     url = request.META.get('HTTP-REFERER')
@@ -180,9 +242,9 @@ def user_login(request):
                         return redirect('index')
                     # section end 
                 else:
-                    messages.error(request, "please submit valid credentials.")
+                    messages.error(request, "invalid credentials.")
             else:
-                messages.error(request, "Invalid credentials, Try again")
+                messages.error(request, "Invalid credentials.")
                 return redirect('user_login')
         return render(request, 'user/login.html')
 
@@ -195,10 +257,10 @@ def user_logout(request):
     if 'user' in request.session:
         logout(request)
         request.session.flush()
+        messages.success(request, 'Logout successfully.')
         return redirect('index')
     else:
         return redirect('index')
-    
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -227,15 +289,15 @@ def user_profile(request):
         user.last_name = last_name
         user.phone = phone
         user.save()
+        messages.success(request, "profile updated")
         return redirect('user_profile')
-    
+
     context = {
         'order': order,
         'order_count': order_count,
     }
-    
-    return render(request, 'user/user_profile.html', context)
 
+    return render(request, 'user/user_profile.html', context)
 
 
 @login_required(login_url='index')
@@ -247,7 +309,6 @@ def address_book(request):
         'address': address,
     }
     return render(request, 'user/address_book.html', context)
-
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -266,21 +327,82 @@ def add_address(request, id):
         if not name:
             name = user.first_name
 
-        user_address = UserAddress(user=user, name=name, alternative_mobile=phone, address=address, town=town, zip_code=zip, nearby_location=location, district=district, )
+        user_address = UserAddress(user=user, name=name, alternative_mobile=phone, address=address, town=town,
+                                   zip_code=zip, nearby_location=location, district=district, )
         user_address.save()
 
         if id == 1:
             return redirect('checkout')
         else:
+            messages.success(request, "Address added successfully.")
             return redirect('address_book')
     return render(request, 'user/add_address.html')
 
+
+def forgot_password(request):
+    try:
+        if request.method == 'POST':
+            email = request.POST.get('email', None)
+            my_user = CustomUser.objects.get(email=email)
+            token = str(uuid.uuid4())
+            try:
+                profile_token = PasswordControl.objects.get(user=my_user.id)
+            except:
+                profile_token = PasswordControl.objects.create(user=my_user)
+            profile_token.forgot_password_token = token
+            profile_token.save()
+
+            send_forgot_password_mail(email, token)
+
+            messages.success(request, "Password reset link sent to the email.")
+            return redirect('user_login')
+
+    except Exception as e:
+        messages.error(request, "User not found")
+        print(e)
+    return render(request, 'user/forgot_password.html')
+
+
+def change_password(request, token):
+    context = {}
+    try:
+        profile = PasswordControl.objects.get(forgot_password_token=token)
+
+        if request.method == 'POST':
+            try:
+                password = request.POST['password']
+                c_password = request.POST['cpassword']
+                user_id = request.POST['user_id']
+
+                token_id = PasswordControl.objects.filter(forgot_password_token=token).first()
+
+                if password != c_password:
+                    messages.error(request, "Password is not matching.")
+                    return redirect('reset_password', token)
+
+                user = token_id.user
+                user.set_password(password)
+                user.save()
+                messages.success(request, "password changed")
+            except Exception as e:
+                print(e)
+                messages.error(request, "Invalid credentials.")
+            return redirect('user_login')
+
+        context = {
+            'user_id': profile.user.id,
+            'token': token,
+        }
+    except Exception as e:
+        messages.error(request, "something went wrong.")
+        print(e)
+
+    return render(request, 'user/reset_password.html', context)
 
 
 def delete_address(request, address_id):
     user = request.user
     address = UserAddress.objects.get(id=address_id)
     address.delete()
+    messages.success(request, "Address deleted successfully.")
     return redirect('address_book')
-
-

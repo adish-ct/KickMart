@@ -8,17 +8,6 @@ kick-mart-login
     <div class="row">
       <div class="col-md-3"></div>
       <div class="col-md-6">
-<!--        <ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">-->
-<!--          <li class="nav-item" role="presentation">-->
-<!--            <a class="nav-link active" id="tab-login" data-mdb-toggle="pill" href="#pills-login" role="tab"-->
-<!--            aria-controls="pills-login" aria-selected="true">Login</a>-->
-<!--          </li>-->
-<!--          <li class="nav-item" role="presentation">-->
-<!--            <a class="nav-link" id="tab-register" data-mdb-toggle="pill" href="#pills-register" role="tab"-->
-<!--              aria-controls="pills-register" aria-selected="false">Register</a>-->
-<!--          </li>-->
-<!--        </ul>-->
-<!-- Pills navs -->
 
 <!-- Pills content -->
         <div class="tab-content">
@@ -35,9 +24,6 @@ kick-mart-login
                         YOUR ACCOUNT FOR EVERYTHING KICK-MART
                       </h3>
                     </div>
-                        {% for message in messages %}
-                            <small class=" text-center {{ message.tags }} bg-white"> {{ message }} </small>
-                        {% endfor %}
                   </div>
 
                   <!-- Email input -->
@@ -56,7 +42,7 @@ kick-mart-login
                   <div class="row mb-4">
                       <div class="col-md-12 text-end">
                         <!-- Simple link -->
-                        <a href="#!" style="color: grey">Forgot password?</a>
+                        <a href="{% url 'forgot_password' %}" style="color: grey">Forgot password?</a>
                       </div>
                 </div>
 
@@ -67,6 +53,7 @@ kick-mart-login
             </form>
 
 <!--    form end    -->
+
           </div>
         </div>
       </div>

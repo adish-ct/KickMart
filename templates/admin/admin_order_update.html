@@ -63,7 +63,7 @@ order-management
                             <p> : {{ order.status }}
                                 <select class="form-select" aria-label="Default select example" name="orderStatus">
                                     {% for value, label in order.STATUS %}
-                                    <option value="{{ value }}" {% if value == order.status %} selected {% endif %} >  {{ label }} </option>
+                                    <option value="{{ value }}" {% if value == order.status %} selected {% endif %}>  {{ label }} </option>
                                     {% endfor %}
                                 </select>
                             </p>

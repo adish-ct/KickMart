@@ -4,6 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from user_app.models import *
 
 
+
 # Create your models here.
 
 class Category(models.Model):
@@ -70,12 +71,10 @@ class Product(models.Model):
         verbose_name_plural = 'Products'
 
     def get_url(self):
-        return reverse('detail_view', args=[self.category.slug ,self.slug])
-
+        return reverse('detail_view', args=[self.category.slug, self.slug])
 
     def __str__(self):
         return '{}'.format(self.product_name)
-
 
 
 class ProductVariant(models.Model):
@@ -91,7 +90,7 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.product_name} - size : {self.product_size.size}"
-    
+
 
 class MultipleImages(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -99,8 +98,6 @@ class MultipleImages(models.Model):
 
     def __str__(self):
         return self.product.product_name
-    
-
 
 
 class Coupons(models.Model):
@@ -108,7 +105,8 @@ class Coupons(models.Model):
     coupon_code = models.CharField(max_length=20, unique=True)
     coupon_title = models.CharField(max_length=250, blank=True)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    discount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], blank=True, null=True)
+    discount = models.DecimalField(max_digits=10, decimal_places=2,
+                                   validators=[MinValueValidator(0), MaxValueValidator(100)], blank=True, null=True)
     valid_from = models.DateField(null=True)
     valid_to = models.DateField(null=True)
     quantity = models.PositiveIntegerField(null=True)
@@ -119,7 +117,7 @@ class Coupons(models.Model):
 
     def __str__(self):
         return self.coupon_code
-    
+
 
 class Banner(models.Model):
     image = models.ImageField(upload_to="banner_images", null=True, blank=True)
@@ -132,7 +130,6 @@ class Banner(models.Model):
 
     def __str__(self):
         return f"{self.section} - location  : {self.identifier}"
-    
 
 
 class Review(models.Model):
@@ -146,19 +143,3 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.product}"
-    
-
-
-    
-    
-
-
-    
-
-
-
-    
-
-
-
-

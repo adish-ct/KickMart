@@ -3,8 +3,8 @@
 # import random
 # from django.conf import settings
 # from .models import *
-#
-#
+
+
 # def send_otp_via_mail(email):
 #     subject = f'Verify your account with KickMart'
 #     otp = pyotp.TOTP(pyotp.random_base32(length=6))
@@ -16,7 +16,7 @@
 #     user.otp = otp
 #     user.save()
 #     return otp_value
-#
+
 #
 #
 # path('register/', views.register, name='register'),

@@ -47,6 +47,10 @@ def admin_dashboard(request):
     today = date.today()
     today_count = Order.objects.filter(created__date=today).count()
     today_revenue = Order.objects.filter(created__date=today).aggregate(total=Sum('order_total'))['total']
+    cash_on_delivery = Order.objects.filter(payment__payment_method='Cashon Delivery').count()
+    razor_pay = Order.objects.filter(payment__payment_method='Razor Pay').count()
+    # paypal = Order.objects.filter(payment__payment_method='Paypal').count()
+
     if request.method == 'POST':
         try:
             date_from = request.POST.get('startDate')
@@ -57,6 +61,9 @@ def admin_dashboard(request):
 
     ar = [2020,2021,2022, 2023]
     sales =[10000 ,2500,1200, 3500]
+
+    payment_count = [cash_on_delivery, razor_pay]
+    payment_method = ['Cash on Delivery', 'Razor Pay']
 
     month = ['June', 'July', 'Aug', 'Oct', 'Nov', 'Dec']
     order = [0, 0, order_count, 0, 0]
@@ -70,6 +77,8 @@ def admin_dashboard(request):
         'order_total': order_total,
         'today_count': today_count,
         'today_revenue': today_revenue,
+        'payment_count': payment_count,
+        'payment_method': payment_method,
     }
     return render(request, 'admin/admin_dashboard.html', context)
 
@@ -575,6 +584,8 @@ def order_update(request, order_id):
             payment.is_paid = True
         
         payment.save()
+        messages.success(request, 'Status updated')
+        return redirect('order_update', order_id)
     context = {
         'order': order,
         'order_items': order_items,
@@ -605,7 +616,7 @@ def return_request(request, item_id):
         variant.stock += order_item.quandity
         amount = variant.product_price * order_item.quandity
         if coupon:
-            if order.total - amount >= coupon.minimum_order_amount:
+            if float(order.total) - float(amount) >= float(coupon.minimum_order_amount):
                 deduct_discount = 0
             else:
                 order.discount = 0
@@ -696,11 +707,13 @@ def delete_banner(request, banner_id):
 @staff_member_required(login_url='admin_login')
 def reports(request):
     variants = ProductVariant.objects.all()
-    return
+    cancel_orders = OrderProduct.objects.filter(item_cancel=True)
+
     context = {
         'variants': variants,
-        
+        'cancel_orders': cancel_orders,
     }
+
     return render(request, 'admin/admin_reports.html', context)
 
 

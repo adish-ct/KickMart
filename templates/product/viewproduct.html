@@ -62,6 +62,7 @@
         </p>
       </div>
       <p class="mb-4">{{ product.product_description }}</p>
+
       <div class="d-flex mb-3">
 
         {% if variant %}
@@ -72,18 +73,32 @@
         <form id="myForm" method="POST" action="{% url 'add_cart' product.id %}">
           {% csrf_token %}
           <div id="buttonContainer">
+
             {% for item in variant %}
-            <button type="button" class="button-size" id="{{ item.id }}" data-value="{{ item.product_size }}"
-              onclick="selectButton({{ forloop.counter }})">
-              {{ item.product_size }}
-            </button>
+            {% if item.stock > 0 %}
+              <button type="button" class="button-size" id="{{ item.id }}" data-value="{{ item.product_size }}"
+                onclick="selectButton({{ forloop.counter }})">
+                  {{ item.product_size }}
+              </button>
+            {% else %}
+              <button type="button" class="button-size" id="" data-value="{{ item.product_size }}"
+              onclick="outOfStock()" style="border:1px solid red; color: red;">
+                {{ item.product_size }}
+              </button>
+            {% endif %}
             {% endfor %}
           </div>
+
+          <div style="height: 1em;" class="">
+            <small id="stockOut" class="text-danger">  </small>
+          </div>
+
           <input type="hidden" id="selectedValueInput" name="selectedValue" />
-          <button class="btn btn-primary px-3 mt-4" type="submit">
+          <button class="btn btn-primary px-3 mt-4" type="submit" id="addCartBtn" onclick="return checkSize()">
             <i class="fa fa-shopping-cart mr-1"></i> Add To Cart
           </button>
         </form>
+
         {% else %}
         <div class="text-center">
           <h5 class="text-danger">Currently unavailable</h5>
@@ -199,7 +214,11 @@
 
               {% for review in reviews %}
                 <div class="media mb-4">
-                  <img src="{{ review.user.image.url }}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px" />
+                  {% if review.user.image.url is not None %}
+                    <img src="{{ review.user.image.url }}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px" />
+                  {% else %}
+                    <img src="https://icon-library.com/images/no-user-image-icon/no-user-image-icon-26.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px" />
+                  {% endif %}
                   <div class="media-body">
                     <h6>
                       {{ review.user.first_name }} <small> - <i> {{ review.created }} </i></small>

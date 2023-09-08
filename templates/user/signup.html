@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>{% block title %} {% endblock %}</title>
+    <title>{% block title %} sign-up {% endblock %}</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta content="Free HTML Templates" name="keywords" />
     <meta content="Free HTML Templates" name="description" />
@@ -16,10 +16,6 @@
       rel="stylesheet"
     />
     <!-- Font Awesome -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
-      rel="stylesheet"
-    />
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -28,16 +24,17 @@
       crossorigin="anonymous"
     />
 
+    <!-- CSS -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
+<!-- Default theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css"/>
+
     <!-- Font Awesome -->
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
       rel="stylesheet"
     />
-    <!-- Libraries Stylesheet -->
-    <link
-      href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css' %}"
-      rel="stylesheet"
-    />
+ 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet" />
     <link href="{% static 'css/style.min.css' %}" rel="stylesheet" />
@@ -109,12 +106,13 @@
           </a>
         </div>
         <div class="col-md-9 text-end">
-            <a href="{% url 'index' %}" class="nav-item nav-link text-dark"> Home </a>
+            <a href="{% url 'index' %}" class="nav-item nav-link text-primary"> Home </a>
         </div>
 
       </div>
     </div>
     <hr>
+    {% block body %}
     <section class="gradient-custom">
       <div class="container py-5">
         <div class="row justify-content-center align-items-start mt-5 h-100">
@@ -127,10 +125,8 @@
               <div class="text-center mb-5">
                   <p class="fw-bold">Get the latest scope on new arrivals, sales, special offers and receive 20% off your next purchase.  !</p>
               </div>
-            <div class="" style="border-radius: 15px;">
+            <div class="card p-5" style="border-radius: 15px;">
               <div class="">
-
-<!--                  form for registration           -->
 
                 <form action="" method="post">
                     {% csrf_token %}
@@ -140,7 +136,7 @@
                           <div class="form-outline">
                               <label class="form-label fw-normal" for="firstName">First Name</label>
                               <input type="text" id="firstName" name="firstname" class="form-control form-control-md" required/>
-                              <small class="text-primary" id="fname-Error"></small>
+                              <small class="text-danger" id="fname-Error"></small>
                           </div>
                         </div>
 
@@ -148,7 +144,7 @@
                           <div class="form-outline">
                               <label class="form-label" for="lastName">Last Name</label>
                               <input type="text" id="lastName" name="lastname" class="form-control form-control-md" required/>
-                              <small id="lname-Error"></small>
+                              <small id="lname-Error" class="text-danger"></small>
                           </div>
                         </div>
                       </div>
@@ -158,7 +154,7 @@
                           <div class="form-outline">
                               <label class="form-label" for="userName">User Name</label>
                               <input type="text" id="userName" name="username" class="form-control form-control-md" required/>
-                              <small></small>
+                              <small class="text-danger"></small>
                           </div>
                         </div>
 
@@ -166,7 +162,7 @@
                           <div class="form-outline">
                               <label class="form-label" for="email">Email Address</label>
                               <input type="email" id="email" name="email" class="form-control form-control-md" required/>
-                              <small id="email-Error"></small>
+                              <small id="email-Error" class="text-danger"></small>
                           </div>
                         </div>
                       </div>
@@ -176,7 +172,7 @@
                           <div class="form-outline">
                               <label class="form-label" for="phoneNumber">Phone Number</label>
                               <input type="tel" id="phoneNumber" name="phone" class="form-control form-control-md" required/>
-                              <small id="mobile-Error"></small>
+                              <small id="mobile-Error" class="text-danger"></small>
                           </div>
                         </div>
                       </div>
@@ -186,7 +182,7 @@
                           <div class="form-outline">
                               <label class="form-label" for="password">Password</label>
                               <input type="password" id="password" name="password" class="form-control form-control-md" />
-                              <small id="password-Error"></small>
+                              <small id="password-Error" class="text-danger"></small>
                               <div>
                                   <small class="text-success"> ( password should contain 8 characters, uppercase, lowercase, numbers and special character.)</small>
                               </div>
@@ -197,7 +193,7 @@
                           <div class="form-outline">
                               <label class="form-label" for="c_password">Confirm Password</label>
                               <input type="password" id="c_password" name="c_password"   class="form-control form-control-md"/>
-                              <small id="cPassword-Error"></small>
+                              <small id="cPassword-Error" class="text-danger"></small>
                           </div>
                         </div>
                       </div>
@@ -215,7 +211,6 @@
                       </div>
                     </div>
                 </form>
-<!--                  end form                  -->
 
               </div>
             </div>
@@ -223,6 +218,7 @@
         </div>
       </div>
     </section>
+    {% endblock body %}
     <div class="container-fluid bg-secondary text-dark mt-5 pt-5">
       <div class="row px-xl-5 pt-5">
         <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
@@ -332,5 +328,20 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <script src="{% static 'js/validation.js' %}"></script>
+
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+
+    <script>
+
+      {% for message in messages %}
+        alertify.set('notifier','position', 'top-right');
+        alertify.success('message');
+      {% endfor %}
+    </script>
+
   </body>
+  {% block js %}
+  {% endblock js %}
+  <!-- include the script alertify js -->
+ 
 </html>

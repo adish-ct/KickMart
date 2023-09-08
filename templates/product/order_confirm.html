@@ -82,9 +82,16 @@ order-confirm
                       Confirm Order
                   </button>
                 {% elif checkout_items.payment == 'razorpayMethod' %}
-                <button class="w-50 btn-lg btn-info payWithRazorpay" type="button" id="rzp-button1">
-                  make payment
-                </button>
+                  {% if checkout_items.wallet > checkout_items.payable_amount %}
+                    <button class="w-50 btn-lg btn-info" type="submit">
+                      Confirm Order
+                    </button>
+                  {% else %}
+                    <button class="w-50 btn-lg btn-info payWithRazorpay" type="button" id="rzp-button1">
+                      make payment
+                    </button>
+                  {% endif %}
+                
                 {% else %}
                 <div id="paypal-button-container"></div>
                 
