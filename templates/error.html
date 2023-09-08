@@ -2,9 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>404-page not found</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body>
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+        <div class="text-center d-flex align-items-center justify-content-center flex-column gap-0">
+            <h1 class="text-dark">Page Not Found ( 404 )</h1>
+            <img src="https://cdn.svgator.com/images/2022/01/funny-404-error-page-design.gif" alt="Error-404">
+            <div class="btn btn-dark btn-lg"><a href="{% url 'index' %}" class="text-light text-decoration-none">Go To Home</a></div>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
 
 </body>
 </html>

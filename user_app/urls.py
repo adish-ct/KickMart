@@ -28,5 +28,7 @@ urlpatterns = [
 
     path('password-changed/', PasswordChangeDoneView.as_view(
         template_name='user/user_profile.html',
-    ), name="password_change_done")
+    ), name="password_change_done"),
+
+    path('subscribe/', views.subscribe, name="subscribe"),
 ]

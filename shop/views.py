@@ -9,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from cart.models import *
 from order.models import *
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 # app : shop
@@ -187,5 +189,31 @@ def review(request):
     return redirect(detail_view, category_slug, product_slug)
 
 
+@cache_control(no_cache=True, no_store=True)
+def contact(request):
+    try:
+        if request.method == 'GET':
+            name = request.GET['name']
+            email = request.GET['email']
+            message = request.GET['message']
+            head = 'ceetey1997@gmail.com'
+
+            subject = f"Queries from { name } "
+            message = f'email {email}\n messaage : {message}'
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [head, ]
+            send_mail(subject, message, email_from, recipient_list)
+
+            messages.success(request, "Message sent successfully")
+            return redirect('contact')
+    except Exception as e:
+        print(e)
+    return render(request, 'product/contact.html')
+
+
+def for_help(request):
+    return render(request, 'product/help.html')
+
+
 def error_404(request, exception):
-    return render(request, "404error.html")
+    return render(request, "error.html")

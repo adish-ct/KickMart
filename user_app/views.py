@@ -17,6 +17,7 @@ from shop.models import *
 from django.http import HttpResponse
 from urllib.parse import urlparse
 from order.models import *
+from django.core.mail import send_mail
 
 # Create your views here.
 
@@ -339,6 +340,8 @@ def add_address(request, id):
     return render(request, 'user/add_address.html')
 
 
+@cache_control(no_cache=True, no_store=True)
+@login_required(login_url='index')
 def forgot_password(request):
     try:
         if request.method == 'POST':
@@ -363,6 +366,9 @@ def forgot_password(request):
     return render(request, 'user/forgot_password.html')
 
 
+
+@cache_control(no_cache=True, no_store=True)
+@login_required(login_url='index')
 def change_password(request, token):
     context = {}
     try:
@@ -400,9 +406,39 @@ def change_password(request, token):
     return render(request, 'user/reset_password.html', context)
 
 
+
+@cache_control(no_cache=True, no_store=True)
+@login_required(login_url='index')
 def delete_address(request, address_id):
     user = request.user
     address = UserAddress.objects.get(id=address_id)
     address.delete()
     messages.success(request, "Address deleted successfully.")
     return redirect('address_book')
+
+
+@cache_control(no_cache=True, no_store=True)
+def subscribe(request):
+    try:
+        if request.method == 'GET':
+            name = request.GET['name']
+            email = request.GET['email']
+
+            subject = f"Kick Mart subscription successfully"
+            message = (f' Dear {name}, We are excited to have you as our new subscriber!\n you will receive exclusive '
+                       f'discounts and offers on our products. \nYou will also be the first to know about our new '
+                       f'arrivals and sales.To complete your subscription, please click on the link below:\nIf you '
+                       f'have any questions or concerns, please feel free to contact us at ['
+                       f'kickmart@gmail.com].\nThank you again for subscribing!\nBest regards, Kick Mart Team\nI hope '
+                       f'this helps! Let me know if there’s anything else I can help you with.')
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email, ]
+            send_mail(subject, message, email_from, recipient_list)
+
+            messages.success(request, "Subscribed you will get a mail from Kick mart")
+            return redirect('index')
+
+    except Exception as e:
+        print(e)
+        messages.error(request, "Something went wrong.")
+    return redirect('index')

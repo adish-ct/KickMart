@@ -64,7 +64,7 @@
       <div class="row bg-secondary py-2 px-xl-5">
         <div class="col-lg-6 d-none d-lg-block">
           <div class="d-inline-flex align-items-center">
-            <a class="text-dark" href="">Help</a>
+            <a class="text-dark" href="{% url 'help' %}">Help</a>
             <span class="text-muted px-2">|</span>
             <a class="text-dark" href="">Support</a>
           </div>
@@ -201,7 +201,7 @@
                     {% endif %}
                   </div>
                 </div>
-                <a href="contact.html" class="nav-item nav-link">Contact</a>
+                <a href="{% url 'contact' %}" class="nav-item nav-link">Contact</a>
               </div>
               <div class="navbar-nav ml-auto py-0">
                 {% if user.is_authenticated %}
@@ -349,6 +349,7 @@
 {% block scripts %}
 
 {% endblock scripts %}
+
 
 <script src="{% static 'js/checkout.js' %}"></script>
 

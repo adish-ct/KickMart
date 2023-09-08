@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}
+contact-page
+{% endblock %}
+{% load static %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block body %}
+
+<!-- Help Page -->
+<div class="help-page mt-5 p-5">
+  <div class="container">
+    <h4 class="help-title mt-3 ms-5">Help & Support</h4>
+    <p class="help-intro ms-5">Welcome to the help page of Shoe Shop, the online store for all your footwear needs. Here you can find answers to common questions, contact information, and useful links.</p>
+    <div class="help-sections mt-3">
+
+      <div class="help-section m-5">
+        <h4 class="help-section-title mt-3">FAQ</h4>
+        <p class="help-section-desc">Check out our frequently asked questions to find quick answers to common queries.</p>
+        <a href="" class="help-section-link mb-5">Go to FAQ</a>
+      </div>
+
+      <div class="help-section m-5">
+        <h4 class="help-section-title mt-3">Order Status</h4>
+        <p class="help-section-desc">Track your order status and delivery details online.</p>
+        <a href="{% url 'user_profile' %}" class="help-section-link">Go to Order Status</a>
+      </div>
+
+      <div class="help-section m-5">
+        <h4 class="help-section-title mt-3">Returns & Exchanges</h4>
+        <p class="help-section-desc">Learn about our return and exchange policy and how to request a refund or exchange.</p>
+        <a href="{% url 'user_profile' %}" class="help-section-link">Go to Returns & Exchanges</a>
+      </div>
+
+      <div class="help-section m-5" >
+        <h4 class="help-section-title mt-3">Contact Us</h4>
+        <p class="help-section-desc">Get in touch with our customer service team via phone, email, or chat.</p>
+        <a href="{% url 'contact' %}" class="help-section-link">Go to Contact Us</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
