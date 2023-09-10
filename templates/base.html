@@ -27,7 +27,11 @@
     <!-- Customized Bootstrap Stylesheet -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet" />
     <link href="{% static 'css/style.min.css' %}" rel="stylesheet" />
+
+    <!--      Auto complete     -->
     <script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@trevoreyre/autocomplete-js/dist/style.css"/>
+
     {% block cdn %}
 
     {% endblock cdn %}
@@ -98,8 +102,9 @@
         <div class="col-lg-6 col-6 text-left">
 
           <form action="{% url 'search' %}" method="GET">
-            <div class="input-group">
+            <div class="input-group" id="autocomplete">
               <input type="text" class="form-control" placeholder="Search for products" name="search"/>
+                <ul class="autocomplete-result-list"></ul>
               <button type="submit" class="input-group-append border-0">
                 <span class="input-group-text bg-transparent text-primary">
                   <i class="fa fa-search"></i>
@@ -107,6 +112,16 @@
               </button>
             </div>
           </form>
+
+<!--            auto complete           -->
+
+<!--            <div id="autocomplete" class="autocomplete">-->
+<!--                <input class="autocomplete-input" />-->
+<!--                <ul class="autocomplete-result-list"></ul>-->
+<!--            </div>-->
+
+<!--            auto complete           -->
+
 
         </div>
         <div class="col-lg-3 col-6 text-right">
@@ -292,12 +307,10 @@
           </div>
           <div class="col-md-6 px-xl-0 text-center text-md-right">
               <img class="img-fluid" src="img/payments.png" alt="">
-          </div>
-      </div>
-  </div>
-    <a href="#" class="btn btn-primary back-to-top"
-      ><i class="fa fa-angle-double-up"></i
-    ></a>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
 
 
 
@@ -309,6 +322,7 @@
 
   <!-- include the script alertify js -->
   <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+  <script src="{% static 'js/auto_complete.js' %}"></script>
 
   <script>
     {% for message in messages %}

@@ -160,9 +160,7 @@ def get_names(request):
     if search:
         products = Product.objects.filter(product_name__istartswith=search)
         for product in products:
-            payload.append({
-                'name': product.product_name
-            })
+            payload.append(product.product_name)
 
     return JsonResponse({
         'status': True,
