@@ -259,9 +259,9 @@ def add_product_variant(request, product_id):
             variant.stock = variant.stock + int(stock)
         except ProductVariant.DoesNotExist:
             variant = ProductVariant.objects.create(
-                product = product,
-                product_size = size,
-                stock = stock,
+                product=product,
+                product_size=size,
+                stock=stock,
             )
         if productPrice:
             variant.product_price = productPrice

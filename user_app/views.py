@@ -1,7 +1,6 @@
 import os
 import requests
 import uuid
-from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -14,10 +13,11 @@ from django.contrib.auth.decorators import login_required
 from .mail import *
 from .sendMail import *
 from shop.models import *
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from urllib.parse import urlparse
 from order.models import *
 from django.core.mail import send_mail
+from .forms import ImageForm
 
 # Create your views here.
 
@@ -366,7 +366,6 @@ def forgot_password(request):
     return render(request, 'user/forgot_password.html')
 
 
-
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def change_password(request, token):
@@ -406,7 +405,6 @@ def change_password(request, token):
     return render(request, 'user/reset_password.html', context)
 
 
-
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def delete_address(request, address_id):
@@ -442,3 +440,17 @@ def subscribe(request):
         print(e)
         messages.error(request, "Something went wrong.")
     return redirect('index')
+
+
+def test(request):
+    form = ImageForm(request.POST or None, request.FILES or None)
+    images = Image.objects.all()
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'message': 'works'})
+    context = {
+        'form': form,
+        'image': images,
+    }
+
+    return render(request, 'main.html', context)

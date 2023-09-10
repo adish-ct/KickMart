@@ -1,8 +1,15 @@
 {% extends 'base.html' %}
 {% block title %}
-kick-mart-login
+kick-mart-loginprofile
 {% endblock %}
-profile
+
+{% block cdn %}
+<!--  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>-->
+
+<!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.1.0/cropper.min.js"></script>-->
+<!--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.1.0/cropper.min.css">-->
+{% endblock cdn %}
+
 {% block body %}
 <div class="container">
   <div class="row">
@@ -27,8 +34,8 @@ profile
 
                 <div class="card-body text-center">
                   {% if user.image %}
-                  <img src="{{ user.image.url }}" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
-
+                    <img src="{{ user.image.url }}" id="image" alt="avatar"
+                    class="rounded-circle img-fluid" style="width: 150px;">
                   {% else %}
                   <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar"
                     class="rounded-circle img-fluid" style="width: 150px;">
@@ -211,4 +218,10 @@ profile
     </div>
   </div>
 </div>
+
 {% endblock %}
+
+{% block scripts %}
+
+
+{% endblock scripts %}

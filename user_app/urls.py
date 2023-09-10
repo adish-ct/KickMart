@@ -31,4 +31,6 @@ urlpatterns = [
     ), name="password_change_done"),
 
     path('subscribe/', views.subscribe, name="subscribe"),
+    path('test/', views.test, name='test'),
+
 ]

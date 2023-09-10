@@ -13,5 +13,6 @@ urlpatterns = [
     path('review/', views.review, name="review"),
     path('contacts/', views.contact, name="contact"),
     path('help/', views.for_help, name="help"),
+    path('get-product/', views.get_names, name="get_names"),
 ]
 

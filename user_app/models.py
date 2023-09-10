@@ -108,6 +108,11 @@ class Profile(models.Model):
         super().save(*args, **kwargs)
 
 
-    
+class Image(models.Model):
+    file = models.ImageField(upload_to='test')
+    uploaded = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.pk)
     
 

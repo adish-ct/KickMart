@@ -64,6 +64,7 @@ class Product(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)
     offer = models.IntegerField(default=0, null=True, blank=True)
+    rating = models.IntegerField(default=5, null=True, blank=True)
 
     class Meta:
         ordering = ['product_name']
