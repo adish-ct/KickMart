@@ -22,14 +22,13 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2'),
         }),
     )
-    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'wallet')
+    list_display = ('id', 'email', 'first_name', 'last_name', 'is_staff', 'wallet')
     list_editable = ('wallet',)
     search_fields = ('email', 'first_name', 'last_name')
-    ordering = ('email',)
+    ordering = ('id',)
 
 
 admin.site.register(get_user_model(), CustomUserAdmin)
 admin.site.register(UserAddress)
 admin.site.register(PasswordControl)
-admin.site.register(Profile)
 admin.site.register(Image)

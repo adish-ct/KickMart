@@ -20,18 +20,18 @@ admin-product-interface
 
             <div class="card bg-secondary">
                 <div class="card-body">
-                  <h5 class="card-title mb-5 text-white">Add Product Table</h5>
+                    <h5 class="card-title mb-5 text-white">Add Product Table</h5>
 
-                  <!-- Edit product form  -->
+                    <!-- Edit product form  -->
                     <form enctype="multipart/form-data" method="post" action="">
                         {% csrf_token %}
                         <div class="row mb-4">
                             <div class="col">
-                              <div class="form-outline">
-                                  <input type="text" id="addProduct" class="form-control bg-dark text-white" name="name"/>
-                                  <label class="form-label" for="addProduct">Product Name</label>
-
-                              </div>
+                                <div class="form-outline">
+                                    <input type="text" id="productName" class="form-control bg-dark text-white" name="name" required/>
+                                    <label class="form-label" for="productName">Product Name</label>
+                                    <small class="text-danger" id="productNameError"></small>
+                                </div>
                             </div>
 
                             <div class="col">
@@ -59,8 +59,9 @@ admin-product-interface
                             <div class="col-md-4">
                                 <div class="col">
                                     <div class="form-outline">
-                                        <input type="number" name="originalPrice" id="projectOriginalPrice" class="form-control bg-dark text-white" min="1" step="any" style="width: 50%" required/>
-                                        <label class="form-label" for="projectOriginalPrice">Original Price</label>
+                                        <input type="number" name="originalPrice" id="originalPrice" class="form-control bg-dark text-white" min="1" step="any" style="width: 50%" required/>
+                                        <label class="form-label" for="originalPrice">Original Price</label>
+                                        <small id="originalPriceError" class="text-danger"></small>
                                     </div>
                                 </div>
                             </div>
@@ -68,29 +69,30 @@ admin-product-interface
                             <div class="col-md-4">
                                 <div class="col">
                                     <div class="form-outline">
-                                        <input type="number" name="sellingPrice" id="projectSellingPrice" class="form-control bg-dark text-white" min="1" step="any" style="width: 50%" required/>
-                                        <label class="form-label" for="projectSellingPrice">Selling Price</label>
+                                        <input type="number" name="sellingPrice" id="sellingPrice" class="form-control bg-dark text-white" min="1" step="any" style="width: 50%" required/>
+                                        <label class="form-label" for="sellingPrice">Selling Price</label>
+                                        <small class="text-danger" id="sellingPriceError"></small>
                                     </div>
                                 </div>
                             </div>
                         </div>
-           
+
                         <div class="row mb-4">
                             <div class="col-md-4">
                                 <div class="col">
                                     <div class="form-outline">
-                                        <input type="number" name="productOffer" id="productOffer" class="form-control bg-dark text-white" min="0" step="any" style="width: 50%" required/>
+                                        <input type="number" name="productOffer" id="productOffer" class="form-control bg-dark text-white" min="0" step="any" style="width: 50%"/>
                                         <label class="form-label" for="productOffer">Product offer</label>
                                     </div>
                                 </div>
-                            </div> 
-                            
+                            </div>
+
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <input class="form-control" type="file" id="formFiless" name="image">
+                                    <input class="form-control" type="file" id="formFiless" name="image" required>
                                     <label for="formFiless" class="form-label">Choose your image</label>
                                 </div>
-                            </div>                            
+                            </div>
                         </div>
 
                         <div class="row mb-4">
@@ -105,18 +107,18 @@ admin-product-interface
                             </div>
 
                         </div>
-                        
-                        
+
+
 
                       <!-- Message input -->
                       <div class="form-outline mb-4">
-                        <textarea class="form-control bg-dark text-white" id="productDesc" rows="4" name="description"></textarea>
+                        <textarea class="form-control bg-dark text-white" id="productDesc" rows="4" name="description" required></textarea>
                         <label class="form-label" for="productDesc">Product Description</label>
                       </div>
 
                       <!-- Submit button -->
                       <div class="text-center">
-                          <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4 w-50">Add Product</button>
+                          <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4 w-50" onclick="return validate()">Add Product</button>
                       </div>
                     </form>
                     <hr />
@@ -129,3 +131,7 @@ admin-product-interface
     </div>
 
 {% endblock %}
+
+{% block script %}
+<script src="{% static 'admin/js/validation.js' %}"></script>
+{% endblock script %}

@@ -194,13 +194,21 @@
                               <label class="form-label" for="c_password">Confirm Password</label>
                               <input type="password" id="c_password" name="c_password"   class="form-control form-control-md"/>
                               <small id="cPassword-Error" class="text-danger"></small>
+
                           </div>
                         </div>
                       </div>
 
-                    {% for message in messages %}
-                        <span class="bg-white {{ message.tags }}"> {{ message }} </span>
-                    {% endfor %}
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label" for="referralCode">Referral Code</label>
+                            <input type="text" id="referralCode" name="referral_code"   class="form-control form-control-md"/>
+                        </div>
+                        <div class="col-md-6">
+                            <small id="referral" class="text-primary">Both you and your friend will enjoy special benefits when you use a valid referral code</small>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-3 mt-4 pt-2">
                       </div>

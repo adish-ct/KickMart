@@ -3,6 +3,7 @@ from user_app.models import *
 from shop.models import *
 from cart.models import *
 
+
 # Create your models here.
 
 
@@ -17,8 +18,6 @@ class Payments(models.Model):
 
     def __str__(self):
         return self.payment_id
-     
-
 
 
 class Order(models.Model):
@@ -52,7 +51,7 @@ class Order(models.Model):
 
     def __str__(self):
         return self.order_id
-    
+
 
 class OrderProduct(models.Model):
     order_id = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
@@ -69,5 +68,4 @@ class OrderProduct(models.Model):
     item_cancel = models.BooleanField(default=False, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.customer.email} - {self.variant.product.product_name}" 
-    
+        return f"{self.customer.email} - {self.variant.product.product_name}"

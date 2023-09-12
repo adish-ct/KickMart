@@ -14,7 +14,6 @@ from django.utils import timezone
 from datetime import date, datetime
 
 
-
 # Create your views here.
 
 @cache_control(no_cache=True, no_store=True)
@@ -24,10 +23,10 @@ def admin_login(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
-        
-        admin = authenticate(email=email, password=password)            # authenticating user, checking user is valid or not   
+
+        admin = authenticate(email=email, password=password)  # authenticating user, checking user is valid or not
         if admin:
-            if admin.is_superuser:                                      # checking if the admin is super user or not.
+            if admin.is_superuser:  # checking if the admin is super user or not.
                 login(request, admin)
                 request.session['email'] = email
                 return redirect('admin_dashboard')
@@ -36,7 +35,6 @@ def admin_login(request):
         else:
             messages.error(request, "Invalid credentials, try again with valid credentials.")
     return render(request, 'admin/admin_login.html')
-
 
 
 @staff_member_required(login_url='admin_login')
@@ -59,8 +57,8 @@ def admin_dashboard(request):
         except:
             pass
 
-    ar = [2020,2021,2022, 2023]
-    sales =[10000 ,2500,1200, 3500]
+    ar = [2020, 2021, 2022, 2023]
+    sales = [10000, 2500, 1200, 3500]
 
     payment_count = [cash_on_delivery, razor_pay]
     payment_method = ['Cash on Delivery', 'Razor Pay']
@@ -81,7 +79,6 @@ def admin_dashboard(request):
         'payment_method': payment_method,
     }
     return render(request, 'admin/admin_dashboard.html', context)
-
 
 
 # Product section -----------------------------------------------
@@ -123,14 +120,14 @@ def admin_edit_product(request, id):
         selling_price = request.POST['sellingPrice']
         # condition for checking is there any file is present in the request.
         single_image = request.FILES.get('image', None)
-    
+
         multiple_images = request.FILES.getlist('multipleImage')
-            # we want to remove the image that already stored in the database.
-            # first of all we have to check if there is any image exist on product object.
+        # we want to remove the image that already stored in the database.
+        # first of all we have to check if there is any image exist on product object.
         if single_image:
             if product.product_image:
                 os.remove(product.product_image.path)
-            product.product_image = single_image  
+            product.product_image = single_image
 
         if multiple_images:
             if object_image:
@@ -139,16 +136,16 @@ def admin_edit_product(request, id):
                     i.delete()
                 for image in multiple_images:
                     photo = MultipleImages.objects.create(
-                        product = product,
-                        images = image,
+                        product=product,
+                        images=image,
                     )
             else:
                 for image in multiple_images:
                     photo = MultipleImages.objects.create(
-                        product = product,
-                        images = image,
+                        product=product,
+                        images=image,
                     )
-                
+
         product.product_name = product_name
         product.category = Category.objects.get(id=category)
         product.brand = ProductBrand.objects.get(id=brand)
@@ -172,49 +169,67 @@ def admin_add_product(request):
         'categories': categories,
         'brands': brands,
     }
-    if request.method == 'POST':
-        product = Product()
-        category = request.POST['selectOption']
-        brand = request.POST['selectBrand']
-        original_price = request.POST['originalPrice']
-        selling_price = request.POST['sellingPrice']
-        product_offer = request.POST['productOffer']
-        if product_offer != 0:
-            off_amount = (original_price * product_offer) / 100
-            selling_price = original_price - off_amount
-        if category.offer != 0:
-            discount_amount = (selling_price * category.offer) / 100
-            selling_price = selling_price - discount_amount
-        
-        # single image fetching
-        product_image = request.FILES.get('image', None)
-        if product_image:
-            product.product_image = product_image
-  
-        product.product_name = request.POST['name']
-        product.category = Category.objects.get(id=category)
-        product.brand = ProductBrand.objects.get(id=brand)
-        product.original_price = original_price
-        product.selling_price = selling_price
-        product.product_description = request.POST['description']
-        product.offer = product_offer
-        product.save()
+    try:
+        if request.method == 'POST':
 
-        # multiple image fetching
-        multiple_images = request.FILES.getlist('multipleImage', None)
-        if multiple_images:            
-            for image in multiple_images:
-                photo = MultipleImages.objects.create(
-                    product = product,
-                    images = image,
-                )
-            
-        messages.success(request, "Product added successfully")
+            product = Product()
+            category = request.POST['selectOption']
+            brand = request.POST['selectBrand']
+            original_price = int(request.POST['originalPrice'])
+            selling_price = int(request.POST['sellingPrice'])
+            product_offer = int(request.POST['productOffer'])
+            try:
+                if int(product_offer) > 0:
+                    product.offer = product_offer
+                    off_amount = (original_price * product_offer) // 100
+                    if (original_price - off_amount) < selling_price:
+                        selling_price = original_price - off_amount
+            except Exception as e:
+                print(e)
+            try:
+                if category.offer > 0:
+                    discount_amount = (selling_price * category.offer) // 100
+                    if (original_price - discount_amount) < selling_price:
+                        selling_price = original_price - discount_amount
+            except Exception as e:
+                print(e)
 
-        return redirect('admin_product')
+            # single image fetching
+            try:
+                product_image = request.FILES.get('image', None)
+                if product_image:
+                    product.product_image = product_image
+            except Exception as e:
+                print(e)
+
+            product.product_name = request.POST['name']
+            product.category = Category.objects.get(id=category)
+            product.brand = ProductBrand.objects.get(id=brand)
+            product.original_price = original_price
+            product.selling_price = selling_price
+            product.product_description = request.POST['description']
+            product.save()
+
+            # multiple image fetching
+            try:
+                multiple_images = request.FILES.getlist('multipleImage', None)
+                if multiple_images:
+                    for image in multiple_images:
+                        photo = MultipleImages.objects.create(
+                            product=product,
+                            images=image,
+                        )
+            except Exception as e:
+                print(e)
+
+            messages.success(request, "Product Created")
+
+            return redirect('admin_product')
+    except Exception as e:
+        return HttpResponse(False)
+        print(e)
 
     return render(request, 'admin/admin_add_product.html', context)
-
 
 
 @cache_control(no_store=True, no_cache=True)
@@ -230,7 +245,6 @@ def admin_delete_product(request, id):
     return redirect('admin_product')
 
 
-
 @staff_member_required(login_url='admin_login')
 def admin_product_variant(request, product_id):
     variant = ProductVariant.objects.filter(product=product_id)
@@ -242,14 +256,13 @@ def admin_product_variant(request, product_id):
     return render(request, 'admin/admin_variant_product.html', context)
 
 
-
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def add_product_variant(request, product_id):
     product = Product.objects.get(id=product_id)
     product_variants = ProductVariant.objects.filter(product=product)
     sizes = ProductSize.objects.all().order_by('id')
-    
+
     if request.method == 'POST':
         size = request.POST['selectSize']
         stock = request.POST['stock']
@@ -278,7 +291,6 @@ def add_product_variant(request, product_id):
     return render(request, 'admin/admin_add_variant.html', context)
 
 
-
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def product_variant_update(request):
@@ -295,7 +307,6 @@ def product_variant_update(request):
         return redirect('admin_product_variant', product_id.id)
 
 
-
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def product_variant_control(request, variant_id):
@@ -306,13 +317,11 @@ def product_variant_control(request, variant_id):
     else:
         variant.is_active = True
     variant.save()
-    
+
     return redirect('admin_product_variant', product_id)
 
 
-
 def product_variant_delete(request, variant_id):
-
     if request.method == 'POST':
         variant = ProductVariant.objects.get(id=variant_id)
         product = variant.product
@@ -321,6 +330,7 @@ def product_variant_delete(request, variant_id):
         return redirect('admin_product_variant', product.id)
     else:
         return redirect('admin_dashboard')
+
 
 # Product section end -------------------------------------------------
 
@@ -338,7 +348,6 @@ def admin_users(request):
     return render(request, 'admin/admin_users.html', context)
 
 
-
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_user_manage(request, id):
@@ -351,10 +360,6 @@ def admin_user_manage(request, id):
         user.save()
 
     return redirect('admin_users')
-
-
-
-
 
 
 # admin user section ended ------------------------------------------
@@ -373,7 +378,6 @@ def admin_category(request):
     return render(request, 'admin/admin_category.html', context)
 
 
-
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_add_category(request):
@@ -386,18 +390,17 @@ def admin_add_category(request):
         if len(request.FILES['image']):
             category_image = request.FILES['image']
         category = Category(
-            category_name = category_name,
-            category_image = category_image,
-            category_description = request.POST['description'],
-            offer = request.POST['category_offer'],
-            )
+            category_name=category_name,
+            category_image=category_image,
+            category_description=request.POST['description'],
+            offer=request.POST['category_offer'],
+        )
         category.save()
         messages.success(request, "Successfully added new category")
 
         return redirect('admin_category')
-    
-    return render(request, 'admin/admin_add_category.html')
 
+    return render(request, 'admin/admin_add_category.html')
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -420,9 +423,8 @@ def admin_edit_category(request, id):
         messages.success(request, "Category updated successfully")
 
         return redirect('admin_category')
-    
-    return render(request, 'admin/admin_edit_category.html', context)
 
+    return render(request, 'admin/admin_edit_category.html', context)
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -450,7 +452,6 @@ def admin_coupon_management(request):
     return render(request, 'admin/admin_coupon.html', context)
 
 
-
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def add_coupon(request):
@@ -459,31 +460,30 @@ def add_coupon(request):
         coupon_code = request.POST['coupon_code']
         coupon_title = request.POST['coupon_title']
         discount_amount = request.POST['discount_amount']
-        discount = request.POST['discount'] 
+        discount = request.POST['discount']
         valid_from = request.POST['valid_from']
-        valid_to = request.POST['valid_to'] 
-        quantity = request.POST['quantity'] 
-        minimum_order_amount = request.POST['minimum_amount'] 
+        valid_to = request.POST['valid_to']
+        quantity = request.POST['quantity']
+        minimum_order_amount = request.POST['minimum_amount']
 
         coupon = Coupons.objects.create(
-            description = description,
-            coupon_code = coupon_code,
-            coupon_title = coupon_title,
-            valid_from = valid_from,
-            valid_to = valid_to,
-            quantity = quantity,
-            minimum_order_amount = minimum_order_amount,
+            description=description,
+            coupon_code=coupon_code,
+            coupon_title=coupon_title,
+            valid_from=valid_from,
+            valid_to=valid_to,
+            quantity=quantity,
+            minimum_order_amount=minimum_order_amount,
         )
         if discount_amount:
             coupon.discount_amount = discount_amount
         if discount:
             coupon.discount = discount
-    
+
         coupon.save()
 
         return redirect('admin_coupon_management')
     return render(request, 'admin/admin_add_coupon.html')
-
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -492,8 +492,7 @@ def delete_coupon(request, coupon_id):
     coupon = get_object_or_404(Coupons, id=coupon_id)
     if coupon:
         coupon.delete()
-    return redirect ('admin_coupon_management')
-
+    return redirect('admin_coupon_management')
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -505,11 +504,11 @@ def edit_coupon(request, coupon_id):
         coupon_code = request.POST['coupon_code']
         coupon_title = request.POST['coupon_title']
         discount_amount = request.POST['discount_amount']
-        discount = request.POST['discount'] 
+        discount = request.POST['discount']
         valid_from = request.POST['valid_from']
-        valid_to = request.POST['valid_to'] 
-        quantity = request.POST['quantity'] 
-        minimum_order_amount = request.POST['minimum_amount'] 
+        valid_to = request.POST['valid_to']
+        quantity = request.POST['quantity']
+        minimum_order_amount = request.POST['minimum_amount']
 
         coupon.id = coupon_id
         coupon.description = description
@@ -529,7 +528,7 @@ def edit_coupon(request, coupon_id):
         if discount:
             if discount_amount:
                 discount_amount = None
-                coupon.discount = discount   
+                coupon.discount = discount
 
         coupon.save()
 
@@ -538,7 +537,6 @@ def edit_coupon(request, coupon_id):
         'coupon': coupon,
     }
     return render(request, 'admin/admin_edit_coupon.html', context)
-
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -567,8 +565,6 @@ def order_management(request):
     return render(request, 'admin/admin_order_management.html', context)
 
 
-
-
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def order_update(request, order_id):
@@ -582,7 +578,7 @@ def order_update(request, order_id):
             order.save()
         if order_status == 'Delivered':
             payment.is_paid = True
-        
+
         payment.save()
         messages.success(request, 'Status updated')
         return redirect('order_update', order_id)
@@ -592,7 +588,6 @@ def order_update(request, order_id):
     }
 
     return render(request, 'admin/admin_order_update.html', context)
-
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -606,7 +601,7 @@ def return_request(request, item_id):
     user = order.user
     deduct_discount = order.discount
 
-    if order.total < 2500:                      # delivery charge logic.
+    if order.total < 2500:  # delivery charge logic.
         delivery_charge = 99
     else:
         delivery_charge = 0
@@ -621,13 +616,13 @@ def return_request(request, item_id):
             else:
                 order.discount = 0
 
-        refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)           # calculating refund amount.
-        user.wallet = float(user.wallet) + float(refund_amount) 
+        refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)  # calculating refund amount.
+        user.wallet = float(user.wallet) + float(refund_amount)
         order_item.save()
         variant.save()
         user.save()
         order.save()
-        
+
     return redirect('order_update', order_id)
 
 
@@ -643,37 +638,35 @@ def banner_management(request):
     return render(request, 'admin/admin_banner.html', context)
 
 
-
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def create_banner(request):
     if request.method == 'POST':
         banner = Banner.objects.create(
-            section = request.POST.get('section', None), 
-            identifier = request.POST.get('identifier', None),
-            description = request.POST.get('description', None),
-            offer_detail = request.POST.get('offer', None),
-            title = request.POST.get('title', None) ,
-            notes = request.POST.get('notes', None) ,
+            section=request.POST.get('section', None),
+            identifier=request.POST.get('identifier', None),
+            description=request.POST.get('description', None),
+            offer_detail=request.POST.get('offer', None),
+            title=request.POST.get('title', None),
+            notes=request.POST.get('notes', None),
         )
         if request.FILES['image']:
             image = request.FILES['image']
             banner.image = image
-        banner.save() 
+        banner.save()
 
         return redirect('banner_management')
 
     return render(request, 'admin/admin_add_banner.html')
 
 
-
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def update_banner(request, banner_id):
     banner = Banner.objects.get(id=banner_id)
-    
+
     if request.method == 'POST':
-        banner.section = request.POST['section']        
+        banner.section = request.POST['section']
         banner.identifier = request.POST['identifier']
         banner.description = request.POST['description']
         banner.offer_detail = request.POST['offer']
@@ -686,13 +679,12 @@ def update_banner(request, banner_id):
         banner.save()
 
         return redirect('banner_management')
-    
+
     context = {
         'banner': banner,
     }
 
     return render(request, 'admin/admin_edit_banner.html', context)
-
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -701,7 +693,6 @@ def delete_banner(request, banner_id):
     banner = Banner.objects.get(id=banner_id)
     banner.delete()
     return redirect('banner_management')
-
 
 
 @staff_member_required(login_url='admin_login')
@@ -725,6 +716,3 @@ def admin_logout(request):
     logout(request)
     request.session.flush()
     return redirect('admin_login')
-
-
-

@@ -21,13 +21,7 @@ admin-product-interface
                     <div class="col-md-6">
                         <h5 class="card-title text-white mb-4">ALL YOUR PRODUCTS </h5>
                     </div>
-                    {% if messages %}
-                    <p>
-                        {% for message in messages %}
-                        <span class="text-center text-success">{{ message }}</span>
-                        {% endfor %}
-                    </p>
-                    {% endif %}
+                    
                     <div class="col-md-6 text-end">
                         <a href="{% url 'admin_add_product' %}" class="btn bg-white" data-toggle="modal">
                             <span class="text-dark">CREATE PRODUCT</span></a>

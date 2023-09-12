@@ -43,18 +43,13 @@ your-orders
                   <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
                   <div class="row d-flex align-items-center">
                     <div class="col-md-4">
-                      <p class="text-info mb-0" data-bs-target="#myModal-{{ order.id }}" type="button" data-bs-toggle="modal" class="btn btn-primary">Track Order</p>
+                      <button data-bs-target="#myModal-{{ order.id }}" type="button" data-bs-toggle="modal" class="btn btn-sm btn-info">Track Order</button>
                     </div>
-                    {% if order.order_id.status == 'Cancelled' %}
-                    <div class="col-md-4">
-                        <a href="#" class="text-primary" style="text-decoration: None;"> Order details </a>
-                    </div>
-                    {% endif %}
+
                     {% if order.order_id.status == 'Cancelled' %}
                     <div class="col-md-4">
                       <p class="text-danger"> Cancelled </p>
                     </div>
-                    {% comment %} changed night check wheather it is true or not  {% endcomment %}
                     {% elif order.order_id.status == 'Delivered' %}
                       {% if order.return_request %}
                         {% if order.is_returned %}
@@ -75,9 +70,18 @@ your-orders
                     <div class="col-md-4">
                       <p class="text-danger"> Returned </p>
                     </div>
-                    
+                    {% else %}
+                    <div class="col-md-4"></div>
                     {% endif %}
-                    
+
+                    {% if order.order_id.status == 'Delivered' %}
+
+                    <div class="col-md-4">
+                        <a class="btn btn-sm btn-warning mb-2" href="{% url 'pdf_view' order.id %}" target="_blank">View Invoice<i class="bi bi-file-earmark-excel"></i></a>
+<!--					<a class="btn btn-sm btn-info"  href="{% url 'pdf_download' order.id %}">Download Invoice <i class="bi bi-download"></i></a>-->
+
+                    </div>
+                    {% endif %}
                   </div>
                 </div>
               </div>

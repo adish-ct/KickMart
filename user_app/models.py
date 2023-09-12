@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBa
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponse
-from .utils import generate_referal_code
+from .utils import generate_referral_code
 
 
 # app : user_app
@@ -48,6 +48,8 @@ class CustomUser(AbstractUser):
     otp = models.CharField(max_length=6, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     wallet = models.DecimalField(default=0, decimal_places=2, max_digits=10)
+    referral_code = models.CharField(default="KickMartShoe", null=True, blank=True, max_length=12)
+    referred_by = models.CharField(max_length=250, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone']
@@ -59,7 +61,6 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return '{}'.format(self.email)
-    
 
 
 class UserAddress(models.Model):
@@ -73,10 +74,9 @@ class UserAddress(models.Model):
     district = models.CharField(max_length=150, null=False)
     created = models.DateField(auto_now_add=True)
 
-
     def __str__(self):
         return f"{self.user.email}"
-    
+
 
 class PasswordControl(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
@@ -85,27 +85,6 @@ class PasswordControl(models.Model):
 
     def __str__(self):
         return self.user.email
-    
-
-class Profile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True, null=True)
-    referal_code = models.CharField(max_length=12, blank=True, null=True)
-    refered_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='referrals')
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.user.first_name}-{self.referal_code}"
-
-    def get_recommened_profiles(self):
-        pass
-
-    def save(self, *args, **kwargs):
-        if self.referal_code == "":
-            code = generate_referal_code()
-            self.referal_code = code
-        super().save(*args, **kwargs)
 
 
 class Image(models.Model):
@@ -114,5 +93,3 @@ class Image(models.Model):
 
     def __str__(self):
         return str(self.pk)
-    
-

@@ -6,8 +6,6 @@ from user_app.forms import MyPasswordChangeForm
 urlpatterns = [
     path('', views.index, name="index"),
     path('user_signup/', views.user_signup, name="user_signup"),
-    # path for refferar
-    path('user_signup/<str:referal_code>/', views.user_signup, name="user_signup"),
     path('otp_verification/<int:user_id>/', views.otp_verification, name="otp_verification"),
     path('regenerate-otp/<int:id>/', views.regenerate_otp, name="regenerate_otp"),
     path('user_login/', views.user_login, name="user_login"),

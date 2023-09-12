@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style>
+    @page {
+        size: a4 portrait;
+		@frame header_frame {           /* Static Frame */
+            -pdf-frame-content: header_content;
+            left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+        }
+        @frame content_frame {          /* Content Frame */
+            left: 50pt; width: 512pt; top: 90pt; height: 632pt;
+        }
+        @frame footer_frame {           /* Another static Frame */
+            -pdf-frame-content: footer_content;
+            left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+        }
+    }
+</style>
+</head>
+
+<body>
+    <!-- Content for Static Frame 'header_frame' -->
+    <div id="header_content">
+    	<h1 style="font-size: 20px; color: #f56628">
+			<span class="text-primary font-weight-bold mr-1" style="font-size: 25px; color: black">K</span>ick
+			<span class="text-primary font-weight-bold mr-1" style="font-size: 25px; color: black">M</span>art
+		</h1>
+    </div>
+
+    <!-- Content for Static Frame 'footer_frame' -->
+    <div id="footer_content">(c) - page <pdf:pagenumber>
+		of <pdf:pagecount>
+    </div>
+
+    <!-- HTML Content -->
+    <table>
+    		<tr>
+    			<td>{{ company }}</td>
+    			<td>{{ phone }}</td>
+    		</tr>
+    		<tr>
+    			<td>{{ city }} {{ state }},</td>
+    			<td>{{ email }}</td>
+    		</tr>
+    		<tr>
+    			<td>{{ zipcode }}</td>
+    			<td>{{ website }}</td>
+    		</tr>
+    </table>
+
+    <hr>
+
+	<div id="delivery_address">
+    	<h1>
+			Delivery Address
+		</h1>
+    </div>
+	<table>
+    		<tr>
+    			<td>{{ user }}</td>
+    			<td>{{ customer_phone }}</td>
+    		</tr>
+    		<tr>
+    			<td>{{ customer_address }} {{town}},</td>
+    			<td>{{ customer_email }}</td>
+    		</tr>
+			<tr>
+    			<td>{{ nearby_location }}, {{ district }}</td>
+    			<td>{{ website }}</td>
+    		</tr>
+    		<tr>
+    			<td>{{ zip_code }}</td>
+    			<td></td>
+    		</tr>
+    </table>
+	<hr>
+	<div class="text-center bg-secondary" style="background-color: #f2f662; text-align: center; padding: 10px">
+		<h1>ORDERS</h1>
+	</div>
+	<h1>Order Id: #{{ order.order_id }}</h1>
+    <table style="text-align: center">
+    	<tr>
+    		<th>Product</th>
+    		<th>Price</th>
+    		<th>Quantity</th>
+    		<th>Status</th>
+    		<th>Total</th>
+    	</tr>
+
+		{% for product in order_products %}
+    	<tr>
+    		<td> {{ product.variant }} </td>
+    		<td> {{ product.product_price }} </td>
+    		<td> {{ product.quandity }} </td>
+			{% if product.is_returned %}
+    		<td> Returned </td>
+			{% elif product.item_cancel %}
+    		<td> Cancelled </td>
+			{% else %}
+    		<td> Delivered </td>
+			{% endif %}
+			<td>Rs. {{ product.product_price }} * {{ product.quandity }}</td>
+
+    	</tr>
+		{% endfor %}
+
+    </table>
+
+    <hr>
+	<div class="" style="text-align: right">
+		<p style="">Total:<strong style="font-size: 13px;"> {{ order.total }}</strong></p>
+		<p>Tax:<strong style="font-size: 13px;"> {{ order.tax }}</strong></p>
+		<p>Discount:<strong style="font-size: 13px;"> {{ order.discount }}</strong></p>
+		<p><strong style="font-size: 15px;"> Rs .{{ order.order_total }} /-</strong></p>
+	</div>
+
+</body>
+</html>
+</html>

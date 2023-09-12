@@ -50,67 +50,6 @@ def index(request):
     return render(request, 'product/index.html', context)
 
 
-""" User can create new account, user sign up function"""
-
-
-# def user_signup(request, *args, **kwargs):
-#     if 'email' in request.session:
-#         return redirect('admin_dashboard')
-#     if 'user' in request.session:
-#         return redirect('index')
-#     else:
-#         try:
-#             code = kwargs.get('referal_code')
-#             try:
-#                 profile = Profile.objects.get(referal_code=code)
-#                 request.session['referal'] = profile.id
-#                 print('id', profile.id)
-#             except Exception as e:
-#                 print(e)
-#
-#             if request.method == 'POST':
-#                 first_name = request.POST['firstname']
-#                 last_name = request.POST['lastname']
-#                 username = request.POST['username']
-#                 email = request.POST['email']
-#                 phone = request.POST['phone']
-#                 password = request.POST['password']
-#                 c_password = request.POST['c_password']
-#
-#                 # exist_email will not null if the given email is already in the CustomerUser table.
-#                 exist_email = CustomUser.objects.filter(email=email)
-#                 exist_phone = CustomUser.objects.filter(phone=phone)
-#
-#                 # check if the email is already exist or not
-#                 if exist_email:
-#                     messages.error(request, "E-mail is already taken.")
-#                 elif exist_phone:
-#                     messages.error(request, "Phone number is already taken.")
-#                 else:
-#                     if password == c_password:
-#                         # Custom user is customised created model inherited by AbstractUser.
-#                         # create_user is customised created function it save and return user.
-#                         user = CustomUser.objects.create_user(email, password=password, phone=phone, first_name=first_name)
-#
-#                         # generate otp
-#                         otp = get_random_string(length=6, allowed_chars='1234567890')
-#
-#                         send_otp(email, otp)
-#                         user.otp = otp
-#                         user.save()
-#
-#                         return redirect('otp_verification', user.id)
-#                     else:
-#                         messages.error(request, "Password didn't match.")
-#
-#                         return redirect('user_signup')
-#                 return redirect('user_signup')
-#             else:
-#
-#                 return render(request, 'user/signup.html')
-#         except Exception as e:
-#             print(e)
-
 def user_signup(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
@@ -126,8 +65,8 @@ def user_signup(request):
                 phone = request.POST['phone']
                 password = request.POST['password']
                 c_password = request.POST['c_password']
+                referral_code = request.POST['referral_code']
 
-                # exist_email will not null if the given email is already in the CustomerUser table.
                 exist_email = CustomUser.objects.filter(email=email)
                 exist_phone = CustomUser.objects.filter(phone=phone)
 
@@ -138,6 +77,7 @@ def user_signup(request):
                     messages.error(request, "Phone number is already taken.")
                 else:
                     if password == c_password:
+
                         # Custom user is customised created model inherited by AbstractUser.
                         # create_user is customised created function it save and return user.
                         user = CustomUser.objects.create_user(email, password=password, phone=phone,
@@ -145,9 +85,26 @@ def user_signup(request):
 
                         # generate otp
                         otp = get_random_string(length=6, allowed_chars='1234567890')
+                        code = generate_referral_code()
 
                         send_otp(email, otp)
                         user.otp = otp
+                        user.referral_code = code
+                        try:
+                            if len(referral_code) > 0:
+                                ref_user = CustomUser.objects.filter(referral_code=referral_code).first()
+                                if ref_user:
+                                    referred_user = CustomUser.objects.get(id=ref_user.id)
+                                    referred_user.wallet = 200
+                                    user.wallet = 50
+                                    user.referred_by = referred_user.email
+                                    referred_user.save()
+                                    messages.success(request, "Referral code verified")
+                                else:
+                                    messages.error(request, "Invalid Referral code.")
+                        except Exception as e:
+                            return HttpResponse(False)
+                            print(e)
                         user.save()
 
                         return redirect('otp_verification', user.id)
@@ -208,6 +165,7 @@ def regenerate_otp(request, id):
 
     user.otp = otp
     user.save()
+    messages.success(request, "OTP sent to your mail")
     return redirect('otp_verification', id)
 
 
@@ -218,35 +176,41 @@ def user_login(request):
     if 'user' in request.session:
         return redirect('index')
     else:
-        if request.method == 'POST':
-            email = request.POST['email']
-            password = request.POST['password']
+        try:
+            if request.method == 'POST':
+                email = request.POST['email']
+                password = request.POST['password']
 
-            user = authenticate(request, email=email, password=password)
-            if user:
-                if user.is_verified and user.is_superuser == False:
-                    login(request, user)
-                    request.session['user'] = email
-                    messages.success(request, "logged in successfully")
+                user = authenticate(request, email=email, password=password)
+                if user:
+                    if user.is_verified and user.is_superuser == False:
+                        login(request, user)
+                        request.session['user'] = email
+                        messages.success(request, "logged in successfully")
 
-                    # if the request is come from cart page we have to redirect the user into checkout page thats handle here
-                    url = request.META.get('HTTP-REFERER')
-                    try:
-                        query = requests.utils.urlparse(url).query
+                        # if the request is come from cart page we have to redirect the user into checkout page thats handle here
+                        url = request.META.get('HTTP-REFERER')
+                        try:
+                            query = requests.utils.urlparse(url).query
 
-                        params = dict(x.split('=') for x in query.split('&'))
+                            params = dict(x.split('=') for x in query.split('&'))
 
-                        if 'next' in params:
-                            nextPage = params['next']
-                            return redirect(nextPage)
-                    except:
-                        return redirect('index')
-                    # section end 
+                            if 'next' in params:
+                                nextPage = params['next']
+                                return redirect(nextPage)
+                        except:
+                            return redirect('index')
+                        # section end
+                    else:
+                        if not user.is_verified:
+                            messages.success(request, "Verify your account.")
+                            return redirect('otp_verification')
+                        messages.error(request, "invalid credentials.")
                 else:
-                    messages.error(request, "invalid credentials.")
-            else:
-                messages.error(request, "Invalid credentials.")
-                return redirect('user_login')
+                    messages.error(request, "Invalid credentials.")
+                    return redirect('user_login')
+        except Exception as e:
+            print(e)
         return render(request, 'user/login.html')
 
 
@@ -272,31 +236,39 @@ def user_profile(request):
     if user:
         order = Order.objects.filter(user=user)
         order_count = order.count()
-    if request.method == 'POST':
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
-        date_of_birth = request.POST.get('date_of_birth', None)
-        if date_of_birth:
-            user.date_of_birth = date_of_birth
+    context = {}
+    try:
+        if request.method == 'POST':
+            first_name = request.POST['first_name']
+            last_name = request.POST['last_name']
+            date_of_birth = request.POST.get('date_of_birth', None)
+            if date_of_birth:
+                user.date_of_birth = date_of_birth
 
-        phone = request.POST['phone']
-        if request.FILES:
-            if user.image:
-                os.remove(user.image.path)
-            image = request.FILES.get('pic', None)
-            if image:
-                user.image = image
-        user.first_name = first_name
-        user.last_name = last_name
-        user.phone = phone
-        user.save()
-        messages.success(request, "profile updated")
-        return redirect('user_profile')
+            phone = request.POST['phone']
+            if len(phone) != 10:
+                messages.error(request, "must be 10 digits")
+                return redirect('user_profile')
+            if request.FILES:
+                if user.image:
+                    os.remove(user.image.path)
+                image = request.FILES.get('pic', None)
+                if image:
+                    user.image = image
+            user.first_name = first_name
+            user.last_name = last_name
+            user.phone = phone
+            user.save()
+            messages.success(request, "profile updated")
+            return redirect('user_profile')
 
-    context = {
-        'order': order,
-        'order_count': order_count,
-    }
+        context = {
+            'order': order,
+            'order_count': order_count,
+        }
+    except Exception as e:
+        messages.success(request, "Updated")
+        print(e)
 
     return render(request, 'user/user_profile.html', context)
 

@@ -16,6 +16,7 @@ function validateName1() {
     let name = document.getElementById("firstName").value
 
     if (name.length === 0) {
+
         fnameError.innerHTML = "Name required!";
         return false;
     }
@@ -24,6 +25,7 @@ function validateName1() {
         return false;
     }
     fnameError.innerHTML = "";
+    console.log(name)
     return true;
 }
 //lname
@@ -65,6 +67,7 @@ function validateMobile() {
         return false;
     }
     if (!mobile.match(mobileRegex)) {
+        console.log("mobile")
         mobileError.innerHTML = 'Enter a valid mobile no.'
         return false
     }
@@ -75,11 +78,12 @@ function validateMobile() {
 function validatePassword() {
     let password = document.getElementById("password").value
     if (password.length === 0) {
-        passwordError.innerHTML = "Mobile required!";
+        console.log("password")
+        passwordError.innerHTML = "Password required!";
         return false;
     }
     if (!password.match(passwordRegex)) {
-        passwordError.innerHTML = 'Invalid password'
+        passwordError.innerHTML = 'Password not matching!'
 
         return false
     }
