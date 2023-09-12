@@ -21,7 +21,7 @@ admin-product-interface
                     <div class="col-md-6">
                         <h5 class="card-title text-white mb-4">ALL YOUR PRODUCTS </h5>
                     </div>
-                    
+
                     <div class="col-md-6 text-end">
                         <a href="{% url 'admin_add_product' %}" class="btn bg-white" data-toggle="modal">
                             <span class="text-dark">CREATE PRODUCT</span></a>
@@ -67,9 +67,15 @@ admin-product-interface
                                             <a href="{% url 'admin_edit_product' i.id %}" class="edit"><i
                                                     class="material-icons" data-toggle="tooltip"
                                                     title="Edit">&#xE254;</i></a>
+                                            {% if i.is_available %}
                                             <a href="{% url 'admin_delete_product' i.id %}" class="delete"><i
-                                                    class="material-icons" data-toggle="tooltip"
+                                                    class="material-icons text-danger" data-toggle="tooltip"
                                                     title="Delete">&#xE872;</i></a>
+                                            {% else %}
+                                            <a href="{% url 'admin_delete_product' i.id %}" class="delete"><i
+                                                    class="material-icons text-success" data-toggle="tooltip"
+                                                    title="Delete">&#xE872;</i></a>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endfor %}

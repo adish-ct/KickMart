@@ -75,7 +75,7 @@
           <div id="buttonContainer">
 
             {% for item in variant %}
-            {% if item.stock > 0 %}
+            {% if item.stock > 0 and item.is_active %}
               <button type="button" class="button-size" id="{{ item.id }}" data-value="{{ item.product_size }}"
                 onclick="selectButton({{ forloop.counter }})">
                   {{ item.product_size }}

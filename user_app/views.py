@@ -204,7 +204,7 @@ def user_login(request):
                     else:
                         if not user.is_verified:
                             messages.success(request, "Verify your account.")
-                            return redirect('otp_verification')
+                            return redirect('otp_verification', user.id)
                         messages.error(request, "invalid credentials.")
                 else:
                     messages.error(request, "Invalid credentials.")

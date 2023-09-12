@@ -34,7 +34,7 @@ def products(request, category_slug=None):
         product_count = all_products.count()
 
     else:
-        all_products = Product.objects.all()
+        all_products = Product.objects.filter(is_available=True)
         paginator = Paginator(all_products, 9)
         page = request.GET.get('page')
         paged_products = paginator.get_page(page)

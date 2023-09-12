@@ -4,7 +4,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from user_app.models import *
 
 
-
 # Create your models here.
 
 class Category(models.Model):
@@ -13,6 +12,7 @@ class Category(models.Model):
     category_description = models.TextField(null=True)
     category_image = models.ImageField(upload_to='category_images/')
     offer = models.IntegerField(default=0, null=True, blank=True)
+    is_active = models.BooleanField(default=True, null=False, blank=True)
 
     class Meta:
         ordering = ['category_name']

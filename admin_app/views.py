@@ -177,8 +177,8 @@ def admin_add_product(request):
             brand = request.POST['selectBrand']
             original_price = int(request.POST['originalPrice'])
             selling_price = int(request.POST['sellingPrice'])
-            product_offer = int(request.POST['productOffer'])
             try:
+                product_offer = int(request.POST['productOffer'])
                 if int(product_offer) > 0:
                     product.offer = product_offer
                     off_amount = (original_price * product_offer) // 100
@@ -202,12 +202,15 @@ def admin_add_product(request):
             except Exception as e:
                 print(e)
 
-            product.product_name = request.POST['name']
+            product_name = request.POST['name']
+            product.product_name = product_name
+            product_slug = product_name.replace(" ", "-")
             product.category = Category.objects.get(id=category)
             product.brand = ProductBrand.objects.get(id=brand)
             product.original_price = original_price
             product.selling_price = selling_price
             product.product_description = request.POST['description']
+            product.slug = product_slug
             product.save()
 
             # multiple image fetching
@@ -232,16 +235,32 @@ def admin_add_product(request):
     return render(request, 'admin/admin_add_product.html', context)
 
 
+# @cache_control(no_store=True, no_cache=True)
+# @staff_member_required(login_url='admin_login')
+# def admin_delete_product(request, id):
+#     prod = Product.objects.get(id=id)
+#     if prod.product_image:
+#         if len(prod.product_image) != 0:
+#             os.remove(prod.product_image.path)
+#     prod.delete()
+#     messages.success(request, "Product deleted successfully")
+#
+#     return redirect('admin_product')
+
+
+# Product list and un list
+
 @cache_control(no_store=True, no_cache=True)
 @staff_member_required(login_url='admin_login')
 def admin_delete_product(request, id):
     prod = Product.objects.get(id=id)
-    if prod.product_image:
-        if len(prod.product_image) != 0:
-            os.remove(prod.product_image.path)
-    prod.delete()
-    messages.success(request, "Product deleted successfully")
-
+    if prod.is_available:
+        prod.is_available = False
+        messages.success(request, "Product unlisted")
+    else:
+        prod.is_available = True
+        messages.success(request, "Product listed")
+    prod.save()
     return redirect('admin_product')
 
 
@@ -259,34 +278,45 @@ def admin_product_variant(request, product_id):
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def add_product_variant(request, product_id):
-    product = Product.objects.get(id=product_id)
-    product_variants = ProductVariant.objects.filter(product=product)
-    sizes = ProductSize.objects.all().order_by('id')
+    context = {}
+    try:
+        product = Product.objects.get(id=product_id)
+        product_variants = ProductVariant.objects.filter(product=product)
+        sizes = ProductSize.objects.all().order_by('id')
 
-    if request.method == 'POST':
-        size = request.POST['selectSize']
-        stock = request.POST['stock']
-        productPrice = request.POST['productPrice']
-        try:
-            variant = ProductVariant.objects.get(product=product, product_size=size)
-            variant.stock = variant.stock + int(stock)
-        except ProductVariant.DoesNotExist:
-            variant = ProductVariant.objects.create(
-                product=product,
-                product_size=size,
-                stock=stock,
-            )
-        if productPrice:
-            variant.product_price = productPrice
-        variant.save()
+        if request.method == 'POST':
+            size_id = request.POST['selectSize']
+            stock = request.POST['stock']
+            productPrice = request.POST['productPrice']
+            variant_size = ProductSize.objects.get(id=size_id)
 
-        return redirect('admin_product_variant', product_id)
+            try:
+                variant = ProductVariant.objects.get(product=product_id, product_size=variant_size)
 
-    context = {
-        'product': product,
-        'sizes': sizes,
-        'product_variants': product_variants,
-    }
+                if variant:
+                    print("existing variant")
+                    variant.stock = variant.stock + int(stock)
+
+            except:
+                variant = ProductVariant.objects.create(
+                    product=product,
+                    product_size=variant_size,
+                    stock=stock,
+                )
+
+            if productPrice:
+                variant.product_price = productPrice
+            variant.save()
+
+            return redirect('admin_product_variant', product_id)
+
+        context = {
+            'product': product,
+            'sizes': sizes,
+            'product_variants': product_variants,
+        }
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_add_variant.html', context)
 
@@ -310,25 +340,32 @@ def product_variant_update(request):
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def product_variant_control(request, variant_id):
-    variant = ProductVariant.objects.get(id=variant_id)
-    product_id = variant.product.id
-    if variant.is_active:
-        variant.is_active = False
-    else:
-        variant.is_active = True
-    variant.save()
+    try:
+        variant = ProductVariant.objects.get(id=variant_id)
+        product_id = variant.product.id
+        if variant.is_active:
+            variant.is_active = False
+        else:
+            variant.is_active = True
+        variant.save()
+    except Exception as e:
+        print(e)
 
     return redirect('admin_product_variant', product_id)
 
 
 def product_variant_delete(request, variant_id):
-    if request.method == 'POST':
-        variant = ProductVariant.objects.get(id=variant_id)
-        product = variant.product
-        if variant:
-            variant.delete()
-        return redirect('admin_product_variant', product.id)
-    else:
+    try:
+        if request.method == 'POST':
+            variant = ProductVariant.objects.get(id=variant_id)
+            product = variant.product
+            if variant:
+                variant.delete()
+            return redirect('admin_product_variant', product.id)
+        else:
+            return redirect('admin_dashboard')
+    except Exception as e:
+        print(e)
         return redirect('admin_dashboard')
 
 
@@ -351,13 +388,16 @@ def admin_users(request):
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_user_manage(request, id):
-    user = CustomUser.objects.get(id=id)
-    if user.is_active:
-        user.is_active = False
-        user.save()
-    else:
-        user.is_active = True
-        user.save()
+    try:
+        user = CustomUser.objects.get(id=id)
+        if user.is_active:
+            user.is_active = False
+            user.save()
+        else:
+            user.is_active = True
+            user.save()
+    except Exception as e:
+        print(e)
 
     return redirect('admin_users')
 
@@ -381,24 +421,36 @@ def admin_category(request):
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_add_category(request):
-    if request.method == 'POST':
-        category_name = request.POST['category_name']
-        exist_category = Category.objects.filter(category_name__iexact=category_name)
-        if exist_category.exists():
-            messages.error(request, "This is an existing category")
-            return redirect('admin_add_category')
-        if len(request.FILES['image']):
-            category_image = request.FILES['image']
-        category = Category(
-            category_name=category_name,
-            category_image=category_image,
-            category_description=request.POST['description'],
-            offer=request.POST['category_offer'],
-        )
-        category.save()
-        messages.success(request, "Successfully added new category")
 
-        return redirect('admin_category')
+    category_image = None
+    try:
+        if request.method == 'POST':
+            category_name = request.POST['category_name']
+            category_offer = request.POST['category_offer']
+            category_slug = category_name.replace(" ", "-")
+            exist_category = Category.objects.filter(category_name__iexact=category_name)
+            if exist_category.exists():
+                messages.error(request, "Category Exist")
+                return redirect('admin_add_category')
+            category = Category(
+                category_name=category_name,
+                category_description=request.POST['description'],
+                slug=category_slug,
+            )
+            try:
+                if len(request.FILES['image']) > 0:
+                    category_image = request.FILES['image']
+                    category.category_image = category_image
+            except Exception as e:
+                print(e)
+
+            if category_offer is not None:
+                category.offer = category_offer
+            category.save()
+            messages.success(request, "Category Added")
+            return redirect('admin_category')
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_add_category.html')
 
@@ -406,35 +458,60 @@ def admin_add_category(request):
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_edit_category(request, id):
-    category = Category.objects.get(id=id)
-    context = {
-        'category': category,
-    }
-    if request.method == 'POST':
-        if len(request.FILES) != 0:
-            if category.category_image:
-                if len(category.category_image) > 0:
-                    os.remove(category.category_image.path)
-            category.category_image = request.FILES['image']
-        category.category_name = request.POST['name']
-        category.category_description = request.POST['description']
-        category.offer = request.POST['category_offer']
-        category.save()
-        messages.success(request, "Category updated successfully")
+    context = {}
+    try:
+        category = Category.objects.get(id=id)
+        context = {
+            'category': category,
+        }
+        if request.method == 'POST':
+            if len(request.FILES) != 0:
+                if category.category_image:
+                    if len(category.category_image) > 0:
+                        os.remove(category.category_image.path)
+                category.category_image = request.FILES['image']
+            category.category_name = request.POST['name']
+            category.category_description = request.POST['description']
+            category.offer = request.POST['category_offer']
+            category.save()
+            messages.success(request, "Category Updated")
 
-        return redirect('admin_category')
+            return redirect('admin_category')
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_edit_category.html', context)
+
+
+# @cache_control(no_cache=True, no_store=True)
+# @staff_member_required(login_url='admin_login')
+# def admin_delete_category(request, id):
+#     try:
+#         category = Category.objects.get(id=id)
+#         if category.category_image:
+#             if len(category.category_image) > 0:
+#                 os.remove(category.category_image.path)
+#         category.delete()
+#         messages.success(request, "Category Deleted")
+#     except Exception as e:
+#         print(e)
+#
+#     return redirect('admin_category')
 
 
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_delete_category(request, id):
-    category = Category.objects.get(id=id)
-    if category.category_image:
-        if len(category.category_image) > 0:
-            os.remove(category.category_image.path)
-    category.delete()
+    try:
+        category = Category.objects.get(id=id)
+        if category.is_active:
+            category.is_active = False
+            messages.success(request, "Category unlisted")
+        else:
+            category.is_active = True
+            messages.success(request, "Category listed")
+    except Exception as e:
+        print(e)
 
     return redirect('admin_category')
 
@@ -445,10 +522,13 @@ def admin_delete_category(request, id):
 
 @staff_member_required(login_url='admin_login')
 def admin_coupon_management(request):
-    coupons = Coupons.objects.all().order_by('id')
-    context = {
-        'coupons': coupons,
-    }
+    try:
+        coupons = Coupons.objects.all().order_by('id')
+        context = {
+            'coupons': coupons,
+        }
+    except Exception as e:
+        print(e)
     return render(request, 'admin/admin_coupon.html', context)
 
 
@@ -459,12 +539,14 @@ def add_coupon(request):
         description = request.POST['description']
         coupon_code = request.POST['coupon_code']
         coupon_title = request.POST['coupon_title']
-        discount_amount = request.POST['discount_amount']
-        discount = request.POST['discount']
         valid_from = request.POST['valid_from']
         valid_to = request.POST['valid_to']
-        quantity = request.POST['quantity']
         minimum_order_amount = request.POST['minimum_amount']
+
+
+
+
+        quantity = request.POST['quantity']
 
         coupon = Coupons.objects.create(
             description=description,
@@ -472,14 +554,16 @@ def add_coupon(request):
             coupon_title=coupon_title,
             valid_from=valid_from,
             valid_to=valid_to,
-            quantity=quantity,
             minimum_order_amount=minimum_order_amount,
         )
-        if discount_amount:
-            coupon.discount_amount = discount_amount
-        if discount:
-            coupon.discount = discount
+        if len(request.POST['discount_amount']) > 0:
+            coupon.discount_amount = request.POST['discount_amount']
 
+        if len(request.POST['discount']) > 0:
+            coupon.discount = request.POST['discount']
+
+        if len(request.POST['quandity']) > 0:
+            coupon.quantity = request.POST['quandity']
         coupon.save()
 
         return redirect('admin_coupon_management')
