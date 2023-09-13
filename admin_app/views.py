@@ -658,24 +658,28 @@ def order_management(request):
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def order_update(request, order_id):
-    order = Order.objects.get(id=order_id)
-    order_items = OrderProduct.objects.filter(order_id=order_id)
-    payment = order.payment
-    if request.method == 'POST':
-        order_status = request.POST.get('orderStatus', None)
-        if order_status:
-            order.status = order_status
-            order.save()
-        if order_status == 'Delivered':
-            payment.is_paid = True
+    context = {}
+    try:
+        order = Order.objects.get(id=order_id)
+        order_items = OrderProduct.objects.filter(order_id=order_id)
+        payment = order.payment
+        if request.method == 'POST':
+            order_status = request.POST.get('orderStatus', None)
+            if order_status:
+                order.status = order_status
+                order.save()
+            if order_status == 'Delivered':
+                payment.is_paid = True
+            payment.save()
 
-        payment.save()
-        messages.success(request, 'Status updated')
-        return redirect('order_update', order_id)
-    context = {
-        'order': order,
-        'order_items': order_items,
-    }
+            messages.success(request, 'Status updated')
+            return redirect('order_update', order_id)
+        context = {
+            'order': order,
+            'order_items': order_items,
+        }
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_order_update.html', context)
 
