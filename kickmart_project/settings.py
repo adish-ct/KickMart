@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from django.contrib.messages import constants as messages
 from decouple import config
+from cryptography.fernet import Fernet
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -82,13 +85,14 @@ WSGI_APPLICATION = 'kickmart_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'kickmart',
-        'USER': 'postgres',
+        'USER': config('DATABASE_USER'),
         'port': '5432',
-        'PASSWORD': 'adishct',
+        'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': 'localhost',
     }
 }
@@ -156,5 +160,3 @@ EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 
 razor_pay_key_id = config('razor_pay_key_id', default='')
 key_secret = config('key_secret', default='')
-
-

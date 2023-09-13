@@ -85,6 +85,8 @@ def products(request, category_slug=None):
         except:
             product_count = 0
 
+
+
     context = {
         'products': paged_products,
         'product_count': product_count,
