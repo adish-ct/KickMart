@@ -56,26 +56,26 @@ admin-coupon-edit
 
                         <div class="col-md-3">
                             <input type="date" id="customDate" name="valid_from" value="">
-                            <label for="customDate" class="control-label">Valid From Format :{{ coupon.valid_from }} choose one more</label>
+                            <label for="customDate" class="control-label">Valid From :{{ coupon.valid_from }} <br> change if you want</label>
                         </div>
 
                         <div class="col-md-3">
                             <input type="date" id="customDateTo" name="valid_to" value="">
-                            <label for="customDateTo" class="control-label">Valid To : {{ coupon.valid_to }} choose one more</label>
+                            <label for="customDateTo" class="control-label">Valid To : {{ coupon.valid_to }} <br> change if you want</label>
                         </div>
                     </div>
 
                     <div class="row mb-4">
                         <div class="col-md-3">
-                            <input type="number" id="discountAmount" class="form-control bg-dark text-white"
+                            <input type="number" id="minAmount" class="form-control bg-dark text-white"
                                 name="minimum_amount" value="{{ coupon.minimum_order_amount }}" />
-                            <label for="discountAmount" class="control-label">Minimun Amount To Apply</label>
+                            <label for="minAmount" class="control-label">Minimun Amount To Apply</label>
                         </div>
 
                         <div class="col-md-3">
-                            <input type="number" id="discount" class="form-control bg-dark text-white"
+                            <input type="number" id="quantity" class="form-control bg-dark text-white"
                                 name="quantity" value="{{ coupon.quantity }}"/>
-                            <label for="discount" class="control-label">Coupon Quantity</label>
+                            <label for="quantity" class="control-label">Coupon Quantity</label>
                         </div>
                     </div>
 

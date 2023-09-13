@@ -111,51 +111,53 @@ def admin_edit_product(request, id):
         'product_brand': product_brand,
         'multiple_images': object_image,
     }
+    try:
+        if request.method == 'POST':
+            product_name = request.POST['product_name']
+            category = request.POST['selectOption']
+            brand = request.POST['selectBrandOption']
+            original_price = request.POST['originalPrice']
+            selling_price = request.POST['sellingPrice']
+            # condition for checking is there any file is present in the request.
+            single_image = request.FILES.get('image', None)
 
-    if request.method == 'POST':
-        product_name = request.POST['product_name']
-        category = request.POST['selectOption']
-        brand = request.POST['selectBrandOption']
-        original_price = request.POST['originalPrice']
-        selling_price = request.POST['sellingPrice']
-        # condition for checking is there any file is present in the request.
-        single_image = request.FILES.get('image', None)
+            multiple_images = request.FILES.getlist('multipleImage')
+            # we want to remove the image that already stored in the database.
+            # first of all we have to check if there is any image exist on product object.
+            if single_image:
+                if product.product_image:
+                    os.remove(product.product_image.path)
+                product.product_image = single_image
 
-        multiple_images = request.FILES.getlist('multipleImage')
-        # we want to remove the image that already stored in the database.
-        # first of all we have to check if there is any image exist on product object.
-        if single_image:
-            if product.product_image:
-                os.remove(product.product_image.path)
-            product.product_image = single_image
+            if multiple_images:
+                if object_image:
+                    for i in object_image:
+                        os.remove(i.images.path)
+                        i.delete()
+                    for image in multiple_images:
+                        photo = MultipleImages.objects.create(
+                            product=product,
+                            images=image,
+                        )
+                else:
+                    for image in multiple_images:
+                        photo = MultipleImages.objects.create(
+                            product=product,
+                            images=image,
+                        )
 
-        if multiple_images:
-            if object_image:
-                for i in object_image:
-                    os.remove(i.images.path)
-                    i.delete()
-                for image in multiple_images:
-                    photo = MultipleImages.objects.create(
-                        product=product,
-                        images=image,
-                    )
-            else:
-                for image in multiple_images:
-                    photo = MultipleImages.objects.create(
-                        product=product,
-                        images=image,
-                    )
+            product.product_name = product_name
+            product.category = Category.objects.get(id=category)
+            product.brand = ProductBrand.objects.get(id=brand)
+            product.original_price = original_price
+            product.selling_price = selling_price
 
-        product.product_name = product_name
-        product.category = Category.objects.get(id=category)
-        product.brand = ProductBrand.objects.get(id=brand)
-        product.original_price = original_price
-        product.selling_price = selling_price
-
-        product.save()
-        # Multi_image.save()
-        messages.success(request, "Product updated successfully")
-        return redirect('admin_product')
+            product.save()
+            # Multi_image.save()
+            messages.success(request, "Product updated successfully")
+            return redirect('admin_product')
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_edit_product.html', context)
 
@@ -421,7 +423,6 @@ def admin_category(request):
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_add_category(request):
-
     category_image = None
     try:
         if request.method == 'POST':
@@ -543,9 +544,6 @@ def add_coupon(request):
         valid_to = request.POST['valid_to']
         minimum_order_amount = request.POST['minimum_amount']
 
-
-
-
         quantity = request.POST['quantity']
 
         coupon = Coupons.objects.create(
@@ -561,77 +559,85 @@ def add_coupon(request):
 
         if len(request.POST['discount']) > 0:
             coupon.discount = request.POST['discount']
-
-        if len(request.POST['quandity']) > 0:
-            coupon.quantity = request.POST['quandity']
+        try:
+            if len(request.POST['quantity']) > 0:
+                coupon.quantity = request.POST['quantity']
+        except:
+            pass
         coupon.save()
-
+        messages.success(request, "Coupon created")
         return redirect('admin_coupon_management')
     return render(request, 'admin/admin_add_coupon.html')
 
 
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
-def delete_coupon(request, coupon_id):
-    coupon = get_object_or_404(Coupons, id=coupon_id)
-    if coupon:
-        coupon.delete()
-    return redirect('admin_coupon_management')
-
-
-@cache_control(no_cache=True, no_store=True)
-@staff_member_required(login_url='admin_login')
 def edit_coupon(request, coupon_id):
+    context = {}
     coupon = Coupons.objects.get(id=coupon_id)
-    if request.method == 'POST':
-        description = request.POST['description']
-        coupon_code = request.POST['coupon_code']
-        coupon_title = request.POST['coupon_title']
-        discount_amount = request.POST['discount_amount']
-        discount = request.POST['discount']
-        valid_from = request.POST['valid_from']
-        valid_to = request.POST['valid_to']
-        quantity = request.POST['quantity']
-        minimum_order_amount = request.POST['minimum_amount']
+    try:
+        if request.method == 'POST':
+            coupon.id = coupon_id
+            coupon.description = request.POST['description']
+            coupon.coupon_code = request.POST['coupon_code']
+            coupon.coupon_title = request.POST['coupon_title']
 
-        coupon.id = coupon_id
-        coupon.description = description
-        coupon.coupon_code = coupon_code
-        coupon.coupon_title = coupon_title
-        coupon.quantity = quantity
-        coupon.minimum_order_amount = minimum_order_amount
+            coupon.minimum_order_amount = request.POST['minimum_amount']
 
-        if valid_from:
-            coupon.valid_from = valid_from
-        if valid_to:
-            coupon.valid_to = valid_to
-        if discount_amount:
-            coupon.discount_amount = discount_amount
-            if discount:
-                discount = None
-        if discount:
-            if discount_amount:
-                discount_amount = None
-                coupon.discount = discount
+            if request.POST['valid_from']:
+                coupon.valid_from = request.POST['valid_from']
+            if request.POST['valid_to']:
+                coupon.valid_to = request.POST['valid_to']
 
-        coupon.save()
+            if len(request.POST['discount_amount']) > 0:
+                coupon.discount_amount = request.POST['discount_amount']
 
-        return redirect('admin_coupon_management')
-    context = {
-        'coupon': coupon,
-    }
+            if len(request.POST['discount']) > 0:
+                coupon.discount = request.POST['discount']
+
+            try:
+                if len(request.POST['quantity']) > 0:
+                    coupon.quantity = request.POST['quantity']
+            except Exception as e:
+                print(e)
+            coupon.save()
+            messages.success(request, "Coupon updated")
+            return redirect('admin_coupon_management')
+        context = {
+            'coupon': coupon,
+        }
+    except Exception as e:
+        print(e)
     return render(request, 'admin/admin_edit_coupon.html', context)
 
 
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
+def delete_coupon(request, coupon_id):
+    try:
+        coupon = get_object_or_404(Coupons, id=coupon_id)
+        if coupon:
+            coupon.delete()
+        messages.success(request, "Coupon deleted")
+    except:
+        pass
+    return redirect('admin_coupon_management')
+
+
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
 def activate_coupon(requset, coupon_id):
-    coupon = Coupons.objects.get(id=coupon_id)
-    if coupon.active:
-        coupon.active = False
-    else:
-        coupon.active = True
-    coupon.save()
+    try:
+        coupon = Coupons.objects.get(id=coupon_id)
+        if coupon.active:
+            coupon.active = False
+            messages.success(requset, "Coupon deactivated")
+        else:
+            coupon.active = True
+            messages.success(requset, "Coupon activated")
+        coupon.save()
+    except Exception as e:
+        print(e)
     return redirect('admin_coupon_management')
 
 
