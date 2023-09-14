@@ -691,31 +691,34 @@ def return_request(request, item_id):
     variant = order_item.variant
     order = order_item.order_id
     order_id = order.id
-    coupon = order.coupon
-    user = order.user
-    deduct_discount = order.discount
+    try:
+        coupon = order.coupon
+        user = order.user
+        deduct_discount = order.discount
 
-    if order.total < 2500:  # delivery charge logic.
-        delivery_charge = 99
-    else:
-        delivery_charge = 0
+        if order.total < 2500:  # delivery charge logic.
+            delivery_charge = 99
+        else:
+            delivery_charge = 0
 
-    if request.method == 'POST':
-        order_item.is_returned = True
-        variant.stock += order_item.quandity
-        amount = variant.product_price * order_item.quandity
-        if coupon:
-            if float(order.total) - float(amount) >= float(coupon.minimum_order_amount):
-                deduct_discount = 0
-            else:
-                order.discount = 0
+        if request.method == 'POST':
+            order_item.is_returned = True
+            variant.stock += order_item.quandity
+            amount = variant.product_price * order_item.quandity
+            if coupon:
+                if float(order.total) - float(amount) >= float(coupon.minimum_order_amount):
+                    deduct_discount = 0
+                else:
+                    order.discount = 0
 
-        refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)  # calculating refund amount.
-        user.wallet = float(user.wallet) + float(refund_amount)
-        order_item.save()
-        variant.save()
-        user.save()
-        order.save()
+            refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)  # calculating refund amount.
+            user.wallet = float(user.wallet) + float(refund_amount)
+            order_item.save()
+            variant.save()
+            user.save()
+            order.save()
+    except Exception as e:
+        print(e)
 
     return redirect('order_update', order_id)
 
@@ -725,10 +728,14 @@ def return_request(request, item_id):
 
 @staff_member_required(login_url='admin_login')
 def banner_management(request):
-    banners = Banner.objects.all().order_by('id')
-    context = {
-        'banners': banners,
-    }
+    context = {}
+    try:
+        banners = Banner.objects.all().order_by('id')
+        context = {
+            'banners': banners,
+        }
+    except Exception as e:
+        print(e)
     return render(request, 'admin/admin_banner.html', context)
 
 
@@ -748,7 +755,7 @@ def create_banner(request):
             image = request.FILES['image']
             banner.image = image
         banner.save()
-
+        messages.success(request, "Banner created")
         return redirect('banner_management')
 
     return render(request, 'admin/admin_add_banner.html')
@@ -758,25 +765,28 @@ def create_banner(request):
 @staff_member_required(login_url='admin_login')
 def update_banner(request, banner_id):
     banner = Banner.objects.get(id=banner_id)
+    context = {}
+    try:
+        if request.method == 'POST':
+            banner.section = request.POST['section']
+            banner.identifier = request.POST['identifier']
+            banner.description = request.POST['description']
+            banner.offer_detail = request.POST['offer']
+            banner.title = request.POST.get('title', None)
+            banner.notes = request.POST['notes']
+            if len(request.FILES) != 0:
+                if banner.image:
+                    os.remove(banner.image.path)
+                banner.image = request.FILES['image']
+            banner.save()
+            messages.success(request, "Banner Updated")
+            return redirect('banner_management')
 
-    if request.method == 'POST':
-        banner.section = request.POST['section']
-        banner.identifier = request.POST['identifier']
-        banner.description = request.POST['description']
-        banner.offer_detail = request.POST['offer']
-        banner.title = request.POST.get('title', None)
-        banner.notes = request.POST['notes']
-        if len(request.FILES) != 0:
-            if banner.image:
-                os.remove(banner.image.path)
-            banner.image = request.FILES['image']
-        banner.save()
-
-        return redirect('banner_management')
-
-    context = {
-        'banner': banner,
-    }
+        context = {
+            'banner': banner,
+        }
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_edit_banner.html', context)
 
@@ -784,9 +794,15 @@ def update_banner(request, banner_id):
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def delete_banner(request, banner_id):
-    banner = Banner.objects.get(id=banner_id)
-    banner.delete()
+    try:
+        banner = Banner.objects.get(id=banner_id)
+        banner.delete()
+        messages.success(request, "Banner deleted.")
+    except Exception as e:
+        print(e)
+
     return redirect('banner_management')
+
 
 
 @staff_member_required(login_url='admin_login')

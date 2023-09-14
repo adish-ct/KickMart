@@ -12,7 +12,6 @@ banner-management
                 <div class="col-md-6 text-center mt-5 mb-5">
                     <h1 class="text-white">BANNER </h1>
                 </div>
-
             </div>
         </div>
         <div class="card bg-secondary">
@@ -21,13 +20,6 @@ banner-management
                     <div class="col-md-6">
                         <h5 class="card-title text-white mb-4">ALL YOUR WEBSITE BANNERS </h5>
                     </div>
-                    {% if messages %}   
-                    <p>
-                        {% for message in messages %}
-                        <span class="text-center text-success">{{ message }}</span>
-                        {% endfor %}
-                    </p>
-                    {% endif %}
                     <div class="col-md-6 text-end">
                         <a href="{% url 'create_banner' %}" class="btn bg-white" data-toggle="modal">
                             <span class="text-dark">CREATE BANNER</span></a>

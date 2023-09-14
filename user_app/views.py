@@ -33,9 +33,18 @@ def index(request):
     products = Product.objects.all()[:4]
     latest_product = Product.objects.all().order_by('created_date')[:4:-1]
     brands = ProductBrand.objects.all().order_by('id')
-    main_banner = Banner.objects.filter(section='index', identifier='main')
-    sub_banner_left = Banner.objects.filter(section='index', identifier='first').order_by('-id')
-    sub_banner_right = Banner.objects.filter(section='index', identifier='second').order_by('-id')
+    try:
+        main_banner = Banner.objects.filter(section='index', identifier='main')
+    except:
+        main_banner = None
+    try:
+        sub_banner_left = Banner.objects.filter(section='index', identifier='first').order_by('-id')[0]
+    except:
+        sub_banner_left = None
+    try:
+        sub_banner_right = Banner.objects.filter(section='index', identifier='second').order_by('-id')[0]
+    except:
+        sub_banner_right = None
 
     context = {
         'categories': categories,
@@ -43,8 +52,8 @@ def index(request):
         'latest_poduct': latest_product,
         'brands': brands,
         'main_banner': main_banner,
-        'sub_banner_left': sub_banner_left[0],
-        'sub_banner_right': sub_banner_right[0],
+        'sub_banner_left': sub_banner_left,
+        'sub_banner_right': sub_banner_right,
     }
 
     return render(request, 'product/index.html', context)
@@ -130,43 +139,50 @@ def otp_verification(request, user_id):
     context = {
         'user': user,
     }
-    if request.method == 'POST':
-        otp = request.POST['otp']
+    try:
+        if request.method == 'POST':
+            otp = request.POST['otp']
 
-        if len(otp) == 6:
-            if otp == user.otp:
-                user.is_verified = True
-                user.otp = ''
-                user.save()
-                messages.success(request, "Account verified.")
-                return redirect('user_login')
+            if len(otp) == 6:
+                if otp == user.otp:
+                    user.is_verified = True
+                    user.otp = ''
+                    user.save()
+                    messages.success(request, "Account verified.")
+                    return redirect('user_login')
+                else:
+                    messages.error(request, 'Invalid OTP.')
+                    return redirect('otp_verification', user.id)
             else:
-                messages.error(request, 'Invalid OTP.')
+                messages.error(request, "Invalid OTP")
                 return redirect('otp_verification', user.id)
-        else:
-            messages.error(request, "Invalid OTP")
-            return redirect('otp_verification', user.id)
+    except Exception as e:
+        print(e)
 
     return render(request, 'user/otp_verification.html', context)
 
 
 @cache_control(no_store=True, no_cache=True)
 def regenerate_otp(request, id):
-    user = CustomUser.objects.get(id=id)
-    email = user.email
-    user.otp = ''
-    otp = get_random_string(length=6, allowed_chars='1234567890')
+    try:
+        user = CustomUser.objects.get(id=id)
+        email = user.email
+        user.otp = ''
+        otp = get_random_string(length=6, allowed_chars='1234567890')
 
-    subject = 'Verify your account'
-    message = f'Your OTP for account verification is {otp}'
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [email, ]
-    send_mail(subject, message, email_from, recipient_list)
+        subject = 'Verify your account'
+        message = f'Your OTP for account verification is {otp}'
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [email, ]
+        send_mail(subject, message, email_from, recipient_list)
 
-    user.otp = otp
-    user.save()
-    messages.success(request, "OTP sent to your mail")
+        user.otp = otp
+        user.save()
+        messages.success(request, "OTP sent to your mail")
+    except Exception as e:
+        print(e)
     return redirect('otp_verification', id)
+
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -219,12 +235,14 @@ def user_login(request):
 def user_logout(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
-    if 'user' in request.session:
-        logout(request)
-        request.session.flush()
-        messages.success(request, 'Logout successfully.')
-        return redirect('index')
-    else:
+    try:
+        if 'user' in request.session:
+            logout(request)
+            request.session.flush()
+            messages.success(request, 'Logout successfully.')
+            return redirect('index')
+    except Exception as e:
+        print(e)
         return redirect('index')
 
 

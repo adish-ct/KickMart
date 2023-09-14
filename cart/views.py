@@ -9,6 +9,7 @@ from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from order.models import *
 from django.http import JsonResponse
+from django.utils import timezone
 
 
 # Create your views here.
@@ -16,7 +17,7 @@ from django.http import JsonResponse
 
 @cache_control(no_cache=True)
 def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, coupon=None):
-    coupons = Coupons.objects.all().order_by('id')
+    coupons = Coupons.objects.filter(valid_to__gte=timezone.now()).order_by('id')
     delivery_charge = 99
     total = 0
     quantity = 0
@@ -25,34 +26,35 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
     if 'user' in request.session:
         my_user = request.user
         checkout_user = request.user.id
-        try: # new change 10-08-23
+        try:  # new change 10-08-23
             if Checkout.objects.get(user=checkout_user):
-                checkout = Checkout.objects.get(user=checkout_user)   
+                checkout = Checkout.objects.get(user=checkout_user)
 
-        except: 
+        except:
             checkout = Checkout()
-            checkout.user = CustomUser.objects.get(id=checkout_user)    # checkout user saving
+            checkout.user = CustomUser.objects.get(id=checkout_user)  # checkout user saving
 
-        checkout.discount = discount                                    # initially discount should be zero
+        checkout.discount = discount  # initially discount should be zero
         checkout.coupon = None
-        
+
         try:
-            cart_items = CartItem.objects.filter(customer=my_user).order_by('id') # fetch every cart items related with the cart
-            for item in cart_items: 
+            cart_items = CartItem.objects.filter(customer=my_user).order_by(
+                'id')  # fetch every cart items related with the cart
+            for item in cart_items:
                 total += (item.product.product_price * item.quantity)
                 quantity += item.quantity
-            checkout.total = total                                      # checkout saving total
+            checkout.total = total  # checkout saving total
 
             if total > 2500:
                 delivery_charge = 0
-            checkout.shipping = delivery_charge                         # checkout saving delivery charge
-             
+            checkout.shipping = delivery_charge  # checkout saving delivery charge
+
             tax = (total * 3) // 100
-            checkout.tax = tax                                          # checkout saving tax
-            
+            checkout.tax = tax  # checkout saving tax
+
             # after submiting the coupon form. Coupon handling logic
             if request.method == 'POST':
-                arr = []                                                # for storing used coupon
+                arr = []  # for storing used coupon
                 orders = Order.objects.filter(user=checkout_user)
                 if orders:
                     for order in orders:
@@ -65,28 +67,31 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
 
                 if coupon_code in arr:
                     messages.error(request, "Coupon already taken")
+                    return redirect('cart')
                 else:
-                    if coupon.active == True:
+                    if coupon.active and coupon in coupons:
                         minimum_amount = coupon.minimum_order_amount
                         if total > minimum_amount:
                             if coupon.discount_amount:
                                 discount = coupon.discount_amount
                             elif coupon.discount:
-                                discount = ( total * coupon.discount ) / 100
+                                discount = (total * coupon.discount) / 100
                             else:
                                 discount = 0
-                            checkout.discount = discount        # checkout saving 
+                            checkout.discount = discount  # checkout saving
                             checkout.coupon = coupon
                             messages.success(request, "coupon applied")
                         else:
-                            messages.error(request, f"minimum purchase amount : Rs. { minimum_amount }")
+                            messages.error(request, f"minimum purchase amount : Rs. {minimum_amount}")
+                            return redirect('cart')
                     else:
                         messages.error(request, "coupon expired")
+                        return redirect('cart')
                 checkout.save()
-                   
+
             grand_total = (total + tax + delivery_charge) - discount  # calculating grand total.
-            checkout.grand_total = grand_total          # checkout saving grand total.
-            
+            checkout.grand_total = grand_total  # checkout saving grand total.
+
         except ObjectDoesNotExist:
             pass
 
@@ -95,14 +100,14 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
     # anonymous user handling
     else:
         try:
-            cart = Cart.objects.get(cart_id=_cart_id(request)) # fetching the cart id 
-            cart_items = CartItem.objects.filter(cart=cart) # fetch every cart items related with the cart
-            for item in cart_items: 
+            cart = Cart.objects.get(cart_id=_cart_id(request))  # fetching the cart id
+            cart_items = CartItem.objects.filter(cart=cart)  # fetch every cart items related with the cart
+            for item in cart_items:
                 total += (item.product.product_price * item.quantity)
                 quantity += item.quantity
             if total > 2500:
                 delivery_charge = 0
-            
+
             tax = (total * 3) / 100
 
             if request.method == 'POST':
@@ -114,7 +119,7 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
                         if coupon.discount_amount:
                             discount = coupon.discount_amount
                         elif coupon.discount:
-                            discount = ( total * coupon.discount ) / 100
+                            discount = (total * coupon.discount) / 100
                         else:
                             discount = 0
                         messages.success(request, "coupon applied")
@@ -126,7 +131,7 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
             grand_total = (total + delivery_charge + tax) - discount
         except ObjectDoesNotExist:
             pass
-    
+
     context = {
         'total': total,
         'quantity': quantity,
@@ -142,18 +147,14 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
     return render(request, 'product/cart.html', context)
 
 
-
 def _cart_id(request):
-    cart = request.session.session_key # checking for current session
+    cart = request.session.session_key  # checking for current session
     if not cart:
-        cart = request.session.create() # if there is no session create a new session
+        cart = request.session.create()  # if there is no session create a new session
     return cart
 
 
-
-
 def add_cart(request, product_id):
-    
     product = Product.objects.get(id=product_id)
 
     # getting variant of product
@@ -272,7 +273,6 @@ def add_cart(request, product_id):
 
 @cache_control(no_cache=True, no_store=True)
 def remove_cart_quandity(request):
-    
     if request.method == 'POST':
         grant_total = 0
         delivery_charge = 99
@@ -288,31 +288,31 @@ def remove_cart_quandity(request):
                 if cart_item.quantity > 1:
                     cart_item.quantity -= 1
                     cart_item.save()
-                    
+
                 else:
                     cart_item.delete()
-                
+
                 product_quantity = cart_item.quantity
                 total = cart_item.product.product_price * cart_item.quantity
                 if total <= 0:
                     delivery_charge = 0
 
                 cart_items = CartItem.objects.filter(customer=my_user).order_by('id')
-                for item in cart_items: 
+                for item in cart_items:
                     grant_total += (item.product.product_price * item.quantity)
 
             except CartItem.DoesNotExist:
                 pass
 
             try:
-                #check out handling
+                # check out handling
                 checkout = Checkout.objects.get(user=my_user)
-                
+
                 checkout.total = grant_total
                 if grant_total > 2500:
                     delivery_charge = 0
-                checkout.shipping = delivery_charge                         # checkout saving delivery charge
-             
+                checkout.shipping = delivery_charge  # checkout saving delivery charge
+
                 tax = (grant_total * 3) // 100
                 checkout.tax = tax
                 total_amount = (grant_total + tax + delivery_charge)  # calculating grand total.
@@ -323,9 +323,10 @@ def remove_cart_quandity(request):
                 pass
 
         else:
-            cart = Cart.objects.get(cart_id=_cart_id(request))         # fetch the current cart, cart will be present in this case.
+            cart = Cart.objects.get(
+                cart_id=_cart_id(request))  # fetch the current cart, cart will be present in this case.
             try:
-                cart_item = CartItem.objects.get(product=variant, cart=cart)    # fetch the cart item 
+                cart_item = CartItem.objects.get(product=variant, cart=cart)  # fetch the cart item
                 if cart_item.quantity > 1:
                     cart_item.quantity = cart_item.quantity - 1
                     cart_item.save()
@@ -344,11 +345,9 @@ def remove_cart_quandity(request):
             'grant_total': grant_total,
             'total_amount': checkout.grand_total,
             'tax': checkout.tax,
-            })
+        })
     else:
         return redirect('cart')
-
-
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -360,7 +359,7 @@ def add_cart_quandity(request):
         variant_id = request.POST.get('product_id')
         product_quantity = request.POST.get('product_quandity')
         variant = ProductVariant.objects.get(id=variant_id)
-        
+
         if 'user' in request.session:
             my_user = request.user
 
@@ -376,22 +375,22 @@ def add_cart_quandity(request):
                 product_quantity = cart_item.quantity
                 total = cart_item.product.product_price * cart_item.quantity
                 cart_items = CartItem.objects.filter(customer=my_user)
-                
-                for item in cart_items: 
+
+                for item in cart_items:
                     grant_total += (item.product.product_price * item.quantity)
 
             except CartItem.DoesNotExist:
                 pass
 
             try:
-                #check out handling
+                # check out handling
                 checkout = Checkout.objects.get(user=my_user.id)
-                
+
                 checkout.total = grant_total
                 if grant_total > 2500:
                     delivery_charge = 0
-                checkout.shipping = delivery_charge                         # checkout saving delivery charge
-             
+                checkout.shipping = delivery_charge  # checkout saving delivery charge
+
                 tax = (grant_total * 3) // 100
                 checkout.tax = tax
                 total_amount = (grant_total + tax + delivery_charge)  # calculating grand total.
@@ -403,7 +402,7 @@ def add_cart_quandity(request):
 
         else:
             try:
-                cart = Cart.objects.get(cart_id=_cart_id(request)) 
+                cart = Cart.objects.get(cart_id=_cart_id(request))
                 cart_item = CartItem.objects.get(cart=cart, product=variant)
                 if variant.stock > cart_item.quantity:
                     cart_item.quantity += 1
@@ -413,7 +412,7 @@ def add_cart_quandity(request):
                 cart_item.save()
                 total = cart_item.product.product_price * cart_item.quantity
 
-                
+
             except CartItem.DoesNotExist:
                 pass
         return JsonResponse({
@@ -422,7 +421,7 @@ def add_cart_quandity(request):
             'grant_total': grant_total,
             'total_amount': checkout.grand_total,
             'tax': checkout.tax,
-            })
+        })
     else:
         return redirect('cart')
 
@@ -437,11 +436,10 @@ def delete_cart(request, variant_id):
             cart_item.delete()
     else:
         cart = Cart.objects.get(cart_id=_cart_id(request))
-        
+
         cart_item = CartItem.objects.filter(cart=cart, product=variant)
         cart_item.delete()
     return redirect('cart')
-
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -453,7 +451,6 @@ def coupon_remove(request):
     checkout.discount = 0
     checkout.save()
     return redirect('cart')
-
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -488,7 +485,7 @@ def checkout(request):
             except Exception as e:
                 messages.error(request, "Choose delivery address")
                 return redirect('checkout')
-            
+
             # wallet is selected or not.
             try:
                 wallet = request.POST['selectWallet']
@@ -512,13 +509,11 @@ def checkout(request):
             else:
                 checkout_items.payable_amount = 0
                 # my_user.wallet = float(my_user.wallet) - float(checkout_items.grand_total)
-                
+
             checkout_items.save()
 
             my_user.save()
-                
+
             return redirect('order')
-        
+
         return render(request, "product/checkout.html", context)
-    
-        

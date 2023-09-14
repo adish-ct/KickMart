@@ -277,8 +277,8 @@ cart-product
             {% for coupon in coupons %}
             <div class="form-check p-2 d-flex justify-content-between">
               <div class="">
-                  <a href="" disable><i class="bi bi-plus-lg me-2"></i></a>
-                  <label class="form-check-label " id="content-to-copy" for="coupon-{{ coupon.id }}">
+                  <a href="#couponModal-{{ forloop.counter }}" type="button" data-bs-toggle="modal" disabled><i class="bi bi-plus-lg me-2"></i></a>
+                  <label class="form-check-label " id="content-to-copy" for="">
                     {{ coupon.coupon_code }}
                   </label>
               </div>
@@ -359,5 +359,48 @@ cart-product
 
 {% endif %}
 
+
+
+<!-- Modal -->
+
+{% for coupon in coupons %}
+
+<div class="modal fade" id="couponModal-{{ forloop.counter }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Coupon {{ coupon.coupon_code }}</h5>
+      </div>
+
+      <div class="modal-body">
+        <div class="d-flex gap-5">
+          <label for="couponCode">Coupon Code</label> :
+          <p id="couponCode">{{ coupon.coupon_code }}</p>
+        </div>
+        <div class="d-flex gap-5">
+          <label for="couponTitle">Coupon Title</label> :
+          <p id="couponTitle">{{ coupon.coupon_title }}</p>
+        </div>
+        <div class="d-flex gap-5">
+          <label for="couponMiniumOrderAmount">Coupon Min Order Amount</label> :
+          <p id="couponMiniumOrderAmount">{{ coupon.minimum_order_amount }}</p>
+        </div>
+        <div class="d-flex gap-5">
+          <label for="couponValidFrom">Coupon Valid From</label> :
+          <p id="couponValidFrom">{{ coupon.valid_from }}</p>
+        </div>
+        <div class="d-flex gap-5">
+          <label for="couponValidTo">Coupon Valid To</label> :
+          <p id="couponValidTo">{{ coupon.valid_to }}</p>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
 
 {% endblock body %}

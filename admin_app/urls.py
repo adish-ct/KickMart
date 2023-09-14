@@ -1,7 +1,9 @@
 from django.urls import path
 from admin_app import views
 
+
 urlpatterns = [
+
     path('', views.admin_login, name="admin_login"),
     path('admin_dashboard/', views.admin_dashboard, name="admin_dashboard"),
 
@@ -18,7 +20,7 @@ urlpatterns = [
 
     path('admin_users/', views.admin_users, name="admin_users"),
     path('admin_user_manage/<int:id>/', views.admin_user_manage, name="admin_user_manage"),
-    
+
     path('admin-category/', views.admin_category, name="admin_category"),
     path('admin-add-category/', views.admin_add_category, name="admin_add_category"),
     path('admin-edit-category/<int:id>', views.admin_edit_category, name="admin_edit_category"),

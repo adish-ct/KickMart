@@ -35,8 +35,8 @@ order-management
                 <div class="col-12">
                     <div class="bg-secondary rounded h-100 p-4">
                         <div class="table-responsive">
-                            <table class="table text-start align-middle table-bordered table-hover mb-0 p-2" id="sortTable">
-                                <thead>
+                            <table class="table text-start align-middle table-bordered table-hover mb-0 p-2" id="sortTable" style="border: solid #9d9d9d; margin-top: 50px;">
+                                <thead style="">
                                     <tr class="text-white text-center fw-bold" style="font-size: 18px;">
                                         <th scope="col">Sr No.</th>
                                         <th scope="col">Date</th>
@@ -48,6 +48,7 @@ order-management
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
+                                <hr>
                                 <tbody>
 
                                     {% for order in orders %}
