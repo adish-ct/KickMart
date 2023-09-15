@@ -12,6 +12,8 @@ from django.http import HttpResponse
 from django.db.models import Sum
 from django.utils import timezone
 from datetime import date, datetime
+from django.db.models import Sum, Count
+from django.db.models.functions import ExtractMonth
 
 
 # Create your views here.
@@ -49,6 +51,34 @@ def admin_dashboard(request):
     razor_pay = Order.objects.filter(payment__payment_method='Razor Pay').count()
     # paypal = Order.objects.filter(payment__payment_method='Paypal').count()
 
+    # Generate monthly sales reports
+    # v 1.0
+    monthly_sales = (
+        Order.objects.annotate(month=ExtractMonth('created'))
+        .values('month')
+        .annotate(total_sales=Sum('order_total'))
+        .order_by('month')
+    )
+
+    months_sales = [item['month'] for item in monthly_sales]
+    total_sales = [item['total_sales'] for item in monthly_sales]
+
+    monthly_order_count = (
+        Order.objects
+        .annotate(month=ExtractMonth('created'))
+        .values('month')
+        .annotate(order_count=Count('id'))
+        .order_by('month')
+    )
+
+    months_in_order = [item['month'] for item in monthly_order_count]
+    order_counts = [item['order_count'] for item in monthly_order_count]
+
+    months = {1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr',
+              5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug',
+              9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'
+              }
+
     if request.method == 'POST':
         try:
             date_from = request.POST.get('startDate')
@@ -68,8 +98,10 @@ def admin_dashboard(request):
     context = {
         'year': ar,
         'sales': sales,
-        'month': month,
+
+        'months': months,
         'order': order,
+
         'orders': orders,
         'order_count': order_count,
         'order_total': order_total,
@@ -711,7 +743,8 @@ def return_request(request, item_id):
                 else:
                     order.discount = 0
 
-            refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)  # calculating refund amount.
+            refund_amount = (float(amount) + float(delivery_charge)) - float(
+                deduct_discount)  # calculating refund amount.
             user.wallet = float(user.wallet) + float(refund_amount)
             order_item.save()
             variant.save()
@@ -802,7 +835,6 @@ def delete_banner(request, banner_id):
         print(e)
 
     return redirect('banner_management')
-
 
 
 @staff_member_required(login_url='admin_login')
