@@ -55,6 +55,9 @@ def admin_dashboard(request):
 
     # Generate monthly sales reports
     # v 1.0
+
+    # month order section
+
     monthly_sales = (
         Order.objects.annotate(month=ExtractMonth('created'))
         .values('month')
@@ -89,6 +92,9 @@ def admin_dashboard(request):
               5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug',
               9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'
               }
+    # month order section
+
+    # Date filter
 
     if request.method == 'POST':
         try:
@@ -98,12 +104,14 @@ def admin_dashboard(request):
         except:
             pass
 
+    # Date filter end
+
     # yearly sales section
 
     yearly_sales = (
         Order.objects.annotate(year=ExtractYear('created'))
         .values('year')
-        .annotate(total_sales=Sum('order_total'))
+        .annotate(year_total=Sum('order_total'))
         .order_by('year')
     )
 
@@ -114,10 +122,20 @@ def admin_dashboard(request):
         .order_by('year')
     )
     print("------------------------")
+    # print(yearly_sales[0]['year_total'])
+    print("type of yearly sales :", type(yearly_sales))
     print(yearly_orders)
+    print("type of yearly orders :", type(yearly_orders))
     print("------------------------")
 
-    ar = [2020, 2021, 2022, 2023]
+    total_year_sales = []
+    j = 0
+    while j < len(yearly_sales):
+        year.append(yearly_sales[0]['year'])
+        total_year_sales.append([0]['year_total'])
+        i += 1
+
+    ar = [2000, 2001, 2002, 2003]
     sales = [10000, 2500, 1200, 3500]
 
     # payment report section
@@ -128,8 +146,8 @@ def admin_dashboard(request):
     context = {
         'orders': orders,
 
-        'year': ar,
-        'sales': sales,
+        'year': year,
+        'sales': total_year_sales,
 
         'months': months.values(),
         'order': order,
