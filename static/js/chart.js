@@ -93,19 +93,4 @@ var options = {
 var chart = new ApexCharts(document.querySelector("#barChart"), options);
 chart.render();
 
-// py chart
-
-// let payment = []
-// let count = document.getElementsById("payment_count");
-// // Loop through the elements and extract their values
-// for (let i = 0; i < elements.length; i++) {
-//     sales.push(elements[i].textContent);
-// }
-
-// let payment_count = []
-// let payment_methods = document.getElementsByClassName("payment_method");
-// // Loop through the elements and extract their values
-// for (let i = 0; i < yElements.length; i++) {
-//     years.push(yElements[i].textContent);
-// }
 

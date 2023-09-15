@@ -85,13 +85,30 @@ admin-dashboard
 
 
 
-<!-- Widgets Start -->
+<!-- chart Start -->
 <div class="container-fluid pt-4 px-4">
   <div class="row g-4">
-    <div id="chart" class="w-50 text-danger">
+
+    <div id="chart" class="w-50 text-danger text-center">
+      <h2> Order </h2>
     </div>
 
-    <div id="barChart" class="w-50 text-danger" style="color: red !important; background-color: black;">
+    <div id="barChart" class="w-50 text-danger text-center" style="color: red !important; background-color: black;">
+          <h2> Profit </h2>
+    </div>
+
+  </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+  <div class="row g-4">
+
+    <div id="orderChart" class="w-50 text-danger text-center">
+      <h2> Order </h2>
+    </div>
+
+    <div id="StockChart" class="w-50 text-danger text-center" style="color: red !important; background-color: black;">
+          <h2> Profit </h2>
     </div>
 
   </div>
@@ -153,7 +170,7 @@ admin-dashboard
 </div>
 <!-- Recent Sales End -->
 
-
+<!-------------------------------------->
 {% for i in year %}
 <p class="yearData" hidden> {{ i }} </p>
 {% endfor %}
@@ -161,17 +178,20 @@ admin-dashboard
 {% for i in sales %}
 <p class="salesData" hidden> {{ i }} </p>
 {% endfor %}
+<!-------------------------------------->
 
-
+<!-------------------------------------->
 {% for i in months %}
 <p class="monthData" hidden> {{ i }} </p>
 {% endfor %}
 
 {% for i in order %}
 <p class="orderData" hidden> {{ i }} </p>
+<p> {{ i }}</p>
 {% endfor %}
+<!--------------------------------------->
 
-
+<!---------------------------------------->
 {% for i in payment_count %}
 <p class="paymentCount" hidden> {{ i }} </p>
 {% endfor %}
@@ -179,6 +199,7 @@ admin-dashboard
 {% for i in payment_method %}
 <p class="paymentMethod" hidden> {{ i }} </p>
 {% endfor %}
+<!---------------------------------------->
 
 <!-- Widgets End -->
 
@@ -232,5 +253,6 @@ admin-dashboard
   var chart = new ApexCharts(document.querySelector("#piChart"), options);
   chart.render();
 </script>
+
 
 {% endblock script %}

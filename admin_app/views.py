@@ -13,7 +13,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from datetime import date, datetime
 from django.db.models import Sum, Count
-from django.db.models.functions import ExtractMonth
+from django.db.models.functions import ExtractMonth, ExtractYear
 
 
 # Create your views here.
@@ -41,6 +41,8 @@ def admin_login(request):
 
 @staff_member_required(login_url='admin_login')
 def admin_dashboard(request):
+    order = [0] * 12
+    year = [0]
     orders = Order.objects.all().order_by('-id')
     order_count = orders.count()
     order_total = Order.objects.aggregate(total=Sum('order_total'))['total']
@@ -62,6 +64,15 @@ def admin_dashboard(request):
 
     months_sales = [item['month'] for item in monthly_sales]
     total_sales = [item['total_sales'] for item in monthly_sales]
+
+    i = 0
+    while i < len(order):
+        try:
+            if i == monthly_sales[0]['month']:
+                order[i] = int(monthly_sales[0]['total_sales'])
+        except Exception as e:
+            pass
+        i += 1
 
     monthly_order_count = (
         Order.objects
@@ -87,28 +98,50 @@ def admin_dashboard(request):
         except:
             pass
 
+    # yearly sales section
+
+    yearly_sales = (
+        Order.objects.annotate(year=ExtractYear('created'))
+        .values('year')
+        .annotate(total_sales=Sum('order_total'))
+        .order_by('year')
+    )
+
+    yearly_orders = (
+        Order.objects.annotate(year=ExtractYear('created'))
+        .values('year')
+        .annotate(total_sales=Count('id'))
+        .order_by('year')
+    )
+    print("------------------------")
+    print(yearly_orders)
+    print("------------------------")
+
     ar = [2020, 2021, 2022, 2023]
     sales = [10000, 2500, 1200, 3500]
+
+    # payment report section
 
     payment_count = [cash_on_delivery, razor_pay]
     payment_method = ['Cash on Delivery', 'Razor Pay']
 
-    month = ['June', 'July', 'Aug', 'Oct', 'Nov', 'Dec']
-    order = [0, 0, order_count, 0, 0]
     context = {
+        'orders': orders,
+
         'year': ar,
         'sales': sales,
 
-        'months': months,
+        'months': months.values(),
         'order': order,
 
-        'orders': orders,
         'order_count': order_count,
-        'order_total': order_total,
+        'order_total': int(order_total),
         'today_count': today_count,
         'today_revenue': today_revenue,
+
         'payment_count': payment_count,
         'payment_method': payment_method,
+
     }
     return render(request, 'admin/admin_dashboard.html', context)
 
