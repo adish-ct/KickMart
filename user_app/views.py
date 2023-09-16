@@ -291,6 +291,7 @@ def user_profile(request):
                 return redirect('user_profile')
         except Exception as e:
             messages.success(request, "Updated")
+
             print(e)
 
     return render(request, 'user/user_profile.html', context)
@@ -310,28 +311,32 @@ def address_book(request):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def add_address(request, id):
-    if 'user' in request.session:
-        user = request.user
-    if request.method == 'POST':
-        name = request.POST['first_name']
-        phone = request.POST['phone']
-        address = request.POST['address']
-        town = request.POST['town']
-        zip = request.POST['zip']
-        location = request.POST['location']
-        district = request.POST['district']
-        if not name:
-            name = user.first_name
+    try:
+        if 'user' in request.session:
+            user = request.user
+        if request.method == 'POST':
+            name = request.POST['first_name']
+            if len(request.POST['phone']) == 10:
+                phone = request.POST['phone']
+            address = request.POST['address']
+            town = request.POST['town']
+            zip = request.POST['zip']
+            location = request.POST['location']
+            district = request.POST['district']
+            if not name:
+                name = user.first_name
 
-        user_address = UserAddress(user=user, name=name, alternative_mobile=phone, address=address, town=town,
-                                   zip_code=zip, nearby_location=location, district=district, )
-        user_address.save()
+            user_address = UserAddress(user=user, name=name, alternative_mobile=phone, address=address, town=town,
+                                       zip_code=zip, nearby_location=location, district=district, )
+            user_address.save()
 
-        if id == 1:
-            return redirect('checkout')
-        else:
-            messages.success(request, "Address added successfully.")
-            return redirect('address_book')
+            if id == 1:
+                return redirect('checkout')
+            else:
+                messages.success(request, "Address added successfully.")
+                return redirect('address_book')
+    except Exception as e:
+        print(e)
     return render(request, 'user/add_address.html')
 
 

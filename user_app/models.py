@@ -65,7 +65,7 @@ class CustomUser(AbstractUser):
 class UserAddress(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name = models.CharField(max_length=150, blank=True)
-    alternative_mobile = models.IntegerField(blank=True)
+    alternative_mobile = models.CharField(max_length=10, blank=True, null=True)
     address = models.CharField(max_length=255, null=True)
     town = models.CharField(max_length=150, null=False)
     zip_code = models.IntegerField(null=False)
