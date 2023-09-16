@@ -48,11 +48,11 @@ products-kickmart
       {% for image in multiple_images %}
       <div class="m-1  text-end ">
         <img src="{{ image.images.url }}" alt="product image" onclick="imgClick(this.id)"
-          class="image-fluid mx-auto m-sm-auto" height="auto" width="100vw" id="{{ image.id}}">
+          class="image-fluid mx-auto m-sm-auto" height="auto" width="130vw" id="{{ image.id}}">
       </div>
       {% endfor %}
     </div>
-    <div class="col-lg-5 pb-5 col-9">
+    <div class="col-lg-5 pb-5 col-8">
       <div class="img-fluid text-center">
         {% if product.product_image %}
             <img class="big_img w-100" src="{{ product.product_image.url }}" style="width: 100%; height: 60vh; object-fit: contain" alt="Image" id="main-img" />
@@ -118,6 +118,7 @@ products-kickmart
               </button>
             {% endif %}
             {% endfor %}
+
           </div>
 
           <div style="height: 1em;" class="">
@@ -141,13 +142,7 @@ products-kickmart
         <p class="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
         <div class="d-inline-flex">
           <a class="text-dark px-2" href="">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a class="text-dark px-2" href="">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a class="text-dark px-2" href="">
-            <i class="fab fa-whatsapp"></i>
+            <i class="fab fa-whatsapp text-success"></i>
           </a>
         </div>
       </div>
@@ -155,6 +150,7 @@ products-kickmart
   </div>
 
   <div class="row">
+<!--    moved to top of the code -->
 <!--    <div class="col-md-1"></div>-->
 <!--    <div class="col-md-2 col-sm-12 col-12 bg-danger">-->
 <!--      {% for image in multiple_images %}-->
@@ -320,6 +316,16 @@ products-kickmart
     </div>
   </div>
 </div>
+{% else %}
+<div class="container-fluid py-5">
+  <div class="row px-xl-5">
+    <div class="col-md-12 col-3 p-0 ">
+      <div class="text-center">
+        <h1 class="text-danger">Product will arrive soon</h1>
+      </div>
+    </div>
+  </div>
+</div>
 {% endif %}
 <!-- Shop Detail End -->
 
@@ -334,27 +340,43 @@ products-kickmart
     <div class="col">
       <div class="owl-carousel related-carousel">
 
+        {% if products %}
         {% for item in products %}
-        <div class="card product-item border-0">
-          <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-            <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="" />
-          </div>
-          <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
-            <h6 class="text-truncate mb-3"> {{ item.product_name }} </h6>
-            <div class="d-flex justify-content-center">
-              <h6> {{ item.original_price }} </h6>
-              <h6 class="text-muted ml-2"><del> {{ item.selling_price }} </del></h6>
+          <div class="card product-item border-0">
+            <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+              <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="" />
+            </div>
+            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+              <h6 class="text-truncate mb-3"> {{ item.product_name }} </h6>
+              <div class="d-flex justify-content-center">
+                <h6> {{ item.original_price }} </h6>
+                <h6 class="text-muted ml-2"><del> {{ item.selling_price }} </del></h6>
+              </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between bg-light border">
+              <a href="{{ item.get_url }}" class="btn btn-sm text-dark p-0"><i
+                  class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+              <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To
+                Cart</a>
             </div>
           </div>
-          <div class="card-footer d-flex justify-content-between bg-light border">
-            <a href="{{ item.get_url }}" class="btn btn-sm text-dark p-0"><i
-                class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-            <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To
-              Cart</a>
-          </div>
-        </div>
         {% endfor %}
-
+        {% else %}
+          <div class="card product-item border-0 col-md-12">
+            <div class="card-header product-img position-relative text-center overflow-hidden bg-transparent border p-0">
+              <h1 class="text-info">Trendy Products</h1>
+            </div>
+            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+              <h6 class="text-truncate text-secondary mb-3"> Latest products are on the way </h6>
+              <div class="d-flex justify-content-center">
+                <p> Awesome product with amazing offers are here for your style.</p>
+              </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between bg-light border">
+              <h6 class="text-center text-primary">Thank you for being with us.</h6>
+            </div>
+          </div>
+        {% endif %}
 
       </div>
     </div>
