@@ -9,7 +9,7 @@ cart-product
   <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
     <h1 class="font-weight-semi-bold text-uppercase mb-3">Shopping Cart</h1>
     <div class="d-inline-flex">
-      <p class="m-0"><a href="">Home</a></p>
+      <p class="m-0"><a href="{% url 'index' %}">Home</a></p>
       <p class="m-0 px-2">-</p>
       <p class="m-0">Your Cart</p>
     </div>
@@ -139,7 +139,8 @@ cart-product
               </div>
             </div>
             {% endfor %} {% endcomment %}
-            
+
+
             {% for item in cart_items %}
             <div class="card p-4 mb-3 product_data">
               <div class="row">
@@ -147,10 +148,11 @@ cart-product
                   <!-- Image -->
                   <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
                     <a href="{{ item.product.product.get_url }}">
-                      <img src="{{ item.product.product.product_image.url }}" class="w-100" alt="{{ item.product.product.product_name }}" />
-                    </a>
-                    <a href="#!">
-                      <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
+                      {% if item.product.product.product_image %}
+                        <img src="{{ item.product.product.product_image.url }}" class="w-100" alt="{{ item.product.product.product_name }}" />
+                      {% else %}}
+                        <img src="" class="w-100" alt="{{ item.product.product.product_name }}" />
+                      {% endif %}
                     </a>
                   </div>
                   <!-- Image -->

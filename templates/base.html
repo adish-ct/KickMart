@@ -73,7 +73,7 @@
           <div class="d-inline-flex align-items-center">
             <a class="text-dark" href="{% url 'help' %}">Help</a>
             <span class="text-muted px-2">|</span>
-            <a class="text-dark" href="">Support</a>
+            <a class="text-dark" href="{% url 'help' %}">Support</a>
           </div>
         </div>
         <div class="col-lg-6 text-center text-lg-right">
@@ -113,35 +113,28 @@
             </div>
           </form>
 
-<!--            auto complete           -->
-
-<!--            <div id="autocomplete" class="autocomplete">-->
-<!--                <input class="autocomplete-input" />-->
-<!--                <ul class="autocomplete-result-list"></ul>-->
-<!--            </div>-->
-
-<!--            auto complete           -->
-
-
         </div>
-        <div class="col-lg-3 col-6 text-right">
-        {% if user.is_authenticated %}
-          <a href="{% url 'user_profile' %}" class="btn border">
-            <i class="fas fa-user text-primary"></i>
-          </a>
-        {% endif %}
+            <div class="col-lg-3 col-6 text-right">
+                {% if user.is_authenticated %}
+                  <a href="{% url 'user_profile' %}" class="btn border">
+                    <i class="fas fa-user text-primary"></i>
+                  </a>
+                {% endif %}
 
-          <a href="" class="btn border">
-            <i class="fas fa-heart text-primary"></i>
-            <span class="badge" style="color: grey">0</span>
-          </a>
+    <!--          <a href="" class="btn border">-->
+    <!--            <i class="fas fa-heart text-primary"></i>-->
+    <!--            <span class="badge" style="color: grey">0</span>-->
+    <!--          </a>-->
 
-          <a href="{% url 'cart' %}" class="btn border">
-            <i class="fas fa-shopping-cart text-primary"></i>
-            <span class="badge" style="color: grey"> {{ cart_count }} </span>
-          </a>
-          
-        </div>
+                    <a href="{% url 'cart' %}" class="btn border">
+                        <i class="fas fa-shopping-cart text-primary"></i>
+                        {% if cart_count %}
+                            <span class="badge" style="color: grey"> {{ cart_count }} </span>
+                        {% else %}
+                            <span class="badge" style="color: grey"> 0 </span>
+                        {% endif %}
+                    </a>
+            </div>
       </div>
     </div>
     <!-- Topbar End -->
@@ -168,9 +161,11 @@
               <div class="nav-item dropdown">
                 <a href="{% url 'products' %}" class="dropdown-item mt-3 border-bottom"> All Products </a>
 
-                {% for category in category_link %}
-                  <a href="{{ category.get_url }}" class="dropdown-item mt-3 border-bottom"> {{ category.category_name }}'s Shoes </a>
-                {% endfor %}
+                  {% if category_link %}
+                    {% for category in category_link %}
+                      <a href="{{ category.get_url }}" class="dropdown-item mt-3 border-bottom"> {{ category.category_name }}'s Shoes </a>
+                    {% endfor %}
+                  {% endif %}
 
               </div>
             </div>
@@ -203,7 +198,6 @@
                 <a href="{% url 'products' %}" class="nav-item nav-link active"
                   >Shop</a
                 >
-                <a href="detail.html" class="nav-item nav-link">Shop Detail</a>
                 <div class="nav-item dropdown">
                   <a
                     href="#"
@@ -213,9 +207,9 @@
                   >
                   <div class="dropdown-menu rounded-0 m-0">
                     {% if user.is_authenticated %}
-                    <a href=" {% url 'user_cart' %} " class="dropdown-item">Shopping Cart</a>
+                         <a href=" {% url 'user_cart' %} " class="dropdown-item">Shopping Cart</a>
                     {% else %}
-                    <a href=" {% url 'user_cart' %} " class="dropdown-item">Shopping Cart</a>
+                        <a href=" {% url 'user_cart' %} " class="dropdown-item">Shopping Cart</a>
                     {% endif %}
                   </div>
                 </div>
@@ -273,9 +267,9 @@
                       <h5 class="font-weight-bold text-dark mb-4">Get Links</h5>
                       <div class="d-flex flex-column justify-content-start">
                           <a class="text-dark mb-2" href="{% url 'help' %}"><i class="fa fa-angle-right mr-2"></i>Privacy</a>
-                          <a class="text-dark mb-2" href="https://www.facebook.com"><i class="fa fa-angle-right mr-2"></i>facebook</a>
-                          <a class="text-dark mb-2" href="https://www.instagram.com"><i class="fa fa-angle-right mr-2"></i>instagram</a>
-                          <a class="text-dark mb-2" href="https://www.twitter.com"><i class="fa fa-angle-right mr-2"></i>twitter</a>
+                          <a class="text-dark mb-2" href=""><i class="fa fa-angle-right mr-2"></i>facebook</a>
+                          <a class="text-dark mb-2" href=""><i class="fa fa-angle-right mr-2"></i>instagram</a>
+                          <a class="text-dark mb-2" href=""><i class="fa fa-angle-right mr-2"></i>twitter</a>
                       </div>
                   </div>
                   <div class="col-md-4 mb-5">
@@ -306,7 +300,7 @@
               </p>
           </div>
           <div class="col-md-6 px-xl-0 text-center text-md-right">
-              <img class="img-fluid" src="img/payments.png" alt="">
+              <img class="img-fluid" src="{% static 'img/payments.png' %}" alt="">
             </div>
         </div>
     </div>

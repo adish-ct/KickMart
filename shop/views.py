@@ -122,7 +122,7 @@ def detail_view(request, category_slug, product_slug):
     product_id = single_product.id
     all_products = Product.objects.all()
     variant = ProductVariant.objects.filter(product=product_id)
-    multiple_images = MultipleImages.objects.filter(product=product_id)
+    multiple_images = MultipleImages.objects.filter(product=product_id).order_by('-id')[:4]
 
     context = {
         'product': single_product,

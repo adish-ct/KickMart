@@ -10,7 +10,7 @@ products-kickmart
         <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
             <h1 class="font-weight-semi-bold text-uppercase mb-3">Our Shop</h1>
             <div class="d-inline-flex">
-                <p class="m-0"><a href="">Home</a></p>
+                <p class="m-0"><a href="{% url 'index' %}">Home</a></p>
                 <p class="m-0 px-2">-</p>
                 <p class="m-0">Shop</p>
             </div>
@@ -33,13 +33,14 @@ products-kickmart
                         </div>
                         <h5 class="font-weight-semi-bold mb-4">Category</h5>
                         <!-- Category Start -->
-
+                        {% if category_link %}
                         {% for i in category_link %}
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxCategory" value="{{ i.category_name }}"  id="productCategory-{{ i.id }}">
-                            <label class="custom-control-label" for="productCategory-{{ i.id }}">{{ i.category_name }}</label>
-                        </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxCategory" value="{{ i.category_name }}"  id="productCategory-{{ i.id }}">
+                                <label class="custom-control-label" for="productCategory-{{ i.id }}">{{ i.category_name }}</label>
+                            </div>
                         {% endfor %}
+                        {% endif %}
 
                     </div>
                     <!-- Category End -->
@@ -48,12 +49,14 @@ products-kickmart
                     <div class="border-bottom mb-4 pb-4">
                         <h5 class="font-weight-semi-bold mb-4">Choose your Brand</h5>
 
+                        {% if brands %}
                         {% for brand in brands %}
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxBrand" value="{{ brand.brand_name }}" id="productBrand-{{ brand.id }}">
-                            <label class="custom-control-label" for="productBrand-{{ brand.id }}">{{ brand.brand_name }}</label>
-                        </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxBrand" value="{{ brand.brand_name }}" id="productBrand-{{ brand.id }}">
+                                <label class="custom-control-label" for="productBrand-{{ brand.id }}">{{ brand.brand_name }}</label>
+                            </div>
                         {% endfor %}
+                        {% endif %}
 
                     </div>
                     <!-- Brand End -->
@@ -62,14 +65,17 @@ products-kickmart
                     <div class="border-bottom mb-4 pb-4">
                         <h5 class="font-weight-semi-bold mb-4">Choose your size</h5>
                         <div class="row">
+
+                            {% if sizes %}
                             {% for size in sizes %}
-                            <div class="col-md-6">
-                                <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                                    <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxSize" value="{{ size.id }}" id="productSize-{{ size.id }}">
-                                    <label class="custom-control-label" for="productSize-{{ size.id }}">{{ size.size }}</label>
+                                <div class="col-md-6">
+                                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                        <input type="checkbox" class="custom-control-input filter-checkbox" name="checkboxSize" value="{{ size.id }}" id="productSize-{{ size.id }}">
+                                        <label class="custom-control-label" for="productSize-{{ size.id }}">{{ size.size }}</label>
+                                    </div>
                                 </div>
-                            </div>
                             {% endfor %}
+                            {% endif %}
                         </div>
                     </div>
                     <!-- Size End -->
@@ -120,11 +126,11 @@ products-kickmart
 
                     <div class="border-bottom mb-4 pb-4">
                         <h5 class="font-weight-semi-bold mb-4">Price range</h5>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="number" class="form-outline border-0 bg-secondary" min="0" name="minPrice" id="minPrice" placeholder="minimum amount">
+                        <div class=" me-3 pe-3 text-start">
+                            <input type="number" class="border-0 bg-secondary" min="0" name="minPrice" id="minPrice" placeholder="minimum amount">
                         </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="number" class="form-outline border-0 bg-secondary" name="maxPrice" id="maxPrice" placeholder="maximum amount">
+                        <div class="mt-3 me-3 pe-3">
+                            <input type="number" class=" border-0 bg-secondary me-3" name="maxPrice" id="maxPrice" placeholder="maximum amount">
                         </div>
                     </div>
                     
@@ -162,11 +168,11 @@ products-kickmart
                             <div class="dropdown ml-4">
                                 <button class="btn border dropdown-toggle" type="button" id="triggerId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             Sort by
-                                        </button>
+                                </button>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="triggerId">
-                                    <a class="dropdown-item" href="#">Latest</a>
-                                    <a class="dropdown-item" href="#">Popularity</a>
-                                    <a class="dropdown-item" href="">Best Rating</a>
+                                    <a class="dropdown-item" href="#"> Price </a>
+<!--                                    <a class="dropdown-item" href="#">Popularity</a>-->
+<!--                                    <a class="dropdown-item" href="">Best Rating</a>-->
                                 </div>
                             </div>
                             {% endif %}
@@ -185,10 +191,15 @@ products-kickmart
                                         <span class="cross-icon"> {{ item.category.offer }} </span> Special Offer
                                     </div>
                                 {% endif %}
+
                                 {% if item.product_image %}
-                                <a href="{{ item.get_url}}">
-                                    <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="">
-                                </a>
+                                    <a href="{{ item.get_url}}">
+                                        <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="">
+                                    </a>
+                                {% else %}
+                                    <a href="{{ item.get_url}}">
+                                        <img class="img-fluid w-100" src="" alt="Image will add soon">
+                                    </a>
                                 {% endif %}
                             </div>
                             <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
@@ -199,12 +210,13 @@ products-kickmart
                             </div>
                             <div class="card-footer d-flex justify-content-between bg-light border">
                                 <a href="{{ item.get_url}}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-                                {% comment %} <a href="" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a> {% endcomment %}
                             </div>
                         </div>
                     </div>
                     {% endfor %}
+
                     {% else %}
+
                     <div class="row">
                         <div class="col-md-12  text-center p-3 pt-4 pb-3">
                             <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/error-no-search-results_2353c5.png" class="mb-5" alt="">

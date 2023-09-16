@@ -31,7 +31,7 @@ chart.render();
 
 
 
-// order
+// order chart
 
 let months = []
 let xelements = document.getElementsByClassName("monthData");
@@ -138,6 +138,7 @@ for (let i = 0; i < monthsByOrder.length; i ++) {
             text: 'Total Orders'
           }
         },
+
         fill: {
           opacity: 1
         },

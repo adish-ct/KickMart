@@ -37,7 +37,7 @@
                 <div class="d-inline-flex align-items-center">
                     <a class="text-dark" href="{% url 'help' %}">Help</a>
                     <span class="text-muted px-2">|</span>
-                    <a class="text-dark" href="">Support</a>
+                    <a class="text-dark" href="{% url 'help' %}">Support</a>
                 </div>
             </div>
             <div class="col-lg-6 text-center text-lg-right">
@@ -82,16 +82,19 @@
                 </a>
                 {% endif %}
                 
-                <a href="" class="btn border">
-                    <i class="fas fa-heart text-primary"></i>
-                    <span class="badge">0</span>
-                </a>
-                
+<!--                <a href="" class="btn border">-->
+<!--                    <i class="fas fa-heart text-primary"></i>-->
+<!--                    <span class="badge">0</span>-->
+<!--                </a>-->
+
                 <a href="{% url 'cart' %}" class="btn border">
                     <i class="fas fa-shopping-cart text-primary"></i>
-                    <span class="badge">{{ cart_count }}</span>
+                    {% if cart_count %}
+                        <span class="badge">{{ cart_count }}</span>
+                    {% else %}
+                        <span class="badge">0</span>
+                    {% endif %}
                 </a>
-                
             </div>
         </div>
     </div>
@@ -109,12 +112,11 @@
                     <div class="navbar-nav w-100 overflow-hidden" style="height: 410px">
                         <div class="nav-item dropdown">
                             <a href="{% url 'products' %}" class="nav-link" data-toggle="">All Products </a>
+                            {% if category_link %}
                             {% for category in category_link %}
-                            <a href="{{ category.get_url }}" class="nav-link" data-toggle="">{{ category.category_name }}'s Shoes</a>
+                                <a href="{{ category.get_url }}" class="nav-link" data-toggle="">{{ category.category_name }}'s Shoes</a>
                             {% endfor %}
-                            {% comment %} <div class="dropdown-menu position-absolute bg-secondary border-0 rounded-0 w-100 m-0">
-                                <a href="" class="dropdown-item">Formal Shoes</a>
-                            </div> {% endcomment %}
+                            {% endif %}
                         </div>
                     </div>
                 </nav>
@@ -131,7 +133,6 @@
                         <div class="navbar-nav mr-auto py-0">
                             <a href="{% url 'index' %}" class="nav-item nav-link active">Home</a>
                             <a href="{% url 'products' %}" class="nav-item nav-link">Shop</a>
-                            <a href="" class="nav-item nav-link">Shop Detail</a>
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
                                 <div class="dropdown-menu rounded-0 m-0">
@@ -159,7 +160,17 @@
                         {% if main_banner %}
                         {% for banner in main_banner %}
                         <div class="carousel-item {% if forloop.first %}active{% endif %}" style="height: 410px;">
-                            <img class="img-fluid" src="{{ banner.image.url }}" alt="Image">
+                            {% if main_banner %}
+                                <img class="img-fluid" src="{{ banner.image.url }}" alt="Image">
+                            {% else %}
+                                <img class="img-fluid" src="" alt="Image will add soon">
+                            {% endif %}
+                            {% if main_banner %}
+                                <img class="img-fluid" src="{{ banner.image.url }}" alt="Image">
+                            {% else %}
+                                <img class="img-fluid" src="{{ banner.image.url }}" alt="Image">
+                            {% endif %}
+
                             <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
                                 <div class="p-3" style="max-width: 700px;">
                                     <h4 class="text-light text-uppercase font-weight-medium mb-3">{{ banner.offer_detail }}</h4>
@@ -201,7 +212,6 @@
     </div>
     <!-- Navbar End -->
 
-
     <!-- Featured Start -->
     <div class="container-fluid pt-5">
         <div class="row px-xl-5 pb-3">
@@ -238,17 +248,23 @@
     <div class="container-fluid pt-5">
         <div class="row px-xl-5 pb-3">
 
-            <!-- single category item -->           
+            <!-- single category item -->
+            {% if category_link %}
             {% for category in category_link %}
                 <div class="col-lg-4 col-md-6 pb-1 ">
                     <div class="cat-item d-flex flex-column border-0 mb-4 rounded" style="padding: 75px;">
                         <a href="{{ category.get_url }}" class="cat-img position-relative overflow-hidden mb-3">
-                            <img class="img-fluid w-100" src="{{ category.category_image.url }}" alt="category image">
+                            {% if category.category_image %}
+                                <img class="img-fluid w-100" src="{{ category.category_image.url }}" alt="category image">
+                            {% else %}
+                                <img class="img-fluid w-100" src="" alt="category image will add soon">
+                            {% endif %}
                         </a>
                         <h3 class="font-weight-semi-bold m-0">{{ category.category_name }}'s Shoes</h3>
                     </div>
                 </div>
             {% endfor %}           
+            {% endif %}
             <!-- category item end -->
 
         </div>
@@ -262,6 +278,7 @@
 
             {% if sub_banner_left %}
             <div class="col-md-6 pb-4">
+                {% if sub_banner_left.image %}
                 <div class="position-relative text-center text-md-right text-white mb-2 py-5 px-5" style="background-image: url({{ sub_banner_left.image.url }}); height: 350px">
                     <div class="position-relative" style="z-index: 1;">
                         <h5 class="text-uppercase text-primary mb-3"> {{ sub_banner_left.offer_detail }} </h5>
@@ -269,11 +286,21 @@
                         <a href="" class="btn btn-outline-primary py-md-2 px-md-3">Shop Now</a>
                     </div>
                 </div>
+                {% else %}
+                <div class="position-relative text-center text-md-right text-white mb-2 py-5 px-5" style="background-color: #e3f19b; height: 350px">
+                    <div class="position-relative" style="z-index: 1;">
+                        <h5 class="text-uppercase text-primary mb-3"> {{ sub_banner_left.offer_detail }} </h5>
+                        <h1 class="mb-5 font-weight-semi-bold text-warning"> {{ sub_banner_left.description }} </h1>
+                        <a href="" class="btn btn-outline-primary py-md-2 px-md-3">Shop Now</a>
+                    </div>
+                </div>
+                {% endif %}
+
             </div>
             {% else %}
             <div class="col-md-6 pb-4">
                 <div class="position-relative text-center text-md-right text-white mb-2 py-5 px-5">
-                    <img src="{% static 'img/offer-1.png' %}" alt="">
+                    <img src="" alt="Image will add soon">
                     <div class="position-relative" style="z-index: 1;">
                         <h5 class="text-uppercase text-primary mb-3">20% off the all order</h5>
                         <h1 class="mb-4 font-weight-semi-bold">Spring Collection</h1>
@@ -285,6 +312,7 @@
 
             {% if sub_banner_right %}
             <div class="col-md-6 pb-4">
+                {% if sub_banner_right.image %}
                 <div class="position-relative text-center text-md-left text-white mb-2 py-5 px-5" style="background-image: url({{ sub_banner_right.image.url }}); height: 350px">
                     <div class="position-relative" style="z-index: 1;">
                         <h5 class="text-uppercase text-primary mb-3"> {{ sub_banner_right.offer_detail }} </h5>
@@ -292,11 +320,20 @@
                         <a href="" class="btn btn-outline-primary py-md-2 px-md-3">Shop Now</a>
                     </div>
                 </div>
+                {% else %}
+                <div class="position-relative text-center text-md-left text-white mb-2 py-5 px-5" style="background-color: #e3f19b; height: 350px">
+                    <div class="position-relative" style="z-index: 1;">
+                        <h5 class="text-uppercase text-primary mb-3"> {{ sub_banner_right.offer_detail }} </h5>
+                        <h1 class="mb-5 font-weight-semi-bold"> {{ sub_banner_right.description }} </h1>
+                        <a href="" class="btn btn-outline-primary py-md-2 px-md-3">Shop Now</a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             {% else %}
             <div class="col-md-6 pb-4">
                 <div class="position-relative text-center text-md-left text-white mb-2 py-5 px-5" >
-                    <img src="{% static 'img/offer-2.png' %}" alt="">
+                    <img src="" alt="Image will add soon">
                     <div class="position-relative" style="z-index: 1;">
                         <h5 class="text-uppercase text-primary mb-3">20% off the all order</h5>
                         <h1 class="mb-4 font-weight-semi-bold">Winter Collection</h1>
@@ -319,7 +356,7 @@
         <div class="row px-xl-5 pb-3">
 
             <!-- products single item -->
-
+            {% if products %}
             {% for item in products %}
             <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
                 <div class="card product-item border-0 mb-4">
@@ -330,7 +367,11 @@
                             </div>
                         {% endif %}
                         <a href="{{ item.get_url }}">
-                            <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="product image">
+                            {% if item.product_image %}
+                                <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="product image">
+                            {% else %}}
+                                <img class="img-fluid w-100" src="" alt="Image will add soon">
+                            {% endif %}
                         </a>
                     </div>
                     <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
@@ -346,6 +387,7 @@
             </div>
 
             {% endfor %}
+            {% endif %}
             <!-- single products end -->
 
         </div>
@@ -363,7 +405,9 @@
                 </div>
                 <form action="">
                     <div class="input-group">
-                        <input type="text" class="form-control border-white p-4" placeholder="Email Goes Here">
+                        <label>
+                            <input type="text" class="form-control border-white p-4" placeholder="Email Goes Here" required>
+                        </label>
                         <div class="input-group-append">
                             <button class="btn btn-primary px-4">Subscribe</button>
                         </div>
@@ -383,7 +427,9 @@
         <div class="row px-xl-5 pb-3">
 
             <!-- single product start -->
+            {% if latest_poduct %}
             {% for item in latest_poduct %}
+
             <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
                 <div class="card product-item border-0 mb-4">
                     <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
@@ -393,7 +439,11 @@
                             </div>
                         {% endif %}
                         <a href="{{ item.get_url }}">
-                            <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="">
+                            {% if item.product_image %}
+                                <img class="img-fluid w-100" src="{{ item.product_image.url }}" alt="">
+                            {% else %}}
+                                <img class="img-fluid w-100" src="" alt="image will add soon">
+                            {% endif %}
                         </a>
                     </div>
                     <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
@@ -407,7 +457,10 @@
                     </div>
                 </div>
             </div>
+
             {% endfor %}
+            {% endif %}
+
             <!-- single product end -->
 
         </div>
@@ -419,7 +472,7 @@
         <div class="row px-xl-5 pt-5">
             <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
                 <a href="" class="text-decoration-none">
-                    <h1 class="m-0 display-5 font-weight-semi-bold mb-4"><span class="text-primary font-weight-bold mr-1">K</span>ick<span class="text-primary font-weight-bold mr-1">M</span>mart</h1>
+                    <h1 class="m-0 display-5 font-weight-semi-bold mb-4"><span class="text-primary font-weight-bold mr-1">K</span>ick<span class="text-primary font-weight-bold mr-1">M</span>art</h1>
                 </a>
                 <p>Step up your style game with [Your Website Name] and discover the joy of walking in confidence. Embrace fashion, step into comfort, and find your perfect fit today</p>
                 <p class="mb-2"><i class="fa fa-map-marker-alt text-primary mr-3"></i>AC Market, Kannur, Kerala</p>
@@ -441,9 +494,9 @@
                         <h5 class="font-weight-bold text-dark mb-4">Get Links</h5>
                         <div class="d-flex flex-column justify-content-start">
                             <a class="text-dark mb-2" href="{% url 'help' %}"><i class="fa fa-angle-right mr-2"></i>Privacy</a>
-                            <a class="text-dark mb-2" href="https://www.facebook.com"><i class="fa fa-angle-right mr-2"></i>facebook</a>
-                            <a class="text-dark mb-2" href="https://www.instagram.com"><i class="fa fa-angle-right mr-2"></i>instagram</a>
-                            <a class="text-dark mb-2" href="https://www.twitter.com"><i class="fa fa-angle-right mr-2"></i>twitter</a>
+                            <a class="text-dark mb-2" href=""><i class="fa fa-angle-right mr-2"></i>facebook</a>
+                            <a class="text-dark mb-2" href=""><i class="fa fa-angle-right mr-2"></i>instagram</a>
+                            <a class="text-dark mb-2" href=""><i class="fa fa-angle-right mr-2"></i>twitter</a>
                         </div>
                     </div>
                     <div class="col-md-4 mb-5">
@@ -469,12 +522,9 @@
                 <p class="mb-md-0 text-center text-md-left text-dark">
                     &copy; <a class="text-dark font-weight-semi-bold" href="#">KickMart</a>. All Rights Reserved. Designed
                     by
-                    <a class="text-dark font-weight-semi-bold" href="https://htmlcodex.com">kickmart Pvt Ltd.</a><br>
-                    Distributed By <a href="https://themewagon.com" target="_blank">E-commerce</a>
+                    <a class="text-dark font-weight-semi-bold" href="">kickmart Pvt Ltd.</a><br>
+                    Distributed By <a href="" target="_blank">E-commerce</a>
                 </p>
-            </div>
-            <div class="col-md-6 px-xl-0 text-center text-md-right">
-                <img class="img-fluid" src="img/payments.png" alt="">
             </div>
         </div>
     </div>
@@ -494,8 +544,6 @@
     <script src="{% static 'mail/jqBootstrapValidation.min.js' %}"></script>
     <script src="{% static 'mail/contact.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
-
-
 
     <!-- JavaScript alertify js -->
     <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>

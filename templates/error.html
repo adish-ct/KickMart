@@ -1,26 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>404-page not found</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-</head>
-<body>
-  <div class="container">
-    <div class="row mt-5">
-      <div class="col-md-3"></div>
-      <div class="col-md-6">
-        <div class="text-center d-flex align-items-center justify-content-center flex-column gap-0">
-            <h1 class="text-dark">Page Not Found ( 404 )</h1>
-            <img src="https://cdn.svgator.com/images/2022/01/funny-404-error-page-design.gif" alt="Error-404">
-            <div class="btn btn-dark btn-lg"><a href="{% url 'index' %}" class="text-light text-decoration-none">Go To Home</a></div>
-        </div>
-      </div>
-    </div>
+{% extends 'admin_base.html' %}
+{% block title %}
+page-not-found
+{% endblock title %}
+
+{% block body %}
+
+<section class="page_404">
+	<div class="container">
+		<div class="row">
+		<div class="col-sm-12 ">
+		<div class="col-sm-10 col-sm-offset-1  text-center">
+		<div class="four_zero_four_bg">
+			<h1 class="text-center">404 Page not found</h1>
 
 
+		</div>
 
-  </div>
+		<div class="contant_box_404">
+		<h3 class="h2">
+		Look like you're lost
+		</h3>
 
-</body>
-</html>
+		<p>the page you are looking for not avaible!</p>
+
+		<a href="#" class="link_404" >Go to Home</a>
+	</div>
+		</div>
+		</div>
+		</div>
+	</div>
+</section>
+
+{% endblock body %}

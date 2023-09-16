@@ -42,8 +42,7 @@ class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
     phone = models.CharField(max_length=10, unique=True)
-    image = models.ImageField(upload_to='profile_images', blank=True, null=True, default="{% static "
-                                                                                         "'img/none_user.jpg' %}")
+    image = models.ImageField(upload_to='profile_images', blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
     is_verified = models.BooleanField(default=False)

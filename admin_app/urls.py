@@ -44,4 +44,7 @@ urlpatterns = [
     path('reports/', views.reports, name="reports"),
 
     path('admin_logout/', views.admin_logout, name="admin_logout"),
+
+    # path('aaaa/', views.page_not_found, name="page_not_found"),
+    path('admin_dashboard/a/', views.page_not_found, name="page_not_found"),
 ]

@@ -26,35 +26,38 @@ from .forms import ImageForm
 
 
 def index(request):
+    context = {}
     if 'email' in request.session:
         return redirect('admin_dashboard')
+    try:
+        categories = Category.objects.all().order_by('id')
+        products = Product.objects.all()[:4]
+        latest_product = Product.objects.all().order_by('created_date')[:4:-1]
+        brands = ProductBrand.objects.all().order_by('id')
+        try:
+            main_banner = Banner.objects.filter(section='index', identifier='main')
+        except:
+            main_banner = None
+        try:
+            sub_banner_left = Banner.objects.filter(section='index', identifier='first').order_by('-id')[0]
+        except:
+            sub_banner_left = None
+        try:
+            sub_banner_right = Banner.objects.filter(section='index', identifier='second').order_by('-id')[0]
+        except:
+            sub_banner_right = None
 
-    categories = Category.objects.all().order_by('id')
-    products = Product.objects.all()[:4]
-    latest_product = Product.objects.all().order_by('created_date')[:4:-1]
-    brands = ProductBrand.objects.all().order_by('id')
-    try:
-        main_banner = Banner.objects.filter(section='index', identifier='main')
-    except:
-        main_banner = None
-    try:
-        sub_banner_left = Banner.objects.filter(section='index', identifier='first').order_by('-id')[0]
-    except:
-        sub_banner_left = None
-    try:
-        sub_banner_right = Banner.objects.filter(section='index', identifier='second').order_by('-id')[0]
-    except:
-        sub_banner_right = None
-
-    context = {
-        'categories': categories,
-        'products': products,
-        'latest_poduct': latest_product,
-        'brands': brands,
-        'main_banner': main_banner,
-        'sub_banner_left': sub_banner_left,
-        'sub_banner_right': sub_banner_right,
-    }
+        context = {
+            'categories': categories,
+            'products': products,
+            'latest_poduct': latest_product,
+            'brands': brands,
+            'main_banner': main_banner,
+            'sub_banner_left': sub_banner_left,
+            'sub_banner_right': sub_banner_right,
+        }
+    except Exception as e:
+        print(e)
 
     return render(request, 'product/index.html', context)
 
@@ -184,7 +187,6 @@ def regenerate_otp(request, id):
     return redirect('otp_verification', id)
 
 
-
 @cache_control(no_cache=True, no_store=True)
 def user_login(request):
     if 'email' in request.session:
@@ -249,44 +251,47 @@ def user_logout(request):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def user_profile(request):
+    context = {}
     if 'user' in request.session:
         user = request.user
     if user:
-        order = Order.objects.filter(user=user)
-        order_count = order.count()
-    context = {}
-    try:
-        if request.method == 'POST':
-            first_name = request.POST['first_name']
-            last_name = request.POST['last_name']
-            date_of_birth = request.POST.get('date_of_birth', None)
-            if date_of_birth:
-                user.date_of_birth = date_of_birth
+        try:
+            order = Order.objects.filter(user=user)
+            order_count = order.count()
+            context = {
+                'order': order,
+                'order_count': order_count,
+            }
+        except Exception as e:
+            print(e)
+        try:
+            if request.method == 'POST':
+                first_name = request.POST['first_name']
+                last_name = request.POST['last_name']
+                date_of_birth = request.POST.get('date_of_birth', None)
+                if date_of_birth:
+                    user.date_of_birth = date_of_birth
 
-            phone = request.POST['phone']
-            if len(phone) != 10:
-                messages.error(request, "must be 10 digits")
+                phone = request.POST['phone']
+                if len(phone) != 10:
+                    messages.error(request, "must be 10 digits")
+                    return redirect('user_profile')
+                if request.FILES:
+
+                    if user.image:
+                        os.remove(user.image.path)
+                    image = request.FILES.get('pic', None)
+                    if image:
+                        user.image = image
+                user.first_name = first_name
+                user.last_name = last_name
+                user.phone = phone
+                user.save()
+                messages.success(request, "profile updated")
                 return redirect('user_profile')
-            if request.FILES:
-                if user.image:
-                    os.remove(user.image.path)
-                image = request.FILES.get('pic', None)
-                if image:
-                    user.image = image
-            user.first_name = first_name
-            user.last_name = last_name
-            user.phone = phone
-            user.save()
-            messages.success(request, "profile updated")
-            return redirect('user_profile')
-
-        context = {
-            'order': order,
-            'order_count': order_count,
-        }
-    except Exception as e:
-        messages.success(request, "Updated")
-        print(e)
+        except Exception as e:
+            messages.success(request, "Updated")
+            print(e)
 
     return render(request, 'user/user_profile.html', context)
 

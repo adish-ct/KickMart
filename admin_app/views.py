@@ -962,3 +962,7 @@ def admin_logout(request):
     logout(request)
     request.session.flush()
     return redirect('admin_login')
+
+
+def page_not_found(request):
+    return render(request, 'error.html')
