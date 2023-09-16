@@ -109,31 +109,43 @@ def admin_dashboard(request):
     # yearly sales section
 
     yearly_sales = (
-        Order.objects.annotate(year=ExtractYear('created'))
+        Order.objects
+        .annotate(year=ExtractYear('created'))
         .values('year')
         .annotate(year_total=Sum('order_total'))
         .order_by('year')
     )
 
+    # calculate yearly orders
+
     yearly_orders = (
-        Order.objects.annotate(year=ExtractYear('created'))
+        Order.objects
+        .annotate(year=ExtractYear('created'))
         .values('year')
-        .annotate(total_sales=Count('id'))
+        .annotate(total_orders=Count('id'))
         .order_by('year')
     )
-    print("------------------------")
-    # print(yearly_sales[0]['year_total'])
-    print("type of yearly sales :", type(yearly_sales))
-    print(yearly_orders)
-    print("type of yearly orders :", type(yearly_orders))
-    print("------------------------")
 
-    total_year_sales = []
-    j = 0
-    while j < len(yearly_sales):
-        year.append(yearly_sales[0]['year'])
-        total_year_sales.append([0]['year_total'])
-        i += 1
+    # Create lists to store the yearly data
+
+    years = []  # To store the years
+    yearly_sales_totals = []  # To store the yearly sales totals
+    yearly_orders_counts = []  # To store the yearly order counts
+
+    for sales_entry, orders_entry in zip(yearly_sales, yearly_orders):
+        year = sales_entry['year']
+        sales_total = sales_entry['year_total']
+        orders_count = orders_entry['total_orders']
+
+        years.append(year)
+        yearly_sales_totals.append(sales_total)
+        yearly_orders_counts.append(orders_count)
+
+    print("---------------------------->")
+    print(years, "------- type :", type(years))
+    print(yearly_sales_totals, "------- type :", type(yearly_sales_totals))
+    print(yearly_orders_counts, "------- type :", type(yearly_orders_counts))
+    print("---------------------------->")
 
     ar = [2000, 2001, 2002, 2003]
     sales = [10000, 2500, 1200, 3500]
@@ -146,8 +158,8 @@ def admin_dashboard(request):
     context = {
         'orders': orders,
 
-        'year': year,
-        'sales': total_year_sales,
+        'year': years,
+        'sales': yearly_sales_totals,
 
         'months': months.values(),
         'order': order,
