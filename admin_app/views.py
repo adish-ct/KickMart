@@ -41,143 +41,153 @@ def admin_login(request):
 
 @staff_member_required(login_url='admin_login')
 def admin_dashboard(request):
+    context = {}
     order = [0] * 12
+    order_count = [0] * 12
     year = [0]
-    orders = Order.objects.all().order_by('-id')
-    order_count = orders.count()
-    order_total = Order.objects.aggregate(total=Sum('order_total'))['total']
-    today = date.today()
-    today_count = Order.objects.filter(created__date=today).count()
-    today_revenue = Order.objects.filter(created__date=today).aggregate(total=Sum('order_total'))['total']
-    cash_on_delivery = Order.objects.filter(payment__payment_method='Cashon Delivery').count()
-    razor_pay = Order.objects.filter(payment__payment_method='Razor Pay').count()
-    # paypal = Order.objects.filter(payment__payment_method='Paypal').count()
+    payment_count = []
+    payment_method = []
 
-    # Generate monthly sales reports
-    # v 1.0
+    try:
+        orders = Order.objects.all().order_by('-id')
+        order_count = orders.count()
+        order_total = Order.objects.aggregate(total=Sum('order_total'))['total']
+        today = date.today()
+        today_count = Order.objects.filter(created__date=today).count()
+        today_revenue = Order.objects.filter(created__date=today).aggregate(total=Sum('order_total'))['total']
+        cash_on_delivery = Order.objects.filter(payment__payment_method='Cashon Delivery').count()
+        razor_pay = Order.objects.filter(payment__payment_method='Razor Pay').count()
 
-    # month order section
+        payment_count = [cash_on_delivery, razor_pay]
+        payment_method = ['Cash on Delivery', 'Razor Pay']
 
-    monthly_sales = (
-        Order.objects.annotate(month=ExtractMonth('created'))
-        .values('month')
-        .annotate(total_sales=Sum('order_total'))
-        .order_by('month')
-    )
+        # -------------------- month order section revenue ---------------------------
 
-    months_sales = [item['month'] for item in monthly_sales]
-    total_sales = [item['total_sales'] for item in monthly_sales]
+        monthly_sales = (
+            Order.objects.annotate(month=ExtractMonth('created'))
+            .values('month')
+            .annotate(total_sales=Sum('order_total'))
+            .order_by('month')
+        )
 
-    i = 0
-    while i < len(order):
-        try:
-            if i == monthly_sales[0]['month']:
-                order[i] = int(monthly_sales[0]['total_sales'])
-        except Exception as e:
-            pass
-        i += 1
+        months_sales = [item['month'] for item in monthly_sales]
+        total_sales = [item['total_sales'] for item in monthly_sales]
 
-    monthly_order_count = (
-        Order.objects
-        .annotate(month=ExtractMonth('created'))
-        .values('month')
-        .annotate(order_count=Count('id'))
-        .order_by('month')
-    )
+        i = 0
+        while i < len(order):
+            try:
+                if i == monthly_sales[0]['month']:
+                    order[i] = int(monthly_sales[0]['total_sales'])
+            except Exception as e:
+                print(e)
+            i += 1
 
-    months_in_order = [item['month'] for item in monthly_order_count]
-    order_counts = [item['order_count'] for item in monthly_order_count]
+        # ----------------------- revenue ended -------------------------
 
-    months = {1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr',
-              5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug',
-              9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'
-              }
-    # month order section
+        # -------------------- monthly orders count ----------------------
 
-    # Date filter
+        monthly_order_count = (
+            Order.objects
+            .annotate(month=ExtractMonth('created'))
+            .values('month')
+            .annotate(order_count=Count('id'))
+            .order_by('month')
+        )
 
-    if request.method == 'POST':
-        try:
-            date_from = request.POST.get('startDate')
-            date_to = request.POST.get('endDate')
-            orders = Order.objects.filter(created__range=(date_from, date_to))
-        except:
-            pass
+        months_in_order = [item['month'] for item in monthly_order_count]
+        order_counts = [item['order_count'] for item in monthly_order_count]
 
-    # Date filter end
+        j = 0
+        monthly_order_count_list = [0] * 12
+        while j < len(monthly_order_count_list):
+            try:
+                if j == monthly_order_count[0]['month']:
+                    monthly_order_count_list[j] = int(monthly_order_count[0]['order_count'])
+            except Exception as e:
+                print(e)
+            j += 1
 
-    # yearly sales section
+        months = {1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr',
+                  5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug',
+                  9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'
+                  }
 
-    yearly_sales = (
-        Order.objects
-        .annotate(year=ExtractYear('created'))
-        .values('year')
-        .annotate(year_total=Sum('order_total'))
-        .order_by('year')
-    )
+        # -------------------- monthly orders count end ----------------
 
-    # calculate yearly orders
+        # ----------------- Date filter ------------------------------
 
-    yearly_orders = (
-        Order.objects
-        .annotate(year=ExtractYear('created'))
-        .values('year')
-        .annotate(total_orders=Count('id'))
-        .order_by('year')
-    )
+        if request.method == 'POST':
+            try:
+                date_from = request.POST.get('startDate')
+                date_to = request.POST.get('endDate')
+                orders = Order.objects.filter(created__range=(date_from, date_to))
+            except:
+                pass
 
-    # Create lists to store the yearly data
+        # ------------------ Date filter end -----------------
 
-    years = []  # To store the years
-    yearly_sales_totals = []  # To store the yearly sales totals
-    yearly_orders_counts = []  # To store the yearly order counts
+        # ----------------- yearly sales section ----------------
 
-    for sales_entry, orders_entry in zip(yearly_sales, yearly_orders):
-        year = sales_entry['year']
-        sales_total = sales_entry['year_total']
-        orders_count = orders_entry['total_orders']
+        yearly_sales = (
+            Order.objects
+            .annotate(year=ExtractYear('created'))
+            .values('year')
+            .annotate(year_total=Sum('order_total'))
+            .order_by('year')
+        )
 
-        years.append(year)
-        yearly_sales_totals.append(sales_total)
-        yearly_orders_counts.append(orders_count)
+        # calculate yearly orders
 
-    print("---------------------------->")
-    print(years, "------- type :", type(years))
-    print(yearly_sales_totals, "------- type :", type(yearly_sales_totals))
-    print(yearly_orders_counts, "------- type :", type(yearly_orders_counts))
-    print("---------------------------->")
+        yearly_orders = (
+            Order.objects
+            .annotate(year=ExtractYear('created'))
+            .values('year')
+            .annotate(total_orders=Count('id'))
+            .order_by('year')
+        )
 
-    ar = [2000, 2001, 2002, 2003]
-    sales = [10000, 2500, 1200, 3500]
+        # Create lists to store the yearly data
 
-    # payment report section
+        years = [0]  # To store the years
+        yearly_sales_totals = [0]  # To store the yearly sales totals
+        yearly_orders_counts = [0]  # To store the yearly order counts
 
-    payment_count = [cash_on_delivery, razor_pay]
-    payment_method = ['Cash on Delivery', 'Razor Pay']
+        for sales_entry, orders_entry in zip(yearly_sales, yearly_orders):
+            year = sales_entry['year']
+            sales_total = sales_entry['year_total']
+            orders_count = orders_entry['total_orders']
 
-    context = {
-        'orders': orders,
+            years.append(year)
+            yearly_sales_totals.append(sales_total)
+            yearly_orders_counts.append(orders_count)
 
-        'year': years,
-        'sales': yearly_sales_totals,
+        # ----------------- yearly sales section ended ----------------
 
-        'months': months.values(),
-        'order': order,
+        context = {
+            'orders': orders,
 
-        'order_count': order_count,
-        'order_total': int(order_total),
-        'today_count': today_count,
-        'today_revenue': today_revenue,
+            'year': years,
+            'sales': yearly_sales_totals,
 
-        'payment_count': payment_count,
-        'payment_method': payment_method,
+            'months': months.values(),
+            'order': order,
+            'monthly_order_count_list': monthly_order_count_list,
 
-    }
+            'order_count': order_count,
+            'order_total': int(order_total),
+            'today_count': today_count,
+            'today_revenue': today_revenue,
+
+            'payment_count': payment_count,
+            'payment_method': payment_method,
+
+        }
+    except Exception as e:
+        print(e)
     return render(request, 'admin/admin_dashboard.html', context)
 
 
 # Product section -----------------------------------------------
-
 
 @staff_member_required(login_url='admin_login')
 def admin_product(request):
@@ -421,15 +431,18 @@ def add_product_variant(request, product_id):
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def product_variant_update(request):
-    if request.method == 'POST':
-        id = request.POST['id']
-        price = request.POST['price']
-        stock = request.POST['stock']
-        variant = ProductVariant.objects.get(id=id)
-        product_id = variant.product
-        variant.product_price = price
-        variant.stock = stock
-        variant.save()
+    try:
+        if request.method == 'POST':
+            id = request.POST['id']
+            price = request.POST['price']
+            stock = request.POST['stock']
+            variant = ProductVariant.objects.get(id=id)
+            product_id = variant.product
+            variant.product_price = price
+            variant.stock = stock
+            variant.save()
+    except Exception as e:
+        print(e)
 
         return redirect('admin_product_variant', product_id.id)
 
@@ -474,10 +487,14 @@ def product_variant_delete(request, variant_id):
 
 @staff_member_required(login_url='admin_login')
 def admin_users(request):
-    users = CustomUser.objects.all()
-    context = {
-        'users': users,
-    }
+    context = {}
+    try:
+        users = CustomUser.objects.all()
+        context = {
+            'users': users,
+        }
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_users.html', context)
 
@@ -507,10 +524,14 @@ def admin_user_manage(request, id):
 
 @staff_member_required(login_url='admin_login')
 def admin_category(request):
-    categories = Category.objects.all().order_by('id')
-    context = {
-        'categories': categories
-    }
+    context = {}
+    try:
+        categories = Category.objects.all().order_by('id')
+        context = {
+            'categories': categories
+        }
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_category.html', context)
 
@@ -579,6 +600,8 @@ def admin_edit_category(request, id):
     return render(request, 'admin/admin_edit_category.html', context)
 
 
+#  Logic for category deletion
+
 # @cache_control(no_cache=True, no_store=True)
 # @staff_member_required(login_url='admin_login')
 # def admin_delete_category(request, id):
@@ -594,6 +617,8 @@ def admin_edit_category(request, id):
 #
 #     return redirect('admin_category')
 
+
+#  Logic for category list and unlisted
 
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
@@ -618,6 +643,7 @@ def admin_delete_category(request, id):
 
 @staff_member_required(login_url='admin_login')
 def admin_coupon_management(request):
+    context = {}
     try:
         coupons = Coupons.objects.all().order_by('id')
         context = {
@@ -631,37 +657,40 @@ def admin_coupon_management(request):
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def add_coupon(request):
-    if request.method == 'POST':
-        description = request.POST['description']
-        coupon_code = request.POST['coupon_code']
-        coupon_title = request.POST['coupon_title']
-        valid_from = request.POST['valid_from']
-        valid_to = request.POST['valid_to']
-        minimum_order_amount = request.POST['minimum_amount']
+    try:
+        if request.method == 'POST':
+            description = request.POST['description']
+            coupon_code = request.POST['coupon_code']
+            coupon_title = request.POST['coupon_title']
+            valid_from = request.POST['valid_from']
+            valid_to = request.POST['valid_to']
+            minimum_order_amount = request.POST['minimum_amount']
 
-        quantity = request.POST['quantity']
+            quantity = request.POST['quantity']
 
-        coupon = Coupons.objects.create(
-            description=description,
-            coupon_code=coupon_code,
-            coupon_title=coupon_title,
-            valid_from=valid_from,
-            valid_to=valid_to,
-            minimum_order_amount=minimum_order_amount,
-        )
-        if len(request.POST['discount_amount']) > 0:
-            coupon.discount_amount = request.POST['discount_amount']
+            coupon = Coupons.objects.create(
+                description=description,
+                coupon_code=coupon_code,
+                coupon_title=coupon_title,
+                valid_from=valid_from,
+                valid_to=valid_to,
+                minimum_order_amount=minimum_order_amount,
+            )
+            if len(request.POST['discount_amount']) > 0:
+                coupon.discount_amount = request.POST['discount_amount']
 
-        if len(request.POST['discount']) > 0:
-            coupon.discount = request.POST['discount']
-        try:
-            if len(request.POST['quantity']) > 0:
-                coupon.quantity = request.POST['quantity']
-        except:
-            pass
-        coupon.save()
-        messages.success(request, "Coupon created")
-        return redirect('admin_coupon_management')
+            if len(request.POST['discount']) > 0:
+                coupon.discount = request.POST['discount']
+            try:
+                if len(request.POST['quantity']) > 0:
+                    coupon.quantity = request.POST['quantity']
+            except:
+                pass
+            coupon.save()
+            messages.success(request, "Coupon created")
+            return redirect('admin_coupon_management')
+    except Exception as e:
+        print(e)
     return render(request, 'admin/admin_add_coupon.html')
 
 
@@ -743,10 +772,14 @@ def activate_coupon(requset, coupon_id):
 
 @staff_member_required(login_url='admin_login')
 def order_management(request):
-    orders = Order.objects.all().order_by('-order_id')
-    context = {
-        'orders': orders,
-    }
+    context = {}
+    try:
+        orders = Order.objects.all().order_by('-order_id')
+        context = {
+            'orders': orders,
+        }
+    except Exception as e:
+        print(e)
     return render(request, 'admin/admin_order_management.html', context)
 
 
@@ -838,21 +871,24 @@ def banner_management(request):
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def create_banner(request):
-    if request.method == 'POST':
-        banner = Banner.objects.create(
-            section=request.POST.get('section', None),
-            identifier=request.POST.get('identifier', None),
-            description=request.POST.get('description', None),
-            offer_detail=request.POST.get('offer', None),
-            title=request.POST.get('title', None),
-            notes=request.POST.get('notes', None),
-        )
-        if request.FILES['image']:
-            image = request.FILES['image']
-            banner.image = image
-        banner.save()
-        messages.success(request, "Banner created")
-        return redirect('banner_management')
+    try:
+        if request.method == 'POST':
+            banner = Banner.objects.create(
+                section=request.POST.get('section', None),
+                identifier=request.POST.get('identifier', None),
+                description=request.POST.get('description', None),
+                offer_detail=request.POST.get('offer', None),
+                title=request.POST.get('title', None),
+                notes=request.POST.get('notes', None),
+            )
+            if request.FILES['image']:
+                image = request.FILES['image']
+                banner.image = image
+            banner.save()
+            messages.success(request, "Banner created")
+            return redirect('banner_management')
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_add_banner.html')
 
@@ -882,6 +918,7 @@ def update_banner(request, banner_id):
             'banner': banner,
         }
     except Exception as e:
+        messages.error(request, "Provide the details.")
         print(e)
 
     return render(request, 'admin/admin_edit_banner.html', context)
@@ -902,13 +939,17 @@ def delete_banner(request, banner_id):
 
 @staff_member_required(login_url='admin_login')
 def reports(request):
-    variants = ProductVariant.objects.all()
-    cancel_orders = OrderProduct.objects.filter(item_cancel=True)
+    context = {}
+    try:
+        variants = ProductVariant.objects.all()
+        cancel_orders = OrderProduct.objects.filter(item_cancel=True)
 
-    context = {
-        'variants': variants,
-        'cancel_orders': cancel_orders,
-    }
+        context = {
+            'variants': variants,
+            'cancel_orders': cancel_orders,
+        }
+    except Exception as e:
+        print(e)
 
     return render(request, 'admin/admin_reports.html', context)
 

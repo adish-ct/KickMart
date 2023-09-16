@@ -93,4 +93,64 @@ var options = {
 var chart = new ApexCharts(document.querySelector("#barChart"), options);
 chart.render();
 
+//  -------------- chart for order and sales -------------
+
+let orderByMonths = []
+let monthsByOrder = document.getElementsByClassName("monthlyOrder")
+
+for (let i = 0; i < monthsByOrder.length; i ++) {
+    orderByMonths.push(monthsByOrder[i].textContent)
+}
+// yearly order and sales together
+
+ var options = {
+          series: [{
+          name: 'Orders',
+          data: orderByMonths,
+        }, {
+          name: 'Sales Amount',
+          data: [5, 6, 7, 8, 9, 0, 7, 9, 5]
+        }, ],
+          chart: {
+          type: 'bar',
+          height: 350
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            endingShape: 'rounded'
+          },
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent']
+        },
+        xaxis: {
+          categories: months
+        },
+        yaxis: {
+          title: {
+            text: 'Total Orders'
+          }
+        },
+        fill: {
+          opacity: 1
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return " " + val + " Nos"
+            }
+          }
+        }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#orderChart"), options);
+        chart.render();
+
 

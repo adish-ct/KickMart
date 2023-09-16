@@ -104,11 +104,11 @@ admin-dashboard
   <div class="row g-4">
 
     <div id="orderChart" class="w-50 text-danger text-center">
-      <h2> Order </h2>
+      <h2> Order and Sales </h2>
     </div>
 
     <div id="StockChart" class="w-50 text-danger text-center" style="color: red !important; background-color: black;">
-          <h2> Profit </h2>
+          <h2>  </h2>
     </div>
 
   </div>
@@ -187,7 +187,6 @@ admin-dashboard
 
 {% for i in order %}
 <p class="orderData" hidden> {{ i }} </p>
-<p> {{ i }}</p>
 {% endfor %}
 <!--------------------------------------->
 
@@ -200,6 +199,11 @@ admin-dashboard
 <p class="paymentMethod" hidden> {{ i }} </p>
 {% endfor %}
 <!---------------------------------------->
+
+
+{% for i in monthly_order_count_list %}
+<p class="monthlyOrder" hidden> {{ i }} </p>
+{% endfor %}
 
 <!-- Widgets End -->
 
