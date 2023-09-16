@@ -21,7 +21,7 @@ order-confirm
                 <p class="small text-muted mb-0">Payment Method : <span class="fw-bold lead"> {{ checkout_items.payment }} </span></p>
               </div>
               <input type="hidden" value="{{ checkout_items.payment }}" name="paymentMethod">
-
+              {% if cart_items %}
               {% for item in cart_items %}
               <div class="card shadow-0 border mb-4">
                 <div class="card-body">
@@ -50,6 +50,9 @@ order-confirm
                 </div>
               </div>
               {% endfor %}
+
+
+
 
               <div class="d-flex justify-content-between pt-2">
                 <p class="fw-bold mb-0">Delivery Address</p>
@@ -94,17 +97,33 @@ order-confirm
                 
                 {% else %}
                 <div id="paypal-button-container"></div>
-                
                 {% endif %}
-                <p class="text-muted mb-0"><span class="fw-bold me-4"><span class="h2 mb-0 ms-2"> Rs. {{ checkout_items.payable_amount }} </span></h5> </p>
+
+                <p class="text-muted mb-0"><span class="fw-bold me-4"></span><span class="h2 mb-0 ms-2"> Rs. {{ checkout_items.payable_amount }} </span></p>
                 <input type="hidden" name="paymentMode" value="{{ checkout_items.payment }}">
               </div>
+
+              {% else %}
+
+              <div class="card shadow-0 border mb-4">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-12 text-center">
+                      <h2 class="text-danger fw-bold">Session Out</h2>
+                      <p class="text-black">The session was cleared, please check your profile for the updation for your poducts.</p>
+                      <p>For your knowledge :</p>
+                      <p class="text-warning">Session timeout is a security and resource management mechanism implemented in web applications and systems to automatically log out or terminate a user's session after a predefined period of user inactivity. It is designed to enhance security by reducing the risk of unauthorized access and to free up server resources by closing idle connections.</p>
+                    </div>
+                  </div>
+                </div>
+
+              {% endif %}
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+</section>
 </form>
 
 
