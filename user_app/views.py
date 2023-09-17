@@ -331,9 +331,10 @@ def add_address(request, id):
             user_address.save()
 
             if id == 1:
+                messages.success(request, "Address created")
                 return redirect('checkout')
             else:
-                messages.success(request, "Address added successfully.")
+                messages.success(request, "New address added.")
                 return redirect('address_book')
     except Exception as e:
         print(e)
@@ -408,11 +409,15 @@ def change_password(request, token):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def delete_address(request, address_id):
-    user = request.user
-    address = UserAddress.objects.get(id=address_id)
-    address.delete()
-    messages.success(request, "Address deleted successfully.")
+    try:
+        user = request.user
+        address = UserAddress.objects.get(id=address_id)
+        address.delete()
+        messages.success(request, "Address deleted.")
+    except Exception as e:
+        print(e)
     return redirect('address_book')
+
 
 
 @cache_control(no_cache=True, no_store=True)
