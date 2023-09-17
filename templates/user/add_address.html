@@ -1,10 +1,11 @@
 {% extends 'user/user_profile.html' %}
 {% block title %}
+add-address
 {% endblock title %}
 {% block content %}
 
 <div class="col-lg-8">
-    {% comment %} form start {% endcomment %}
+<!--    form start    -->
     <form action="{% url 'add_address' 0 %}"  method="POST">
       {% csrf_token %}
       <div class="card mb-4">
@@ -25,7 +26,7 @@
             </div>
             <div class="col-sm-8">
               <input class="text-muted mb-0 border form-control" id="phoneNumber" type="text" name="phone" />
-              <small id="mobile-Error"></small>
+              <small id="mobile-Error" class="text-danger"></small>
             </div>
           </div>
           <hr>
@@ -52,7 +53,8 @@
               <p class="mb-0">Zip code / Post code</p>
             </div>
             <div class="col-sm-8">
-              <input class="text-muted mb-0 border form-control" type="number"  value="" name="zip" required/>
+              <input class="text-muted mb-0 border form-control" type="number" id="zip"  value="" name="zip" required/>
+              <small id="zip-Error" class="text-danger"></small>
             </div>
           </div>
           <hr>
@@ -94,7 +96,7 @@
           <div class="row">
             <div class="col-sm-12 text-center p-5">
                 <div class="text-center">
-                  <button type="submit" class="btn btn-primary border-0 w-50">
+                  <button type="submit" class="btn btn-primary border-0 w-50" onclick="return mobileValidate()">
                     Create Address
                   </button>
                 </div>
@@ -109,3 +111,30 @@
   </div>
 
 {% endblock content %}
+
+{% block js %}
+
+<script>
+    function mobileValidate(){
+        console.log("mobile validation")
+        let mobile = document.getElementById("phoneNumber").value
+        let zip = document.getElementById("zip").value
+
+        const zipError = document.getElementById("zip-Error")
+        const mobileError = document.getElementById("mobile-Error")
+
+        if (mobile.length !== 10){
+            mobileError.innerHTML = "Invalid mobile number"
+            return false
+        }
+        if (zip.length !== 6){
+            zipError.innerHTML = "Invalid zip number"
+            return false
+        }
+        mobileError.innerHTML = ""
+        zipError.innerHTML = ""
+        return true
+    }
+</script>
+
+{% endblock js %}
