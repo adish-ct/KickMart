@@ -169,20 +169,33 @@ cart-product
                   {% if item.quantity >= item.product.stock %}
                     {% if item.product.stock == 0 %}
                       <label class="form-label text-danger" for="form1">Out of stock. </label>
-                    {% else %}
+                    {% elif item.product.stock == item.quantity %}
                       <label class="form-label text-danger" for="form1"> Only <strong>{{ item.product.stock }}</strong> left! </label>
+                    {% else %}}
                     {% endif %}
                   {% else %}
                     <label class="form-label" for="form1" >Qty : <span id="{{item.product.id}}-qtyL">{{ item.quantity }}</span> X Nos </label>
                   {% endif %}
+                  <small class="text-danger" id="stockOver"></small>
 
                   <input type="hidden" class="product_id" value="{{ item.product.id }}" id="">
+
+<!--                  newly created    -->
+
+                  <input type="hidden" class="product_stock" value="{{ item.product.stock }}">
+
+<!--                  newly created    -->
+
                   {% csrf_token %}
 
                   <div class="d-flex mb-4" style="max-width: 300px">
                       {% if item.quantity <= item.product.stock %}
-                        {% if item.quantity > 0 %}
+                        {% if item.quantity > 1 %}
                           <button class="text-center bg-transparent border decreaseQuantity" onclick="click()">
+                            <i class="fa fa-minus mx-auto"></i>
+                          </button>
+                        {% else %}
+                          <button class="text-center bg-transparent border">
                             <i class="fa fa-minus mx-auto"></i>
                           </button>
                         {% endif %}
@@ -199,7 +212,7 @@ cart-product
 
                       {% if item.quantity >= item.product.stock %}
                       {% else %}
-                      <button class="text-center bg-transparent increseQuantity border" >
+                      <button class="text-center bg-transparent increaseQuantity border" >
                         <i class="fa fa-plus mx-auto"></i>
                       </button>
                       {% endif %}
@@ -309,7 +322,9 @@ cart-product
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   Shipping
-                  <span>{{ delivery_charge }} </span>
+<!--                  <span>{{ delivery_charge }} </span>-->
+                  <span class="" id="deliveryCharge">{{ delivery_charge }} </span>
+
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   Tax 3% (Included all)
@@ -341,7 +356,7 @@ cart-product
                       </strong>
                     </div>
                     {% comment %} <span><strong> Rs. {{ grand_total }} /-</strong></span> {% endcomment %}
-                    <span><strong> Rs. <span id="cartTotal">{{ grand_total }} /-</span></strong></span>
+                    <span><strong> Rs. <span id="cartTotal">{{ grand_total }}</span></strong></span>
                   </li>
               </ul>
 
