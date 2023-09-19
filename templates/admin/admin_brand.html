@@ -1,0 +1,96 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+admin-category-interface
+{% endblock %}
+{% load static %}
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 mt-5"></div>
+        <div class="col-md-6 text-center mt-5 mb-5 p-5">
+            <h1 class="text-white">CATEGORIES </h1>
+        </div>
+        <div class="col-md-3 text-end mt-5">
+        </div>
+    </div>
+</div>
+
+<div class="card bg-secondary">
+    <div class="card-body">
+        <div class="col-md-12 d-flex justify-content-spacebetween p-3 mt-3">
+            <div class="col-md-6">
+                <h5 class="card-title text-white mb-4">CATEGORY TABLE</h5>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="{% url 'admin_add_category' %}" class="btn bg-success" data-toggle="modal">
+                    <span class="text-white">Create Category</span></a>
+            </div>
+        </div>
+
+        <!-- Table  -->
+
+        <div class="col-12">
+            <div class="bg-secondary rounded h-100 p-4">
+                <div class="table-responsive">
+                    <table class="table" id="sortTable" style="font-size: 20px;">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Image</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Operations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in categories %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>
+                                    {% if i.category_image %}
+                                    <div style="width: 90px; height: 90px;">
+                                        <img src="{{ i.category_image.url }}" alt="Small Image"
+                                            style="max-width: 100%; max-height: 100%;">
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ i.category_name }}</td>
+                                <td>{{ i.category_description }}</td>
+                                <td>
+                                    <a href="{% url 'admin_edit_category' i.id %}" class="edit"><i
+                                            class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+                                    <a href="{% url 'admin_delete_category' i.id %}" class="delete"><i
+                                            class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete modal -->
+
+<div class="modal" tabindex="-1" id="productDeleteModal-{{ i.id }}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary"><a href=""> Confirm </a> </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

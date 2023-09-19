@@ -1,0 +1,74 @@
+{% extends 'admin_base.html' %}
+{% block title %}
+add-category
+{% endblock %}
+{% load static %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="table-wrapper bg-dark border">
+            <div class="table-title bg-dark">
+                <div class="row">
+                    <div class="col-md-3 mt-5"></div>
+                    <div class="col-md-6 text-center mt-5">
+						<h2 class="text-white">ADD NEW CATEGORY </h2>
+					</div>
+					<div class="col-md-3 text-end mt-5 mb-5">
+						<a href="" class="btn btn-outline-danger" data-toggle="modal"><span></span></a>
+					</div>
+                </div>
+            </div>
+
+            <div class="card bg-secondary">
+                <div class="card-body">
+                    <h5 class="card-title mb-5 text-white">ADD NEW CATEGORY TABLE</h5>
+
+                    <!-- Edit product form  -->
+                    <form enctype="multipart/form-data" method="post" action="">
+                        {% csrf_token %}
+                        <div class="row mb-4">
+                            <div class="col">
+                                <div class="form-outline">
+                                    <input type="text" id="addProduct" class="form-control bg-dark text-white" name="category_name"/>
+                                    <label class="form-label" for="addProduct">Category Name</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <input class="form-control" type="file" id="formFile" name="image">
+                                    <label for="formFile" class="form-label">Choose your image</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col">
+                                <div class="form-outline">
+                                    <input type="number" id="offerCategory" class="form-control bg-dark text-white w-25" min="0" name="category_offer"/>
+                                    <label class="form-label" for="offerCategory">Category Offer in %</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Message input -->
+                        <div class="form-outline mb-4">
+                            <textarea class="form-control bg-dark text-white" id="productDesc" rows="4" name="description" required></textarea>
+                            <label class="form-label" for="productDesc">Category Description</label>
+                        </div>
+
+                        <!-- Submit button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn-lg border-0 btn-success btn-block mt-3 mb-4 w-50">Add Product</button>
+                        </div>
+                    </form>
+                    <hr />
+
+                  <!-- Edit product form end -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
