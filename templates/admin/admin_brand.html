@@ -22,7 +22,7 @@ admin-category-interface
                 <h5 class="card-title text-white mb-4">BRAND TABLE</h5>
             </div>
             <div class="col-md-6 text-end">
-                <a href="{% url 'admin_add_category' %}" class="btn bg-success" data-toggle="modal">
+                <a href="{% url 'admin_add_brand' %}" class="btn bg-success" data-toggle="modal">
                     <span class="text-white">Create Brand</span></a>
             </div>
         </div>
@@ -43,23 +43,23 @@ admin-category-interface
                             </tr>
                         </thead>
                         <tbody>
-                            {% for i in categories %}
+                            {% for i in brands %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>
-                                    {% if i.category_image %}
+                                    {% if i.brand_image %}
                                     <div style="width: 90px; height: 90px;">
-                                        <img src="{{ i.category_image.url }}" alt="Small Image"
+                                        <img src="{{ i.brand_image.url }}" alt="Small Image"
                                             style="max-width: 100%; max-height: 100%;">
                                     </div>
                                     {% endif %}
                                 </td>
-                                <td>{{ i.category_name }}</td>
-                                <td>{{ i.category_description }}</td>
+                                <td>{{ i.brand_name }}</td>
+                                <td>{{ i.brand_description }}</td>
                                 <td>
-                                    <a href="{% url 'admin_edit_category' i.id %}" class="edit"><i
+                                    <a href="{% url 'admin_edit_brand' i.id %}" class="edit"><i
                                             class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                                    <a href="{% url 'admin_delete_category' i.id %}" class="delete"><i
+                                    <a href="{% url 'admin_delete_brand' i.id %}" class="delete"><i
                                             class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
                                 </td>
                             </tr>

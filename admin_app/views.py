@@ -642,7 +642,16 @@ def admin_delete_category(request, id):
 # admin brand section  ---------------------------------------
 
 
+@staff_member_required(login_url='admin_login')
 def brand(request):
+    context = {}
+    try:
+        brands = ProductBrand.objects.all()
+        context = {
+            'brands': brands,
+        }
+    except Exception as e:
+        print(e)
     return render(request, 'admin/admin_brand.html')
 
 
@@ -650,11 +659,11 @@ def admin_add_brand(request):
     return render(request, 'admin/admin_add_brand.html')
 
 
-def admin_edit_brand(request):
+def admin_edit_brand(request, id):
     return render(request, 'admin/admin_add_brand.html')
 
 
-def admin_delete_brand(request):
+def admin_delete_brand(request, id):
     return render(request, 'admin/admin_add_brand.html')
 
 
