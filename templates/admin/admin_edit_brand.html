@@ -1,7 +1,7 @@
 {% extends 'admin_base.html' %}
 {% block title %}
 admin-product-interface
-{% endblock %}
+{% endblock %}1
 {% load static %}
 {% block body %}
     <div class="container-fluid">
@@ -10,71 +10,63 @@ admin-product-interface
                 <div class="row">
                     <div class="col-md-3 mt-5"></div>
                     <div class="col-md-6 text-center mt-5">
-						<h2>EDIT YOUR CATEGORY </h2>
+						<h2>EDIT YOUR BRAND </h2>
 					</div>
                 </div>
             </div>
 
             <div class="card bg-secondary p-5">
                 <div class="card-body" style="font-size: 1rem">
-                  <h5 class="card-title text-white mb-5">Category Update Table</h5>
+                    <h5 class="card-title text-white mb-5">Brand Update Table</h5>
 
-                  <!-- Edit category form  -->
-
-                    <form enctype="multipart/form-data" method="post">
-                        {% csrf_token %}
-                        <div class="row mb-4">
-                            <div class="col">
-                              <div class="form-outline">
-                                  <input type="text" id="form6Example1" value="{{ category.category_name }}" class="form-control bg-grey text-white" name="name"/>
-                                  <label class="form-label" for="form6Example1">Category Name</label>
-
-                              </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col">
-                              <div class="form-outline">
-                                  <input type="text" id="offerCategory" value="{{ category.offer }}" class="form-control bg-grey text-white" name="category_offer"/>
-                                  <label class="form-label" for="offerCategory">Category offer in %</label>
-
-                              </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="mb-4 d-flex justify-content-center align-items-center gap-3">
-                                    <label for="currentFile" class="form-label">Current Image</label>
-                                    {% if category.category_image %}
-                                        <img src="{{ category.category_image.url }}"
-                                        alt="example placeholder" style="width: 10vw;" id="currentFile" />
-                                    {% endif %}
-                                </div>
-                                <div class="d-flex justify-content-center">
-                                    <div class="mb-3">
-                                        <input class="form-control bg-grey text-black" type="file" id="formFile" name="image">
-                                        <label for="formFile" class="form-label">Choose your image</label>
+                    <!-- Edit category form  -->
+                        {% if brand %}
+                        <form enctype="multipart/form-data" method="post">
+                            {% csrf_token %}
+                            <div class="row mb-4">
+                                <div class="col">
+                                    <div class="form-outline">
+                                        <input type="text" id="form6Example1" value="{{ brand.brand_name }}" class="form-control bg-grey text-white" name="brand_name" required/>
+                                        <label class="form-label" for="form6Example1">Brand Name {{ brand.brand_name }}</label>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                      <!-- Description input -->
-                      <div class="form-outline mb-4">
-                        <textarea class="form-control bg-grey text-color" id="productDesc" rows="4" name="description"> {{ category.category_description }} </textarea>
-                        <label class="form-label" for="productDesc">Category Description</label>
-                      </div>
 
-                      <!-- Submit button -->
-                      <div class="text-end">
-                          <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4">Save Category</button>
-                      </div>
-                    </form>
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="mb-4 d-flex justify-content-center align-items-center gap-3">
+                                        <label for="currentFile" class="form-label">Current Image</label>
+                                        {% if brand.brand_image %}
+                                            <img src="{{ brand.brand_image.url }}"
+                                            alt="example placeholder" style="width: 10vw;" id="currentFile" />
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="mb-3">
+                                            <input class="form-control bg-grey text-black" type="file" id="formFile" name="brand_image">
+                                            <label for="formFile" class="form-label">Choose your image</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Description input -->
+                            <div class="form-outline mb-4">
+                                <textarea class="form-control bg-grey text-color" id="productDesc" rows="4" name="brand_description " required> {{ brand.brand_description }} </textarea>
+                                <label class="form-label" for="productDesc">Category Description</label>
+                            </div>
+
+                            <!-- Submit button -->
+                            <div class="text-end">
+                                <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4">Save Brand</button>
+                            </div>
+                        </form>
+                        {% endif %}
+
                     <hr />
 
-                  <!-- Edit product form end -->
+                    <!-- Edit product form end -->
                 </div>
             </div>
         </div>

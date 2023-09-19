@@ -652,20 +652,65 @@ def brand(request):
         }
     except Exception as e:
         print(e)
-    return render(request, 'admin/admin_brand.html')
+    return render(request, 'admin/admin_brand.html', context)
 
 
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
 def admin_add_brand(request):
-    return render(request, 'admin/admin_add_brand.html')
+    try:
+        if request.method == 'POST':
+            brand = ProductBrand()
+            brand.brand_name = request.POST['brand_name']
+            brand.brand_description = request.POST['brand_description']
+            if len(request.FILES) > 0:
+                brand.brand_image = request.FILES['brand_image']
+            brand.save()
+            messages.success(request, "Brand added.")
+            return redirect('admin_brand')
+        return render(request, 'admin/admin_add_brand.html')
+    except Exception as e:
+        print(e)
+        return redirect('admin_brand')
 
 
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
 def admin_edit_brand(request, id):
-    return render(request, 'admin/admin_add_brand.html')
+    context = {}
+    brand = ProductBrand.objects.get(id=id)
+    try:
+        if request.method == 'POST':
+            brand.brand_name = request.POST['brand_name']
+            brand.brand_description = request.POST['brand_description']
+            if request.FILES['brand_image']:
+                if brand.brand_image:
+                    os.remove(brand.brand_image.path)
+                brand.brand_image = request.FILES['brand_image']
+            brand.save()
+            return redirect('admin_brand')
+        context = {
+            'brand': brand,
+        }
+        return render(request, 'admin/admin_edit_brand.html', context)
+    except Exception as e:
+        print(e)
+        return redirect('admin_brand')
 
 
+@cache_control(no_cache=True, no_store=True)
+@staff_member_required(login_url='admin_login')
 def admin_delete_brand(request, id):
-    return render(request, 'admin/admin_add_brand.html')
-
+    try:
+        brand = ProductBrand.objects.get(id=id)
+        if brand.brand_image:
+            os.remove(brand.brand_image.path)
+        brand.delete()
+        messages.success(request, "Brand deleted")
+        return redirect('admin_brand')
+    except Exception as e:
+        print(e)
+    return redirect('admin_brand')
 
 # admin brand section end ---------------------------------------
 
