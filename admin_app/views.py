@@ -639,6 +639,27 @@ def admin_delete_category(request, id):
 
 # admin category section end ---------------------------------------
 
+# admin brand section  ---------------------------------------
+
+
+def brand(request):
+    return render(request, 'admin/admin_brand.html')
+
+
+def admin_add_brand(request):
+    return render(request, 'admin/admin_add_brand.html')
+
+
+def admin_edit_brand(request):
+    return render(request, 'admin/admin_add_brand.html')
+
+
+def admin_delete_brand(request):
+    return render(request, 'admin/admin_add_brand.html')
+
+
+# admin brand section end ---------------------------------------
+
 # coupon section start ----------------------------------------------
 
 @staff_member_required(login_url='admin_login')

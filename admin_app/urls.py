@@ -41,6 +41,11 @@ urlpatterns = [
     path('update-banner/<int:banner_id>/', views.update_banner, name="update_banner"),
     path('delete-banner/<int:banner_id>/', views.delete_banner, name="delete_banner"),
 
+    path('admin-brand/', views.brand, name="admin_brand"),
+    path('admin-add-brand/', views.admin_add_brand, name="admin_add_brand"),
+    path('admin-edit-brand/<int:id>', views.admin_edit_brand, name="admin_edit_brand"),
+    path('admin-delete-brand/<int:id>', views.admin_delete_brand, name="admin_delete_brand"),
+
     path('reports/', views.reports, name="reports"),
 
     path('admin_logout/', views.admin_logout, name="admin_logout"),
