@@ -1,0 +1,33 @@
+{% extends 'user/user_profile.html' %}
+{% block title %}
+{{ request.user }}-address-book
+{% endblock title %}
+{% block content %}
+
+<div class="col-lg-8">
+    {% for items in address %}
+    <div class="card">
+        <div class="card-header">Address {{ forloop.counter }} </div>
+        <div class="card-body">
+            <div class="text-left">
+                <p> {{ items.name }},&nbsp {{ items.phone}} </p>
+                <p> {{ items.address }},&nbsp {{ items.town}} </p>
+                <p> {{ items.nearby_location }},&nbsp {{ items.zip_code}} {{ items.district }} </p>
+                <p> {{ items.district }} </p>
+            </div>
+        <div class="card-footer">
+            <a href="{% url 'delete_address' items.id %}"> Delete </a>
+        </div>
+    </div>
+    {% endfor %}
+    
+
+    <div class="text-left p-5">
+        <button class="btn btn-primary">
+            <a href="{% url 'add_address' user.id %}" class="text-white">Add Address</a>
+        </button>
+    </div>
+</div>
+    
+
+{% endblock %}
