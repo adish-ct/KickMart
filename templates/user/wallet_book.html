@@ -2,10 +2,37 @@
 {% block title %}
 {{ request.user }}-wallet-book
 {% endblock title %}
+
+
+{% block cdn %}
+
+
+{% endblock cdn %}
+
+
 {% block content %}
 
 <div class="col-lg-8">
-
+   <table class="table table-hover text-nowrap">
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Description</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>18,492</td>
+      <td>228</td>
+      <td>$13.68 <span class="text-success">
+          <i class="fas fa-caret-up me-1"></i><span>14.0%</span>
+        </span><span class="text-danger">
+          <i class="fas fa-caret-down me-1"></i><span>-48.8%%</span>
+        </span></td>
+    </tr>
+  </tbody>
+</table>
 </div>
     
 

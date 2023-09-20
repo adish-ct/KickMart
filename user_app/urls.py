@@ -16,6 +16,7 @@ urlpatterns = [
     path('delete-address/<int:address_id>', views.delete_address, name="delete_address"),
     path('forgot-password/', views.forgot_password, name="forgot_password"),
     path('reset-password/<token>/', views.change_password, name="reset_password"),
+    path('wallet-book/', views.wallet_book, name="wallet_book"),
 
     # class based views password changing
     path('change-password/', PasswordChangeView.as_view(

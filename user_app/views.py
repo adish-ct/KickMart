@@ -167,6 +167,8 @@ def otp_verification(request, user_id):
 
 @cache_control(no_store=True, no_cache=True)
 def regenerate_otp(request, id):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     try:
         user = CustomUser.objects.get(id=id)
         email = user.email
@@ -251,6 +253,8 @@ def user_logout(request):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def user_profile(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     context = {}
     if 'user' in request.session:
         user = request.user
@@ -299,6 +303,8 @@ def user_profile(request):
 
 @login_required(login_url='index')
 def address_book(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     if 'user' in request.session:
         user = request.user
     address = UserAddress.objects.filter(user=user)
@@ -311,6 +317,8 @@ def address_book(request):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def add_address(request, id):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     try:
         if 'user' in request.session:
             user = request.user
@@ -344,6 +352,8 @@ def add_address(request, id):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def forgot_password(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     try:
         if request.method == 'POST':
             email = request.POST.get('email', None)
@@ -370,6 +380,8 @@ def forgot_password(request):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def change_password(request, token):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     context = {}
     try:
         profile = PasswordControl.objects.get(forgot_password_token=token)
@@ -409,6 +421,8 @@ def change_password(request, token):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='index')
 def delete_address(request, address_id):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     try:
         user = request.user
         address = UserAddress.objects.get(id=address_id)
@@ -419,9 +433,29 @@ def delete_address(request, address_id):
     return redirect('address_book')
 
 
+@login_required(login_url='index')
+def wallet_book(request):
+    context = {}
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
+    if 'user' in request.session:
+        user = request.user
+        try:
+            reports = WalletBook.objects.filter(customer=user.id)
+            context = {
+                'reports': reports,
+            }
+            return render(request, "user/wallet_book.html")
+        except Exception as e:
+            print(e)
+            return redirect('user_profile')
+    return redirect('index')
+
 
 @cache_control(no_cache=True, no_store=True)
 def subscribe(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     try:
         if request.method == 'GET':
             name = request.GET['name']
