@@ -94,3 +94,11 @@ class Image(models.Model):
         return str(self.pk)
 
 
+class WalletBook(models.Model):
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    amount = models.CharField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user}-{self.pk}'
