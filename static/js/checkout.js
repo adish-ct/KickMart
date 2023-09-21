@@ -14,7 +14,6 @@ $('.payWithRazorpay').click(function (e) {
                 "key": "rzp_test_i0ukiADffB9XqG", // Enter the Key ID generated from the Dashboard
                 "amount": response.payable_amount * 100, // `Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                 "currency": "INR",
-                "currency": "INR",
                 "name": "Kick Mart Pvt",
                 "description": "sample",
                 "image": "https://example.com/your_logo",
@@ -32,9 +31,9 @@ $('.payWithRazorpay').click(function (e) {
                         url: "order-confirmed/",
                         data: data,
                         success:(res)=>{
-                            console.log('success')
-                            console.log(res.status);
-                            alert('ok')
+                            // console.log('success')
+                            // console.log(res.status);
+                            // alert('ok')
                             location.href='order-confirmed/'
                             
                         }                       
