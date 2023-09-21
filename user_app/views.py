@@ -445,7 +445,7 @@ def wallet_book(request):
             context = {
                 'reports': reports,
             }
-            return render(request, "user/wallet_book.html")
+            return render(request, "user/wallet_book.html", context)
         except Exception as e:
             print(e)
             return redirect('user_profile')

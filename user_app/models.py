@@ -102,4 +102,4 @@ class WalletBook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user}-{self.pk}'
+        return f'{self.customer.first_name}-{self.pk}'

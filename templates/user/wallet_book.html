@@ -18,19 +18,23 @@
     <tr>
       <th scope="col">Date</th>
       <th scope="col">Description</th>
-      <th scope="col">Status</th>
+      <th scope="col">Amount</th>
     </tr>
   </thead>
   <tbody>
+  {% if reports %}
+  {% for i in reports %}
     <tr>
-      <td>18,492</td>
-      <td>228</td>
-      <td>$13.68 <span class="text-success">
-          <i class="fas fa-caret-up me-1"></i><span>14.0%</span>
-        </span><span class="text-danger">
-          <i class="fas fa-caret-down me-1"></i><span>-48.8%%</span>
-        </span></td>
+      <td> {{ i.created }} </td>
+      <td> {{ i.description }} </td>
+      {% if i.increment %}
+        <td><span class="text-success"> <i class="fas fa-caret-up me-1"></i><span> {{ i.amount }} </span></span></td>
+      {% else %}
+        <td><span class="text-danger"> <i class="fas fa-caret-down me-1"></i><span> {{ i.amount }} </span></span></td>
+      {% endif %}
     </tr>
+  {% endfor %}
+  {% endif %}
   </tbody>
 </table>
 </div>

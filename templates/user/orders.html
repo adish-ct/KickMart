@@ -47,15 +47,9 @@ your-orders
                     </div>
 
                     {% if order.order_id.status == 'Cancelled' %}
-                        {% if not order.item_cancel %}
-                            <div class="col-md-4">
-                              <p class="text-danger"> </p>
-                            </div>
-                        {% else %}
-                            <div class="col-md-4">
-                                <p class="text-danger"> Cancelled </p>
-                            </div>
-                        {% endif %}
+                    <div class="col-md-4">
+                      <p class="text-danger"> Cancelled </p>
+                    </div>
                     {% elif order.order_id.status == 'Delivered' %}
                       {% if order.return_request %}
                         {% if order.is_returned %}
@@ -88,8 +82,6 @@ your-orders
 
                     </div>
                     {% endif %}
-
-
                   </div>
                 </div>
               </div>

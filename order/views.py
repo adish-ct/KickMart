@@ -188,7 +188,7 @@ def order_view(request):
 
 
 @login_required(login_url='user_login')
-def order_cancel(requset, order_id):
+def order_cancel(request, order_id):
     try:
         order_product = OrderProduct.objects.get(id=order_id)
         variant = ProductVariant.objects.get(id=order_product.variant.id)
@@ -198,8 +198,8 @@ def order_cancel(requset, order_id):
         user = order.user
         deduct_discount = order.discount
 
-        if requset.method == 'POST':
-            reason = requset.POST['cancelReason']
+        if request.method == 'POST':
+            reason = request.POST['cancelReason']
             if reason:
                 order_product.return_reason = reason
 
@@ -226,13 +226,36 @@ def order_cancel(requset, order_id):
                     deduct_discount)  # calculating refund amount.
                 user.wallet = float(user.wallet) + float(refund_amount)
 
-                # wallet history handling
-                wallet = WalletBook()
+            else:
                 try:
-                    wallet.customer = requset.user
-                    wallet.amount = f'{float(user.wallet) + float(refund_amount)}'
+                    amount = variant.product_price * order_product.quandity
+                    if coupon:
+                        if order.total - amount >= coupon.minimum_order_amount:
+                            deduct_discount = 0
+                        else:
+                            order.discount = 0
+                    if order.total < 2500:  # delivery charge logic.
+                        delivery_charge = 99
+                    else:
+                        delivery_charge = 0
+                    refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)
+
+                    # wallet history handling
+
+                    wallet = WalletBook()
+                    wallet.customer = request.user
                     wallet.description = "Cashback received due to the cancel of item"
-                    wallet.save()
+                    wallet.increment = True
+
+                    if refund_amount < order.wallet_amount:
+                        user.wallet = float(user.wallet) + float(refund_amount)
+                        wallet.amount = f'float(refund_amount)'
+                    else:
+                        user.wallet = float(user.wallet) + float(order.wallet_amount)
+                        wallet.amount = f'float(order.wallet_amount)'
+
+                        wallet.save()
+
                 except Exception as e:
                     print(e)
 
