@@ -977,23 +977,24 @@ def create_banner(request):
         return redirect('banner_management')
 
 
+#   verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def update_banner(request, banner_id):
-    banner = Banner.objects.get(id=banner_id)
     context = {}
     try:
+        banner = Banner.objects.get(id=banner_id)
         if request.method == 'POST':
-            banner.section = request.POST['section']
-            banner.identifier = request.POST['identifier']
-            banner.description = request.POST['description']
-            banner.offer_detail = request.POST['offer']
-            banner.title = request.POST.get('title', None)
-            banner.notes = request.POST['notes']
-            if len(request.FILES) != 0:
+            fields_to_update = ['section', 'identifier', 'description', 'offer', 'title', 'notes']
+
+            for field_name in fields_to_update:
+                setattr(banner, field_name, request.POST.get(field_name))
+
+            if request.FILES:
                 if banner.image:
                     os.remove(banner.image.path)
-                banner.image = request.FILES['image']
+                banner.image = request.FILES.get('image')
+
             banner.save()
             messages.success(request, "Banner Updated")
             return redirect('banner_management')
@@ -1001,11 +1002,12 @@ def update_banner(request, banner_id):
         context = {
             'banner': banner,
         }
+        return render(request, 'admin/admin_edit_banner.html', context)
     except Exception as e:
         messages.error(request, "Provide the details.")
         print(e)
+        return redirect('banner_management')
 
-    return render(request, 'admin/admin_edit_banner.html', context)
 
 
 @cache_control(no_cache=True, no_store=True)
