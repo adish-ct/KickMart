@@ -10,7 +10,7 @@ admin-coupon-edit
             <div class="row">
                 <div class="col-md-3 mt-5"></div>
                 <div class="col-md-6 text-center mt-5">
-                    <h2 class="text-white">ADD NEW COUPON </h2>
+                    <h2 class="text-white">EDIT COUPON </h2>
                 </div>
                 <div class="col-md-3 text-end mt-5 mb-5">
                     <a href="" class="btn btn-outline-danger" data-toggle="modal"><span></span></a>
@@ -20,7 +20,7 @@ admin-coupon-edit
 
         <div class="card bg-secondary" style="font-size: 20px;">
             <div class="card-body">
-                <h5 class="card-title mb-5 text-white">ADD COUPON TABLE</h5>
+                <h5 class="card-title mb-5 text-white">EDIT COUPON TABLE</h5>
                 {% if coupon %}
                 <!-- Edit coupon form  -->
                 <form method="post" action="">
@@ -68,7 +68,7 @@ admin-coupon-edit
                     <div class="row mb-4">
                         <div class="col-md-3">
                             <input type="number" id="minAmount" class="form-control bg-dark text-white"
-                                name="minimum_amount" value="{{ coupon.minimum_order_amount }}" />
+                                name="minimum_amount" value="{{ coupon.minimum_order_amount }}" required/>
                             <label for="minAmount" class="control-label">Minimun Amount To Apply</label>
                         </div>
 
@@ -82,25 +82,28 @@ admin-coupon-edit
                     <!-- Message input -->
                     <div class="form-outline mb-4">
                         <textarea class="form-control bg-dark text-white" id="productDesc" rows="10"
-                            name="description"> {{ coupon.description }} </textarea>
+                            name="description" required> {{ coupon.description }} </textarea>
                         <label class="form-label" for="productDesc">Description</label>
                     </div>
 
                     <!-- Submit button -->
                     <div class="text-center">
-                        <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4 w-50">Update
-                            Coupon</button>
+                        <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4 w-50">
+                            Update Coupon
+                        </button>
                     </div>
                 </form>
+                <!-- Edit product form end -->
                 {% endif %}
-
                 <hr />
 
-                <!-- Edit product form end -->
             </div>
         </div>
 
     </div>
 </div>
+
+
+
 
 {% endblock %}

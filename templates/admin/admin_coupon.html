@@ -74,7 +74,7 @@ coupon-details
                                             <a href="{% url 'edit_coupon' coupon.id %}" class="edit">
                                                 <i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i>
                                             </a>
-                                            <a href="{% url 'delete_coupon' coupon.id %}" class="delete"> 
+                                            <a href="" class="delete" data-bs-toggle="modal" data-bs-target="#exampleModal-{{ coupon.id }}">
                                                 <i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i>
                                             </a>
                                         </td>
@@ -90,5 +90,29 @@ coupon-details
         </div>
     </div>
 </div>
+
+
+{% for coupon in coupons %}
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal-{{ coupon.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h5 class="modal-title text-danger" id="exampleModalLabel">Delete coupon</h5>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure want to delete <strong class="text-info"> {{ coupon.coupon_code }} ?</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary"><a href="{% url 'delete_coupon' coupon.id %}" class="text-white"> Confirm </a></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endfor %}
+
 
 {% endblock body %}

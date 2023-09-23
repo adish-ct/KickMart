@@ -769,23 +769,24 @@ def add_coupon(request):
             coupon.save()
             messages.success(request, "Coupon created")
             return redirect('admin_coupon_management')
+        return render(request, 'admin/admin_add_coupon.html')
     except Exception as e:
         print(e)
-    return render(request, 'admin/admin_add_coupon.html')
+        return redirect('admin_coupon_management')
 
 
+# verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def edit_coupon(request, coupon_id):
     context = {}
-    coupon = Coupons.objects.get(id=coupon_id)
     try:
+        coupon = Coupons.objects.get(id=coupon_id)
         if request.method == 'POST':
             coupon.id = coupon_id
             coupon.description = request.POST['description']
             coupon.coupon_code = request.POST['coupon_code']
             coupon.coupon_title = request.POST['coupon_title']
-
             coupon.minimum_order_amount = request.POST['minimum_amount']
 
             if request.POST['valid_from']:
@@ -793,28 +794,29 @@ def edit_coupon(request, coupon_id):
             if request.POST['valid_to']:
                 coupon.valid_to = request.POST['valid_to']
 
-            if len(request.POST['discount_amount']) > 0:
+            if request.POST['discount_amount']:
                 coupon.discount_amount = request.POST['discount_amount']
 
-            if len(request.POST['discount']) > 0:
+            if request.POST['discount']:
                 coupon.discount = request.POST['discount']
 
-            try:
-                if len(request.POST['quantity']) > 0:
-                    coupon.quantity = request.POST['quantity']
-            except Exception as e:
-                print(e)
+            if request.POST['quantity']:
+                coupon.quantity = request.POST['quantity']
+
             coupon.save()
             messages.success(request, "Coupon updated")
             return redirect('admin_coupon_management')
+
         context = {
             'coupon': coupon,
         }
+        return render(request, 'admin/admin_edit_coupon.html', context)
     except Exception as e:
         print(e)
-    return render(request, 'admin/admin_edit_coupon.html', context)
+        return redirect('admin_coupon_management')
 
 
+# verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def delete_coupon(request, coupon_id):
@@ -822,8 +824,9 @@ def delete_coupon(request, coupon_id):
         coupon = get_object_or_404(Coupons, id=coupon_id)
         if coupon:
             coupon.delete()
-        messages.success(request, "Coupon deleted")
-    except:
+            messages.success(request, "Coupon deleted")
+    except Exception as e:
+        print(e)
         pass
     return redirect('admin_coupon_management')
 
