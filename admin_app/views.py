@@ -929,10 +929,10 @@ def return_request(request, item_id):
             variant.save()
             user.save()
             order.save()
+        return redirect('order_update', order_id)
     except Exception as e:
         print(e)
-
-    return redirect('order_update', order_id)
+        return redirect('admin_order_management')
 
 
 # -------------------------- Banner Management --------------------------
@@ -951,6 +951,7 @@ def banner_management(request):
     return render(request, 'admin/admin_banner.html', context)
 
 
+#   verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def create_banner(request):
@@ -964,16 +965,16 @@ def create_banner(request):
                 title=request.POST.get('title', None),
                 notes=request.POST.get('notes', None),
             )
-            if request.FILES['image']:
-                image = request.FILES['image']
-                banner.image = image
+            if request.FILES:
+                banner.image = request.FILES['image']
             banner.save()
             messages.success(request, "Banner created")
             return redirect('banner_management')
+        return render(request, 'admin/admin_add_banner.html')
     except Exception as e:
+        messages.error(request, "provide values")
         print(e)
-
-    return render(request, 'admin/admin_add_banner.html')
+        return redirect('banner_management')
 
 
 @cache_control(no_cache=True, no_store=True)

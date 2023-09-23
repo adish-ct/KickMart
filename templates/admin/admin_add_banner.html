@@ -25,21 +25,20 @@ create-new-banner
                         <div class="row mb-4">
                             <div class="col">
                               <div class="form-outline">
-                                  <input type="text" id="addSection" class="form-control bg-dark text-white" name="section"/>
+                                  <input type="text" id="addSection" class="form-control bg-dark text-white" name="section" required/>
                                   <label class="form-label" for="addSection">Banner Section</label>
-
                               </div>
                             </div>
 
                             <div class="col">
-                                <input type="text" id="exactLocation" class="form-control bg-dark text-white" name="identifier"/>
+                                <input type="text" id="exactLocation" class="form-control bg-dark text-white" name="identifier" required/>
                                 <label for="exactLocation" class="control-label">Exact Location :</label>
                             </div>
                         </div>
 
                         <div class="row mb-4">
                             <div class="col-md-4">
-                                <input type="text" id="description" class="form-control bg-dark text-white" name="description"/>
+                                <input type="text" id="description" class="form-control bg-dark text-white" name="description" />
                                 <label for="description" class="control-label">Description :</label>
                             </div>
 
@@ -55,7 +54,7 @@ create-new-banner
                             <div class="col-md-4">
                                 <div class="col">
                                     <div class="form-outline">
-                                        <input type="text" name="titles" id="title" class="form-control bg-dark text-white" style="width: 50%" />
+                                        <input type="text" name="titles" id="title" class="form-control bg-dark text-white" style="width: 50%"/>
                                         <label class="form-label" for="title">Title : </label>
                                     </div>
                                 </div>
@@ -65,7 +64,7 @@ create-new-banner
                         <div class="row mb-4">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <input class="form-control" type="file" id="formFiless" name="image">
+                                    <input class="form-control" type="file" id="formFiless" name="image" required>
                                     <label for="formFiless" class="form-label">Choose your image</label>
                                 </div>
                             </div>
@@ -76,15 +75,21 @@ create-new-banner
                         <textarea class="form-control bg-dark text-white" id="adminNotes" rows="4" name="notes"></textarea>
                         <label class="form-label" for="adminNotes">Admin Notes : </label>
                       </div>
+                      <div class="text-white">
+                            <small>* Index page banner use Section : index</small><br>
+                            <small>* Identifier used to specify the correct position</small><br>
+                            <small>---> Carousel image identifier : main</small><br>
+                            <small>---> left side banner image identifier : first</small><br>
+                            <small>---> right side banner image identifier : second</small><br>
+                        </div>
 
                       <!-- Submit button -->
                       <div class="text-center">
                           <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4 w-50">Save Banner</button>
                       </div>
                     </form>
-                    <hr />
-
                   <!-- Edit product form end -->
+                    <hr />
                 </div>
             </div>
 
