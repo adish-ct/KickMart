@@ -568,6 +568,7 @@ def admin_add_category(request):
     return render(request, 'admin/admin_add_category.html')
 
 
+#   verify
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_edit_category(request, id):
@@ -578,22 +579,23 @@ def admin_edit_category(request, id):
             'category': category,
         }
         if request.method == 'POST':
-            if len(request.FILES) != 0:
+            if request.FILES:
                 if category.category_image:
-                    if len(category.category_image) > 0:
-                        os.remove(category.category_image.path)
+                    os.remove(category.category_image.path)
                 category.category_image = request.FILES['image']
             category.category_name = request.POST['name']
             category.category_description = request.POST['description']
-            category.offer = request.POST['category_offer']
+            if request.POST['category_offer']:
+                category.offer = request.POST['category_offer']
             category.save()
-            messages.success(request, "Category Updated")
 
+            messages.success(request, "Category Updated")
             return redirect('admin_category')
+        return render(request, 'admin/admin_edit_category.html', context)
     except Exception as e:
         print(e)
+        return redirect('admin_category')
 
-    return render(request, 'admin/admin_edit_category.html', context)
 
 
 #  Logic for category deletion

@@ -1,6 +1,6 @@
 {% extends 'admin_base.html' %}
 {% block title %}
-admin-product-interface
+admin-edit-category
 {% endblock %}
 {% load static %}
 {% block body %}
@@ -17,18 +17,17 @@ admin-product-interface
 
             <div class="card bg-secondary p-5">
                 <div class="card-body" style="font-size: 1rem">
-                  <h5 class="card-title text-white mb-5">Category Update Table</h5>
+                    <h5 class="card-title text-white mb-5">Category Update Table</h5>
 
-                  <!-- Edit category form  -->
+                    <!-- Edit category form  -->
 
                     <form enctype="multipart/form-data" method="post">
                         {% csrf_token %}
                         <div class="row mb-4">
                             <div class="col">
                               <div class="form-outline">
-                                  <input type="text" id="form6Example1" value="{{ category.category_name }}" class="form-control bg-grey text-white" name="name"/>
+                                  <input type="text" id="form6Example1" value="{{ category.category_name }}" class="form-control bg-grey text-white" name="name" required/>
                                   <label class="form-label" for="form6Example1">Category Name</label>
-
                               </div>
                             </div>
                         </div>
@@ -49,7 +48,7 @@ admin-product-interface
                                     <label for="currentFile" class="form-label">Current Image</label>
                                     {% if category.category_image %}
                                         <img src="{{ category.category_image.url }}"
-                                        alt="example placeholder" style="width: 10vw;" id="currentFile" />
+                                        alt="category image" style="width: 10vw;" id="currentFile" />
                                     {% endif %}
                                 </div>
                                 <div class="d-flex justify-content-center">
@@ -61,20 +60,19 @@ admin-product-interface
                             </div>
                         </div>
 
-                      <!-- Description input -->
-                      <div class="form-outline mb-4">
-                        <textarea class="form-control bg-grey text-color" id="productDesc" rows="4" name="description"> {{ category.category_description }} </textarea>
-                        <label class="form-label" for="productDesc">Category Description</label>
-                      </div>
+                        <!-- Description input -->
+                        <div class="form-outline mb-4">
+                            <textarea class="form-control bg-grey text-color" id="productDesc" rows="4" name="description"> {{ category.category_description }} </textarea>
+                            <label class="form-label" for="productDesc">Category Description</label>
+                        </div>
 
-                      <!-- Submit button -->
-                      <div class="text-end">
-                          <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4">Save Category</button>
-                      </div>
+                        <!-- Submit button -->
+                        <div class="text-end">
+                            <button type="submit" class="btn-lg border-0 btn-success btn-block mb-4">Update</button>
+                        </div>
                     </form>
-                    <hr />
-
                   <!-- Edit product form end -->
+                    <hr />
                 </div>
             </div>
         </div>
