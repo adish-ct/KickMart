@@ -957,17 +957,14 @@ def banner_management(request):
 def create_banner(request):
     try:
         if request.method == 'POST':
-            banner = Banner.objects.create(
-                section=request.POST.get('section', None),
-                identifier=request.POST.get('identifier', None),
-                description=request.POST.get('description', None),
-                offer_detail=request.POST.get('offer', None),
-                title=request.POST.get('title', None),
-                notes=request.POST.get('notes', None),
-            )
+            banner = Banner()
+            fields_to_update = ['section', 'identifier', 'description', 'offer', 'title', 'notes']
+            for field_name in fields_to_update:
+                setattr(banner, field_name, request.POST.get(field_name))
             if request.FILES:
                 banner.image = request.FILES['image']
             banner.save()
+
             messages.success(request, "Banner created")
             return redirect('banner_management')
         return render(request, 'admin/admin_add_banner.html')
@@ -1009,7 +1006,7 @@ def update_banner(request, banner_id):
         return redirect('banner_management')
 
 
-
+#   verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def delete_banner(request, banner_id):
@@ -1019,7 +1016,6 @@ def delete_banner(request, banner_id):
         messages.success(request, "Banner deleted.")
     except Exception as e:
         print(e)
-
     return redirect('banner_management')
 
 
