@@ -69,18 +69,10 @@ def user_signup(request):
         return redirect('index')
     try:
         if request.method == 'POST':
-            # first_name = request.POST['firstname']
-            # last_name = request.POST['lastname']
-            # username = request.POST['username']
-            # email = request.POST['email']
-            # phone = request.POST['phone']
-            # password = request.POST['password']
-            # c_password = request.POST['c_password']
-            # referral_code = request.POST['referral_code']
-
             field_names = ['first_name', 'last_name', 'username', 'email', 'phone', 'password', 'c_password',
                            'referral_code']
             user_data = {field: request.POST.get(field, '') for field in field_names}
+
             exist_email = CustomUser.objects.filter(email=user_data['email'])
             exist_phone = CustomUser.objects.filter(phone=user_data['phone'])
 
@@ -91,15 +83,10 @@ def user_signup(request):
                 messages.error(request, "Phone number is already taken.")
             else:
                 if user_data['password'] == user_data['c_password']:
-
                     # Custom user is customised created model inherited by AbstractUser.
                     # create_user is customised created function it save and return user.
                     user = CustomUser.objects.create_user(user_data['email'], password=user_data['password'], phone=user_data['phone'],
                                                           first_name=user_data['first_name'])
-
-                    # user = CustomUser.objects.create_user(email, password=password, phone=phone,
-                    #                                       first_name=first_name)
-
                     # generate otp
                     otp = get_random_string(length=6, allowed_chars='1234567890')
                     code = generate_referral_code()
@@ -109,9 +96,7 @@ def user_signup(request):
                     user.otp = otp
                     user.referral_code = code
                     try:
-                        # if len(referral_code) > 0:
                         if user_data['referral_code']:
-                            # ref_user = CustomUser.objects.filter(referral_code=referral_code).first()
                             ref_user = CustomUser.objects.filter(referral_code=user_data['referral_code']).first()
                             if ref_user:
                                 referred_user = CustomUser.objects.get(id=ref_user.id)
@@ -123,7 +108,6 @@ def user_signup(request):
                             else:
                                 messages.error(request, "Invalid Referral code.")
                     except Exception as e:
-                        return HttpResponse(False)
                         print(e)
                     user.save()
 
