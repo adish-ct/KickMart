@@ -661,9 +661,13 @@ def brand(request):
 def admin_add_brand(request):
     try:
         if request.method == 'POST':
-            brand = ProductBrand()
-            brand.brand_name = request.POST['brand_name']
-            brand.brand_description = request.POST['brand_description']
+            brand_name = request.POST['brand_name']
+            slug = brand_name.replace("-", " ")
+            brand = ProductBrand(
+                brand_name=brand_name,
+                brand_description=request.POST['brand_description'],
+                slug=slug,
+            )
             if request.FILES:
                 brand.brand_image = request.FILES['brand_image']
             brand.save()

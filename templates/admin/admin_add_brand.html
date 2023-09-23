@@ -1,7 +1,9 @@
 {% extends 'admin_base.html' %}
+
 {% block title %}
-add-category
+add-brand
 {% endblock %}
+
 {% load static %}
 {% block body %}
     <div class="container-fluid">
@@ -28,7 +30,7 @@ add-category
                         <div class="row mb-4">
                             <div class="col">
                                 <div class="form-outline">
-                                    <input type="text" id="addProduct" class="form-control bg-dark text-white" name="brand_name"/>
+                                    <input type="text" id="addProduct" class="form-control bg-dark text-white" name="brand_name" required/>
                                     <label class="form-label" for="addProduct">Brand Name</label>
                                 </div>
                             </div>
@@ -37,7 +39,7 @@ add-category
                         <div class="row mb-4">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <input class="form-control" type="file" id="formFile" name="brand_image">
+                                    <input class="form-control" type="file" id="formFile" name="brand_image" required>
                                     <label for="formFile" class="form-label">Choose your image</label>
                                 </div>
                             </div>
