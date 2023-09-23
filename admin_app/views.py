@@ -866,6 +866,7 @@ def order_management(request):
     return render(request, 'admin/admin_order_management.html', context)
 
 
+#   verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def order_update(request, order_id):
@@ -882,27 +883,26 @@ def order_update(request, order_id):
             if order_status == 'Delivered':
                 payment.is_paid = True
             payment.save()
-
             messages.success(request, 'Status updated')
             return redirect('order_update', order_id)
         context = {
             'order': order,
             'order_items': order_items,
         }
+        return render(request, 'admin/admin_order_update.html', context)
     except Exception as e:
         print(e)
-
-    return render(request, 'admin/admin_order_update.html', context)
+        return redirect('admin_order_management')
 
 
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def return_request(request, item_id):
-    order_item = OrderProduct.objects.get(id=item_id)
-    variant = order_item.variant
-    order = order_item.order_id
-    order_id = order.id
     try:
+        order_item = OrderProduct.objects.get(id=item_id)
+        variant = order_item.variant
+        order = order_item.order_id
+        order_id = order.id
         coupon = order.coupon
         user = order.user
         deduct_discount = order.discount
