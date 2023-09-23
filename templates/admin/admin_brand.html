@@ -55,11 +55,11 @@ admin-category-interface
                                     {% endif %}
                                 </td>
                                 <td>{{ i.brand_name }}</td>
-                                <td>{{ i.brand_description }}</td>
+                                <td>{{ i.brand_description|truncatechars:20 }}</td>
                                 <td>
                                     <a href="{% url 'admin_edit_brand' i.id %}" class="edit"><i
                                             class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                                    <a href="{% url 'admin_delete_brand' i.id %}" class="delete"><i
+                                    <a href="" class="delete" data-bs-toggle="modal" data-bs-target="#productDeleteModal-{{ i.id }}"><i
                                             class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
                                 </td>
                             </tr>
@@ -74,23 +74,25 @@ admin-category-interface
 
 <!-- Delete modal -->
 
+{% for i in brands %}
+
 <div class="modal" tabindex="-1" id="productDeleteModal-{{ i.id }}">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header text-center">
+                <h5 class="modal-title text-dark">Delete confirmation </h5>
             </div>
             <div class="modal-body">
-                <p>Modal body text goes here.</p>
+                <p>Are you sure want to delete the brand <strong class="text-info">{{ i.brand_name }}</strong></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary"><a href=""> Confirm </a> </button>
+                <button type="button" class="btn btn-primary"><a href="{% url 'admin_delete_brand' i.id %}" class="text-white"> Confirm </a> </button>
             </div>
         </div>
     </div>
 </div>
 
+{% endfor %}
 
 {% endblock %}

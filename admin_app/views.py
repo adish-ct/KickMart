@@ -650,9 +650,10 @@ def brand(request):
         context = {
             'brands': brands,
         }
+        return render(request, 'admin/admin_brand.html', context)
     except Exception as e:
         print(e)
-    return render(request, 'admin/admin_brand.html', context)
+        return redirect('admin_dashboard')
 
 
 @cache_control(no_cache=True, no_store=True)
@@ -663,15 +664,16 @@ def admin_add_brand(request):
             brand = ProductBrand()
             brand.brand_name = request.POST['brand_name']
             brand.brand_description = request.POST['brand_description']
-            if len(request.FILES) > 0:
+            if request.FILES:
                 brand.brand_image = request.FILES['brand_image']
             brand.save()
             messages.success(request, "Brand added.")
             return redirect('admin_brand')
         return render(request, 'admin/admin_add_brand.html')
     except Exception as e:
+        messages.error(request, "Provide the fields")
         print(e)
-        return redirect('admin_brand')
+        return redirect('admin_add_brand')
 
 
 @cache_control(no_cache=True, no_store=True)
