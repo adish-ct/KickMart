@@ -464,6 +464,7 @@ def product_variant_control(request, variant_id):
     return redirect('admin_product_variant', product_id)
 
 
+#   verified
 def product_variant_delete(request, variant_id):
     try:
         if request.method == 'POST':
@@ -472,11 +473,9 @@ def product_variant_delete(request, variant_id):
             if variant:
                 variant.delete()
             return redirect('admin_product_variant', product.id)
-        else:
-            return redirect('admin_dashboard')
     except Exception as e:
         print(e)
-        return redirect('admin_dashboard')
+    return redirect('admin_dashboard')
 
 
 # Product section end -------------------------------------------------
