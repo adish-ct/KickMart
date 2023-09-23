@@ -67,65 +67,77 @@ def user_signup(request):
         return redirect('admin_dashboard')
     if 'user' in request.session:
         return redirect('index')
-    if request.method == 'POST':
-        first_name = request.POST['firstname']
-        last_name = request.POST['lastname']
-        username = request.POST['username']
-        email = request.POST['email']
-        phone = request.POST['phone']
-        password = request.POST['password']
-        c_password = request.POST['c_password']
-        referral_code = request.POST['referral_code']
+    try:
+        if request.method == 'POST':
+            # first_name = request.POST['firstname']
+            # last_name = request.POST['lastname']
+            # username = request.POST['username']
+            # email = request.POST['email']
+            # phone = request.POST['phone']
+            # password = request.POST['password']
+            # c_password = request.POST['c_password']
+            # referral_code = request.POST['referral_code']
 
-        exist_email = CustomUser.objects.filter(email=email)
-        exist_phone = CustomUser.objects.filter(phone=phone)
+            field_names = ['first_name', 'last_name', 'username', 'email', 'phone', 'password', 'c_password',
+                           'referral_code']
+            user_data = {field: request.POST.get(field, '') for field in field_names}
+            exist_email = CustomUser.objects.filter(email=user_data['email'])
+            exist_phone = CustomUser.objects.filter(phone=user_data['phone'])
 
-        # check if the email is already exist or not
-        if exist_email:
-            messages.error(request, "E-mail is already taken.")
-        elif exist_phone:
-            messages.error(request, "Phone number is already taken.")
-        else:
-            if password == c_password:
-
-                # Custom user is customised created model inherited by AbstractUser.
-                # create_user is customised created function it save and return user.
-                user = CustomUser.objects.create_user(email, password=password, phone=phone,
-                                                      first_name=first_name)
-
-                # generate otp
-                otp = get_random_string(length=6, allowed_chars='1234567890')
-                code = generate_referral_code()
-
-                send_otp(email, otp)
-                user.otp = otp
-                user.referral_code = code
-                try:
-                    if len(referral_code) > 0:
-                        ref_user = CustomUser.objects.filter(referral_code=referral_code).first()
-                        if ref_user:
-                            referred_user = CustomUser.objects.get(id=ref_user.id)
-                            referred_user.wallet = 200
-                            user.wallet = 50
-                            user.referred_by = referred_user.email
-                            referred_user.save()
-                            messages.success(request, "Referral code verified")
-                        else:
-                            messages.error(request, "Invalid Referral code.")
-                except Exception as e:
-                    return HttpResponse(False)
-                    print(e)
-                user.save()
-
-                return redirect('otp_verification', user.id)
+            # check if the email is already exist or not
+            if exist_email:
+                messages.error(request, "E-mail is already taken.")
+            elif exist_phone:
+                messages.error(request, "Phone number is already taken.")
             else:
-                messages.error(request, "Password didn't match.")
+                if user_data['password'] == user_data['c_password']:
 
-                return redirect('user_signup')
+                    # Custom user is customised created model inherited by AbstractUser.
+                    # create_user is customised created function it save and return user.
+                    user = CustomUser.objects.create_user(user_data['email'], password=user_data['password'], phone=user_data['phone'],
+                                                          first_name=user_data['first_name'])
+
+                    # user = CustomUser.objects.create_user(email, password=password, phone=phone,
+                    #                                       first_name=first_name)
+
+                    # generate otp
+                    otp = get_random_string(length=6, allowed_chars='1234567890')
+                    code = generate_referral_code()
+
+                    send_otp(user_data['email'], otp)
+                    # send_otp(email, otp)
+                    user.otp = otp
+                    user.referral_code = code
+                    try:
+                        # if len(referral_code) > 0:
+                        if user_data['referral_code']:
+                            # ref_user = CustomUser.objects.filter(referral_code=referral_code).first()
+                            ref_user = CustomUser.objects.filter(referral_code=user_data['referral_code']).first()
+                            if ref_user:
+                                referred_user = CustomUser.objects.get(id=ref_user.id)
+                                referred_user.wallet = 200
+                                user.wallet = 50
+                                user.referred_by = referred_user.email
+                                referred_user.save()
+                                messages.success(request, "Referral code verified")
+                            else:
+                                messages.error(request, "Invalid Referral code.")
+                    except Exception as e:
+                        return HttpResponse(False)
+                        print(e)
+                    user.save()
+
+                    return redirect('otp_verification', user.id)
+                else:
+                    messages.error(request, "Password didn't match.")
+
+                    return redirect('user_signup')
+            return redirect('user_signup')
+
+        return render(request, 'user/signup.html')
+    except Exception as e:
+        print(e)
         return redirect('user_signup')
-
-    return render(request, 'user/signup.html')
-
 
 
 @cache_control(no_store=True, no_cache=True)
