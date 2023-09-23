@@ -602,39 +602,39 @@ def admin_edit_category(request, id):
 
 #  Logic for category deletion
 
-# @cache_control(no_cache=True, no_store=True)
-# @staff_member_required(login_url='admin_login')
-# def admin_delete_category(request, id):
-#     try:
-#         category = Category.objects.get(id=id)
-#         if category.category_image:
-#             if len(category.category_image) > 0:
-#                 os.remove(category.category_image.path)
-#         category.delete()
-#         messages.success(request, "Category Deleted")
-#     except Exception as e:
-#         print(e)
-#
-#     return redirect('admin_category')
-
-
-#  Logic for category list and unlisted
-
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_delete_category(request, id):
     try:
         category = Category.objects.get(id=id)
-        if category.is_active:
-            category.is_active = False
-            messages.success(request, "Category unlisted")
-        else:
-            category.is_active = True
-            messages.success(request, "Category listed")
+        if category.category_image:
+            if len(category.category_image) > 0:
+                os.remove(category.category_image.path)
+        category.delete()
+        messages.success(request, "Category Deleted")
     except Exception as e:
         print(e)
 
     return redirect('admin_category')
+
+
+#  Logic for category list and unlisted
+
+# @cache_control(no_cache=True, no_store=True)
+# @staff_member_required(login_url='admin_login')
+# def admin_delete_category(request, id):
+#     try:
+#         category = Category.objects.get(id=id)
+#         if category.is_active:
+#             category.is_active = False
+#             messages.success(request, "Category unlisted")
+#         else:
+#             category.is_active = True
+#             messages.success(request, "Category listed")
+#     except Exception as e:
+#         print(e)
+#
+#     return redirect('admin_category')
 
 
 # admin category section end ---------------------------------------
