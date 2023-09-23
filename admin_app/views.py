@@ -382,6 +382,7 @@ def admin_product_variant(request, product_id):
     return render(request, 'admin/admin_variant_product.html', context)
 
 
+#   verified
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def add_product_variant(request, product_id):
@@ -403,7 +404,6 @@ def add_product_variant(request, product_id):
                 if variant:
                     print("existing variant")
                     variant.stock = variant.stock + int(stock)
-
             except:
                 variant = ProductVariant.objects.create(
                     product=product,
@@ -422,12 +422,13 @@ def add_product_variant(request, product_id):
             'sizes': sizes,
             'product_variants': product_variants,
         }
+        return render(request, 'admin/admin_add_variant.html', context)
     except Exception as e:
         print(e)
+        return redirect('admin_product')
 
-    return render(request, 'admin/admin_add_variant.html', context)
 
-
+#   verified
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def product_variant_update(request):
@@ -441,12 +442,13 @@ def product_variant_update(request):
             variant.product_price = price
             variant.stock = stock
             variant.save()
+        return redirect('admin_product_variant', product_id.id)
     except Exception as e:
         print(e)
+        return redirect('admin_product')
 
-        return redirect('admin_product_variant', product_id.id)
 
-
+# verified
 @staff_member_required(login_url='admin_login')
 @cache_control(no_store=True, no_cache=True)
 def product_variant_control(request, variant_id):
@@ -458,13 +460,16 @@ def product_variant_control(request, variant_id):
         else:
             variant.is_active = True
         variant.save()
+        return redirect('admin_product_variant', product_id)
     except Exception as e:
         print(e)
+        return redirect('admin_product')
 
-    return redirect('admin_product_variant', product_id)
 
 
 #   verified
+@staff_member_required(login_url='admin_login')
+@cache_control(no_store=True, no_cache=True)
 def product_variant_delete(request, variant_id):
     try:
         if request.method == 'POST':
@@ -485,6 +490,7 @@ def product_variant_delete(request, variant_id):
 
 
 # verified
+
 @staff_member_required(login_url='admin_login')
 def admin_users(request):
     context = {}
