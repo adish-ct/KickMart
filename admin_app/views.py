@@ -485,6 +485,7 @@ def product_variant_delete(request, variant_id):
 # admin user section --------------------------------------------------
 
 
+# verified
 @staff_member_required(login_url='admin_login')
 def admin_users(request):
     context = {}
@@ -499,6 +500,7 @@ def admin_users(request):
     return render(request, 'admin/admin_users.html', context)
 
 
+#   verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_user_manage(request, id):
@@ -506,10 +508,9 @@ def admin_user_manage(request, id):
         user = CustomUser.objects.get(id=id)
         if user.is_active:
             user.is_active = False
-            user.save()
         else:
             user.is_active = True
-            user.save()
+        user.save()
     except Exception as e:
         print(e)
 
@@ -522,6 +523,7 @@ def admin_user_manage(request, id):
 # admin category section --------------------------------------------
 
 
+#   verified
 @staff_member_required(login_url='admin_login')
 def admin_category(request):
     context = {}
@@ -616,6 +618,7 @@ def admin_edit_category(request, id):
 
 #  Logic for category list and unlisted
 
+#   verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_delete_category(request, id):
