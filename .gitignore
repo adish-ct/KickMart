@@ -174,3 +174,6 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/django
 
 sample.py
+sample.html
+index.html
+monthly_sales_reports.png
