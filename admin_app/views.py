@@ -536,15 +536,14 @@ def admin_category(request):
     return render(request, 'admin/admin_category.html', context)
 
 
+#   verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_add_category(request):
-    category_image = None
     try:
         if request.method == 'POST':
             category_name = request.POST['category_name']
-            category_offer = request.POST['category_offer']
-            category_slug = category_name.replace(" ", "-")
+            category_slug = category_name.replace("-", " ")
             exist_category = Category.objects.filter(category_name__iexact=category_name)
             if exist_category.exists():
                 messages.error(request, "Category Exist")
@@ -554,15 +553,12 @@ def admin_add_category(request):
                 category_description=request.POST['description'],
                 slug=category_slug,
             )
-            try:
-                if len(request.FILES['image']) > 0:
-                    category_image = request.FILES['image']
-                    category.category_image = category_image
-            except Exception as e:
-                print(e)
+            if request.FILES:
+                category.category_image = request.FILES['image']
 
-            if category_offer is not None:
-                category.offer = category_offer
+            if request.POST['category_offer']:
+                category.offer = request.POST['category_offer']
+
             category.save()
             messages.success(request, "Category Added")
             return redirect('admin_category')
@@ -642,6 +638,7 @@ def admin_delete_category(request, id):
 # admin brand section  ---------------------------------------
 
 
+#verified
 @staff_member_required(login_url='admin_login')
 def brand(request):
     context = {}
@@ -710,6 +707,7 @@ def admin_edit_brand(request, id):
         return redirect('admin_brand')
 
 
+#   verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_delete_brand(request, id):
