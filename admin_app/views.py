@@ -656,6 +656,7 @@ def brand(request):
         return redirect('admin_dashboard')
 
 
+# verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_add_brand(request):
@@ -680,20 +681,25 @@ def admin_add_brand(request):
         return redirect('admin_add_brand')
 
 
+# verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def admin_edit_brand(request, id):
     context = {}
-    brand = ProductBrand.objects.get(id=id)
     try:
+        brand = ProductBrand.objects.get(id=id)
         if request.method == 'POST':
-            brand.brand_name = request.POST['brand_name']
+            brand_name = request.POST['brand_name']
+            brand.brand_name = brand_name
             brand.brand_description = request.POST['brand_description']
-            if request.FILES['brand_image']:
+            slug = brand_name.replace("-", " ")
+            brand.slug = slug
+            if request.FILES:
                 if brand.brand_image:
                     os.remove(brand.brand_image.path)
                 brand.brand_image = request.FILES['brand_image']
             brand.save()
+            messages.success(request, "Brand updated")
             return redirect('admin_brand')
         context = {
             'brand': brand,
