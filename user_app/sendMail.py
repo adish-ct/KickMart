@@ -8,7 +8,6 @@ def send_otp(email, otp):
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [email, ]
     send_mail(subject, message, email_from, recipient_list)
-
     return True
 
 
@@ -18,5 +17,4 @@ def send_forgot_password_mail(email, token):
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [email, ]
     send_mail(subject, message, email_from, recipient_list)
-
     return True

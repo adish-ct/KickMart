@@ -17,6 +17,8 @@ from django.utils import timezone
 
 @cache_control(no_cache=True)
 def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, coupon=None):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     coupons = Coupons.objects.filter(valid_to__gte=timezone.now()).order_by('id')
     delivery_charge = 99
     total = 0
@@ -29,7 +31,6 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
         try:  # new change 10-08-23
             if Checkout.objects.get(user=checkout_user):
                 checkout = Checkout.objects.get(user=checkout_user)
-
         except:
             checkout = Checkout()
             checkout.user = CustomUser.objects.get(id=checkout_user)  # checkout user saving
@@ -156,6 +157,8 @@ def _cart_id(request):
 
 
 def add_cart(request, product_id):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     product = Product.objects.get(id=product_id)
 
     # getting variant of product
@@ -211,6 +214,8 @@ def add_cart(request, product_id):
 
 @cache_control(no_cache=True, no_store=True)
 def remove_cart_quandity(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     if request.method == 'POST':
         grant_total, total_amount, total, tax = 0, 0, 0, 0
         delivery_charge = 99
@@ -294,6 +299,8 @@ def remove_cart_quandity(request):
 
 @cache_control(no_cache=True, no_store=True)
 def add_cart_quandity(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     if request.method == 'POST':
         grant_total, total_amount, total, tax = 0, 0, 0, 0
         delivery_charge = 99
@@ -376,6 +383,8 @@ def add_cart_quandity(request):
 
 @cache_control(no_cache=True, no_store=True)
 def delete_cart(request, variant_id):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     variant = get_object_or_404(ProductVariant, id=variant_id)
     if 'user' in request.session:
         my_user = request.user
@@ -393,6 +402,8 @@ def delete_cart(request, variant_id):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='user_login')
 def coupon_remove(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     my_user = request.user
     checkout = Checkout.objects.get(user=my_user)
     checkout.coupon = None
@@ -404,6 +415,8 @@ def coupon_remove(request):
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='user_login')
 def checkout(request):
+    if 'email' in request.session:
+        return redirect('admin_dashboard')
     if 'user' in request.session:
         my_user = request.user
         cart_items = CartItem.objects.filter(customer=my_user)
@@ -448,11 +461,11 @@ def checkout(request):
             # wallet handling must accept this condition on the time of order submit.
             if float(checkout_items.grand_total) > float(checkout_items.wallet):
                 checkout_items.payable_amount = float(checkout_items.grand_total) - float(checkout_items.wallet)
-                # my_user.wallet = float(my_user.wallet) - float(checkout_items.wallet) 
+                # my_user.wallet = float(my_user.wallet) - float(checkout_items.wallet)
 
             elif float(checkout_items.grand_total) < float(checkout_items.wallet):
                 checkout_items.payable_amount = 0
-                # my_user.wallet = float(checkout_items.wallet) - float(checkout_items.grand_total) 
+                # my_user.wallet = float(checkout_items.wallet) - float(checkout_items.grand_total)
 
             else:
                 checkout_items.payable_amount = 0

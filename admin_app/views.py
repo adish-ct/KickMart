@@ -360,26 +360,35 @@ def admin_add_product(request):
 @cache_control(no_store=True, no_cache=True)
 @staff_member_required(login_url='admin_login')
 def admin_delete_product(request, id):
-    prod = Product.objects.get(id=id)
-    if prod.is_available:
-        prod.is_available = False
-        messages.success(request, "Product unlisted")
-    else:
-        prod.is_available = True
-        messages.success(request, "Product listed")
-    prod.save()
+    try:
+        prod = Product.objects.get(id=id)
+        if prod.is_available:
+            prod.is_available = False
+            messages.success(request, "Product unlisted")
+        else:
+            prod.is_available = True
+            messages.success(request, "Product listed")
+        prod.save()
+    except Exception as e:
+        print(e)
     return redirect('admin_product')
 
 
+
+#   verified
 @staff_member_required(login_url='admin_login')
 def admin_product_variant(request, product_id):
-    variant = ProductVariant.objects.filter(product=product_id)
-    context = {
-        'variants': variant,
-        'product_id': product_id,
-    }
-
-    return render(request, 'admin/admin_variant_product.html', context)
+    context = {}
+    try:
+        variant = ProductVariant.objects.filter(product=product_id)
+        context = {
+            'variants': variant,
+            'product_id': product_id,
+        }
+        return render(request, 'admin/admin_variant_product.html', context)
+    except Exception as e:
+        print(e)
+        return redirect('admin_product')
 
 
 #   verified

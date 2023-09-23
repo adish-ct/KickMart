@@ -67,69 +67,65 @@ def user_signup(request):
         return redirect('admin_dashboard')
     if 'user' in request.session:
         return redirect('index')
-    else:
-        try:
-            if request.method == 'POST':
-                first_name = request.POST['firstname']
-                last_name = request.POST['lastname']
-                username = request.POST['username']
-                email = request.POST['email']
-                phone = request.POST['phone']
-                password = request.POST['password']
-                c_password = request.POST['c_password']
-                referral_code = request.POST['referral_code']
+    if request.method == 'POST':
+        first_name = request.POST['firstname']
+        last_name = request.POST['lastname']
+        username = request.POST['username']
+        email = request.POST['email']
+        phone = request.POST['phone']
+        password = request.POST['password']
+        c_password = request.POST['c_password']
+        referral_code = request.POST['referral_code']
 
-                exist_email = CustomUser.objects.filter(email=email)
-                exist_phone = CustomUser.objects.filter(phone=phone)
+        exist_email = CustomUser.objects.filter(email=email)
+        exist_phone = CustomUser.objects.filter(phone=phone)
 
-                # check if the email is already exist or not
-                if exist_email:
-                    messages.error(request, "E-mail is already taken.")
-                elif exist_phone:
-                    messages.error(request, "Phone number is already taken.")
-                else:
-                    if password == c_password:
+        # check if the email is already exist or not
+        if exist_email:
+            messages.error(request, "E-mail is already taken.")
+        elif exist_phone:
+            messages.error(request, "Phone number is already taken.")
+        else:
+            if password == c_password:
 
-                        # Custom user is customised created model inherited by AbstractUser.
-                        # create_user is customised created function it save and return user.
-                        user = CustomUser.objects.create_user(email, password=password, phone=phone,
-                                                              first_name=first_name)
+                # Custom user is customised created model inherited by AbstractUser.
+                # create_user is customised created function it save and return user.
+                user = CustomUser.objects.create_user(email, password=password, phone=phone,
+                                                      first_name=first_name)
 
-                        # generate otp
-                        otp = get_random_string(length=6, allowed_chars='1234567890')
-                        code = generate_referral_code()
+                # generate otp
+                otp = get_random_string(length=6, allowed_chars='1234567890')
+                code = generate_referral_code()
 
-                        send_otp(email, otp)
-                        user.otp = otp
-                        user.referral_code = code
-                        try:
-                            if len(referral_code) > 0:
-                                ref_user = CustomUser.objects.filter(referral_code=referral_code).first()
-                                if ref_user:
-                                    referred_user = CustomUser.objects.get(id=ref_user.id)
-                                    referred_user.wallet = 200
-                                    user.wallet = 50
-                                    user.referred_by = referred_user.email
-                                    referred_user.save()
-                                    messages.success(request, "Referral code verified")
-                                else:
-                                    messages.error(request, "Invalid Referral code.")
-                        except Exception as e:
-                            return HttpResponse(False)
-                            print(e)
-                        user.save()
+                send_otp(email, otp)
+                user.otp = otp
+                user.referral_code = code
+                try:
+                    if len(referral_code) > 0:
+                        ref_user = CustomUser.objects.filter(referral_code=referral_code).first()
+                        if ref_user:
+                            referred_user = CustomUser.objects.get(id=ref_user.id)
+                            referred_user.wallet = 200
+                            user.wallet = 50
+                            user.referred_by = referred_user.email
+                            referred_user.save()
+                            messages.success(request, "Referral code verified")
+                        else:
+                            messages.error(request, "Invalid Referral code.")
+                except Exception as e:
+                    return HttpResponse(False)
+                    print(e)
+                user.save()
 
-                        return redirect('otp_verification', user.id)
-                    else:
-                        messages.error(request, "Password didn't match.")
-
-                        return redirect('user_signup')
-                return redirect('user_signup')
+                return redirect('otp_verification', user.id)
             else:
+                messages.error(request, "Password didn't match.")
 
-                return render(request, 'user/signup.html')
-        except Exception as e:
-            print(e)
+                return redirect('user_signup')
+        return redirect('user_signup')
+
+    return render(request, 'user/signup.html')
+
 
 
 @cache_control(no_store=True, no_cache=True)
