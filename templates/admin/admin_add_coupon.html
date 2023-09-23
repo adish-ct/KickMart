@@ -1,6 +1,6 @@
 {% extends 'admin_base.html' %}
 {% block title %}
-admin-product-interface
+admin-add-coupon
 {% endblock %}
 {% load static %}
 {% block body %}
@@ -22,7 +22,7 @@ admin-product-interface
                 <div class="card-body">
                     <h5 class="card-title mb-5 text-white">ADD COUPON TABLE</h5>
 
-                    <!-- Edit product form  -->
+                    <!-- Add coupon form  -->
                     <form method="post" action="">
                         {% csrf_token %}
                         <div class="row mb-4">
@@ -82,7 +82,7 @@ admin-product-interface
 
                         <!-- Message input -->
                         <div class="form-outline mb-4">
-                            <textarea class="form-control bg-dark text-white" id="productDesc" rows="10" name="description"></textarea>
+                            <textarea class="form-control bg-dark text-white" id="productDesc" rows="10" name="description" required></textarea>
                             <label class="form-label" for="productDesc">Description</label>
                             <small class="text-danger" id="descriptionError"></small>
                         </div>
@@ -92,9 +92,8 @@ admin-product-interface
                           <button type="submit" onclick="return couponValidate()" class="btn-lg border-0 btn-success btn-block mb-4 w-50">Add Coupon</button>
                       </div>
                     </form>
+                  <!-- Add coupon form end -->
                     <hr />
-
-                  <!-- Edit product form end -->
                 </div>
             </div>
 

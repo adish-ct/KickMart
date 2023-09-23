@@ -730,11 +730,12 @@ def admin_delete_brand(request, id):
 
 # coupon section start ----------------------------------------------
 
+# verified
 @staff_member_required(login_url='admin_login')
 def admin_coupon_management(request):
     context = {}
     try:
-        coupons = Coupons.objects.all().order_by('id')
+        coupons = Coupons.objects.all().order_by('-id')
         context = {
             'coupons': coupons,
         }
@@ -743,38 +744,28 @@ def admin_coupon_management(request):
     return render(request, 'admin/admin_coupon.html', context)
 
 
+#  verified
 @cache_control(no_cache=True, no_store=True)
 @staff_member_required(login_url='admin_login')
 def add_coupon(request):
     try:
         if request.method == 'POST':
-            description = request.POST['description']
-            coupon_code = request.POST['coupon_code']
-            coupon_title = request.POST['coupon_title']
-            valid_from = request.POST['valid_from']
-            valid_to = request.POST['valid_to']
-            minimum_order_amount = request.POST['minimum_amount']
-
-            quantity = request.POST['quantity']
-
             coupon = Coupons.objects.create(
-                description=description,
-                coupon_code=coupon_code,
-                coupon_title=coupon_title,
-                valid_from=valid_from,
-                valid_to=valid_to,
-                minimum_order_amount=minimum_order_amount,
+                description=request.POST['description'],
+                coupon_code=request.POST['coupon_code'],
+                coupon_title=request.POST['coupon_title'],
+                valid_from=request.POST['valid_from'],
+                valid_to=request.POST['valid_to'],
+                minimum_order_amount=request.POST['minimum_amount'],
             )
-            if len(request.POST['discount_amount']) > 0:
+            if request.POST['discount_amount']:
                 coupon.discount_amount = request.POST['discount_amount']
 
-            if len(request.POST['discount']) > 0:
+            if request.POST['discount']:
                 coupon.discount = request.POST['discount']
-            try:
-                if len(request.POST['quantity']) > 0:
-                    coupon.quantity = request.POST['quantity']
-            except:
-                pass
+            if request.POST['quantity']:
+                coupon.quantity = request.POST['quantity']
+
             coupon.save()
             messages.success(request, "Coupon created")
             return redirect('admin_coupon_management')
