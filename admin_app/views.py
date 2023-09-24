@@ -336,7 +336,7 @@ def admin_add_product(request):
 
             return redirect('admin_product')
     except Exception as e:
-        return HttpResponse(False)
+        messages.error(request, "Product Exist")
         print(e)
 
     return render(request, 'admin/admin_add_product.html', context)
