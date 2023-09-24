@@ -215,6 +215,7 @@ def order_cancel(request, order_id):
                     delivery_charge = 99
                 else:
                     delivery_charge = 0
+
                 amount = variant.product_price * order_product.quandity
                 if coupon:
                     if order.total - amount >= coupon.minimum_order_amount:
@@ -224,42 +225,16 @@ def order_cancel(request, order_id):
 
                 refund_amount = (float(amount) + float(delivery_charge)) - float(
                     deduct_discount)  # calculating refund amount.
+
                 user.wallet = float(user.wallet) + float(refund_amount)
-
-            else:
-                try:
-                    amount = variant.product_price * order_product.quandity
-                    if coupon:
-                        if order.total - amount >= coupon.minimum_order_amount:
-                            deduct_discount = 0
-                        else:
-                            order.discount = 0
-                    if order.total < 2500:  # delivery charge logic.
-                        delivery_charge = 99
-                    else:
-                        delivery_charge = 0
-                    refund_amount = (float(amount) + float(delivery_charge)) - float(deduct_discount)
-
-                    # wallet history handling
-
-                    wallet = WalletBook()
-                    wallet.customer = request.user
-                    wallet.description = "Cashback received due to the cancel of item"
-                    wallet.increment = True
-
-                    if refund_amount < order.wallet_amount:
-                        user.wallet = float(user.wallet) + float(refund_amount)
-                        wallet.amount = f'float(refund_amount)'
-                    else:
-                        user.wallet = float(user.wallet) + float(order.wallet_amount)
-                        wallet.amount = f'float(order.wallet_amount)'
-
-                        wallet.save()
-
-                except Exception as e:
-                    print(e)
-
                 user.save()
+
+                wallet = WalletBook()
+                wallet.customer = request.user
+                wallet.description = "Cashback received due to the cancel of item"
+                wallet.increment = True
+                wallet.amount = f'{refund_amount}'
+                wallet.save()
 
             order.save()
             order_product.save()
