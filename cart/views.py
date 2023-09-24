@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from order.models import *
 from django.http import JsonResponse
 from django.utils import timezone
+from datetime import datetime, timedelta
 
 
 # Create your views here.
@@ -24,7 +25,8 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
     total = 0
     quantity = 0
     discount = 0
-
+    delivery_start_date = datetime.now().date() + timedelta(days=4)
+    delivery_end_date = datetime.now().date() + timedelta(days=6)
     if 'user' in request.session:
         my_user = request.user
         checkout_user = request.user.id
@@ -144,6 +146,8 @@ def cart(request, quantity=0, total=0, cart_items=None, tax=0, grand_total=0, co
         'coupons': coupons,
         'coupon_discount': discount,
         'coupon': coupon,
+        'delivery_start_date': delivery_start_date,
+        'delivery_end_date': delivery_end_date,
     }
 
     return render(request, 'product/cart.html', context)

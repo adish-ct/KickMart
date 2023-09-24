@@ -246,7 +246,7 @@ def order_cancel(request, order_id):
         print(e)
         try:
             order.status = "Cancelled"
-            user.wallet = int(user.wallet) + int(order.wallet_amount)
+            user.wallet = int(order.wallet_amount)
             order.save()
             user.save()
         except Exception as e:

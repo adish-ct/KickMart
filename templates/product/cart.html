@@ -224,9 +224,7 @@ cart-product
                     <a href="{% url 'delete_cart' item.product.id %}"><i class="fas fa-trash text-danger">&nbsp Remove
                         item</i></a>
                   </button>
-                  <button class="bg-transparent border-0">
-                    <a href="#"><i class="fas fa-heart text-primary">&nbsp Wishlist</i></a>
-                  </button>
+
                   <!-- Data -->
                 </div>
 
@@ -250,7 +248,7 @@ cart-product
         <div class="card mb-4">
           <div class="card-body">
             <p><strong>Expected shipping delivery</strong></p>
-            <p class="mb-0">12.10.2020 - 14.10.2020</p>
+            <p class="mb-0">{{ delivery_start_date }} - {{ delivery_end_date }}</p>
           </div>
         </div>
         <div class="card mb-4 mb-lg-0">
