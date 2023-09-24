@@ -68,28 +68,20 @@ def order_confirmed(request):
 
             # changed this section
 
-            wallet_history = WalletBook()
             if float(checkout.grand_total) < float(checkout.wallet):
                 my_user.wallet = float(checkout.wallet) - float(checkout.grand_total)
-                try:
-                    wallet_history.customer = my_user
-                    wallet_history.amount = f'-{checkout.grand_total}'
-                    wallet_history.description = "Purchased item using wallet}"
-                except Exception as e:
-                    print(e)
             else:
                 my_user.wallet = 0
-                try:
-                    wallet_history.customer = my_user
-                    wallet_history.amount = f'-{checkout.grand_total}'
-                    wallet_history.description = "Purchase item using wallet"
-                except Exception as e:
-                    print(e)
-
-            # this section changed
 
             my_user.save()
             my_order.save()
+
+            if checkout.wallet:
+                wallet_history = WalletBook()
+                wallet_history.customer = my_user
+                wallet_history.amount = checkout.wallet
+                wallet_history.description = f"Purchased order {my_order.order_id} "
+                wallet_history.save()
 
             # creating order with current date and order id
             yr = int(datetime.date.today().strftime('%Y'))
@@ -162,7 +154,7 @@ def proceed_to_pay(request):
     my_user = request.user
     payable_amount = 0
     checkout = Checkout.objects.get(user=my_user.id)
-    payable_amount = int(payable_amount + checkout.grand_total)
+    payable_amount = int(payable_amount + checkout.grand_total -checkout.wallet)
     return JsonResponse({
         'payable_amount': payable_amount,
     })
@@ -189,10 +181,10 @@ def order_view(request):
 
 @login_required(login_url='user_login')
 def order_cancel(request, order_id):
+    order_product = OrderProduct.objects.get(id=order_id)
+    variant = ProductVariant.objects.get(id=order_product.variant.id)
+    order = order_product.order_id
     try:
-        order_product = OrderProduct.objects.get(id=order_id)
-        variant = ProductVariant.objects.get(id=order_product.variant.id)
-        order = order_product.order_id
         payment = order.payment
         coupon = order.coupon
         user = order.user
@@ -202,8 +194,8 @@ def order_cancel(request, order_id):
             reason = request.POST['cancelReason']
             if reason:
                 order_product.return_reason = reason
-
             order.status = "Cancelled"
+
             payment.status = 'Order cancelled'
             order_product.item_cancel = True
             variant.stock += order_product.quandity
@@ -235,7 +227,16 @@ def order_cancel(request, order_id):
                 wallet.increment = True
                 wallet.amount = f'{refund_amount}'
                 wallet.save()
-
+            else:
+                if order.wallet_amount:
+                    amount = variant.product_price * order_product.quandity
+                    if order.wallet_amount <= amount:
+                        user.wallet = order.wallet_amount
+                        order.wallet_amount = 0
+                    else:
+                        user.wallet = amount
+                        order.wallet_amount -= amount
+                    user.save()
             order.save()
             order_product.save()
             variant.save()
@@ -243,6 +244,13 @@ def order_cancel(request, order_id):
         return redirect('order_view')
     except Exception as e:
         print(e)
+        try:
+            order.status = "Cancelled"
+            user.wallet = int(user.wallet) + int(order.wallet_amount)
+            order.save()
+            user.save()
+        except Exception as e:
+            print(e)
     return redirect('order_view')
 
 
