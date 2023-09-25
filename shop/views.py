@@ -146,11 +146,11 @@ def search(request):
 
 
 def get_names(request):
-    search = request.GET.get('search')
+    keyword = request.GET.get('search')
     payload = []
 
     if search:
-        products = Product.objects.filter(Q(product_name__istartswith=search) | Q(category__category_name__istartswith=search))
+        products = Product.objects.filter(Q(product_name__istartswith=keyword) | Q(category__category_name__istartswith=keyword))
         for product in products:
             payload.append(product.product_name)
 
@@ -161,19 +161,18 @@ def get_names(request):
 
 
 def search_by_name(request):
+    context = {}
     if 'search_by_name' in request.GET:
         keyword = request.GET['search_by_name']
         if keyword:
             products = Product.objects.order_by('created_date').filter(product_name__icontains=keyword)
-            product_count = products.count()
         else:
             products = Product.objects.all()
-            product_count = products.count()
+        product_count = products.count()
         context = {
             'products': products,
             'product_count': product_count,
         }
-
     return render(request, 'product/product.html', context)
 
 
