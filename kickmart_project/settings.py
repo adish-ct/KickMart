@@ -12,8 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from django.contrib.messages import constants as messages
-# from decouple import config
-
+from decouple import config
+#
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,12 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = config('SECRET_KEY')
-SECRET_KEY = 'django-insecure-bm^_28!09dd%c5x*rgs-pf#%4r=916n2fz7n!*yaj9912^)8&f'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
@@ -87,29 +85,19 @@ WSGI_APPLICATION = 'kickmart_project.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'kickmart',
-#         'USER': config('DATABASE_USER'),
-#         'port': '5432',
-#         'PASSWORD': config('DATABASE_PASSWORD'),
-#         'HOST': 'localhost',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'kickmart',
+        'USER': config('DATABASE_USER'),
+        'port': '5432',
+        'PASSWORD': config('DATABASE_PASSWORD'),
+        'HOST': 'localhost',
+    }
+}
 
 # for live server
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'myproject',
-        'USER': 'myprojectuser',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -143,19 +131,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-# STATIC_URL = 'static/'
-# if DEBUG:
-#     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-#     STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
-# else:
-#     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-#     STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
+STATIC_URL = 'static/'
+if DEBUG:
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+    STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
+else:
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+    STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
 
 
 # for live server
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -177,22 +163,13 @@ MESSAGE_TAGS = {
 
 
 # otp handling for live server
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'adishathu525@gmail.com'
-EMAIL_HOST_PASSWORD = 'vujrsuhtgcezvbya'
 
-# EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
-# EMAIL_USE_TLS = True
-# EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
-# EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-# EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 
-# razor_pay_key_id = config('razor_pay_key_id', default='')
-# key_secret = config('key_secret', default='')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
+EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 
-razor_pay_key_id = 'rzp_test_i0ukiADffB9XqG'
-key_secret = '0DHfTgRyHSYGQXwUQtWSPbZ6'
+razor_pay_key_id = config('razor_pay_key_id', default='')
+key_secret = config('key_secret', default='')
