@@ -421,6 +421,8 @@ def coupon_remove(request):
 def checkout(request):
     if 'email' in request.session:
         return redirect('admin_dashboard')
+    delivery_start_date = datetime.now().date() + timedelta(days=4)
+    delivery_end_date = datetime.now().date() + timedelta(days=6)
     if 'user' in request.session:
         my_user = request.user
         cart_items = CartItem.objects.filter(customer=my_user)
@@ -440,6 +442,8 @@ def checkout(request):
         context = {
             'addresses': address,
             'checkout_items': checkout_items,
+            'delivery_start_date': delivery_start_date,
+            'delivery_end_date': delivery_end_date,
         }
 
         # place holder handling logic after form submission.

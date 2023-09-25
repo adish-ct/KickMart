@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 from order.models import *
 from django.core.mail import send_mail
 from .forms import ImageForm
+from datetime import datetime, timedelta
 
 # Create your views here.
 
