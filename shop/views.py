@@ -19,7 +19,7 @@ from django.conf import settings
 def products(request, category_slug=None, categories=None, all_products=None):
     if 'email' in request.session:
         return redirect('admin_dashboard')
-
+    context = {}
     try:
         brands, sizes = ProductBrand.objects.all(), ProductSize.objects.all().order_by('size')
 
@@ -51,7 +51,6 @@ def products(request, category_slug=None, categories=None, all_products=None):
                         filtered_products_id = filter_products.values_list('id', flat=True)
                         filter_variants = product_variants.filter(product__id__in=filtered_products_id)
                         filter_products = [variant.product for variant in filter_variants]
-
                     if selected_rating:
                         filter_products = filter_products.filter(rating__in=selected_rating)
 
@@ -61,7 +60,6 @@ def products(request, category_slug=None, categories=None, all_products=None):
                     maximum_price = request.POST['maxPrice']
                     if not maximum_price:
                         maximum_price = 10000
-
                     if minimum_price and maximum_price:
                         filter_products = filter_products.filter(selling_price__gte=minimum_price,
                                                                  selling_price__lte=maximum_price)
@@ -96,36 +94,31 @@ def detail_view(request, category_slug, product_slug):
     rating = [1, 2, 3, 4, 5]
     try:
         single_product = Product.objects.get(category__slug=category_slug, slug=product_slug)
-        avarage_rating = Review.objects.filter(product=single_product).aggregate(avg_rating=Avg('rating'))
-        rating_avg = avarage_rating['avg_rating']
+        average_rating = Review.objects.filter(product=single_product).aggregate(avg_rating=Avg('rating'))
+        rating_avg = average_rating['avg_rating']
         try:
             if rating_avg > 0:
                 single_product.rating = rating_avg
                 single_product.save()
         except Exception as e:
             print(e)
-
     except Exception as e:
         raise e
 
-    current_user = request.user
     reviews = Review.objects.filter(product=single_product)
-    reviews_count = reviews.count()
-    user_id = current_user.id
     product_id = single_product.id
-    all_products = Product.objects.all()
     variant = ProductVariant.objects.filter(product=product_id)
     multiple_images = MultipleImages.objects.filter(product=product_id).order_by('-id')[:4]
 
     context = {
         'product': single_product,
         'variant': variant,
-        'products': all_products,
+        'products': Product.objects.all(),
         'multiple_images': multiple_images,
-        'user_id': user_id,
+        'user_id': request.user.id,
         'reviews': reviews,
         'rating': rating,
-        'reviews_count': reviews_count,
+        'reviews_count': reviews.count(),
         'avarage_rating': single_product.rating,
     }
 
@@ -133,6 +126,7 @@ def detail_view(request, category_slug, product_slug):
 
 
 def search(request):
+    context = {}
     if 'search' in request.GET:
         keyword = request.GET['search']
         if keyword:
@@ -156,7 +150,7 @@ def get_names(request):
     payload = []
 
     if search:
-        products = Product.objects.filter(product_name__istartswith=search)
+        products = Product.objects.filter(Q(product_name__istartswith=search) | Q(category__category_name__istartswith=search))
         for product in products:
             payload.append(product.product_name)
 
