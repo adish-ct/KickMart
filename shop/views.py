@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from .models import *
-from django.db.models import QuerySet, Q, Avg
-from django.core.paginator import PageNotAnInteger, Paginator, EmptyPage
+from django.db.models import Q, Avg
+from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from shop.models import *
 from django.views.decorators.cache import cache_control
@@ -16,86 +16,79 @@ from django.conf import settings
 # app : shop
 
 # Create your views here.
-def products(request, category_slug=None):
+def products(request, category_slug=None, categories=None, all_products=None):
     if 'email' in request.session:
         return redirect('admin_dashboard')
 
-    categories = None
-    all_products = None
-    brands = ProductBrand.objects.all()
-    sizes = ProductSize.objects.all().order_by('size')
-
-    if category_slug is not None:
-        category = Category.objects.get(slug=category_slug)
-        all_products = Product.objects.filter(category=category, is_available=True)
-        paginator = Paginator(all_products, 9)
-        page = request.GET.get('page')
-        paged_products = paginator.get_page(page)
-        product_count = all_products.count()
-
-    else:
-        all_products = Product.objects.filter(is_available=True)
-        paginator = Paginator(all_products, 9)
-        page = request.GET.get('page')
-        paged_products = paginator.get_page(page)
-        product_count = all_products.count()
-
     try:
+        brands, sizes = ProductBrand.objects.all(), ProductSize.objects.all().order_by('size')
 
-        if request.method == "POST":
-            filter_products = Product.objects.all()
+        if category_slug is not None:
+            category = Category.objects.get(slug=category_slug)
+            all_products = Product.objects.filter(category=category, is_available=True)
+        else:
+            all_products = Product.objects.filter(is_available=True)
+        paginator = Paginator(all_products, 9)
+        page = request.GET.get('page')
+        paged_products = paginator.get_page(page)
+        product_count = all_products.count()
 
-            try:
+        try:
+            if request.method == "POST":
+                filter_products = Product.objects.all()
+                try:
+                    selected_category = request.POST.getlist('checkboxCategory')
+                    selected_brand = request.POST.getlist('checkboxBrand')
+                    selected_size = request.POST.getlist('checkboxSize')
+                    selected_rating = request.POST.getlist('checkboxRating')
 
-                selected_category = request.POST.getlist('checkboxCategory')
-                selected_brand = request.POST.getlist('checkboxBrand')
-                selected_size = request.POST.getlist('checkboxSize')
-                selected_rating = request.POST.getlist('checkboxRating')
+                    if selected_category:
+                        filter_products = filter_products.filter(category__category_name__in=selected_category)
+                    if selected_brand:
+                        filter_products = filter_products.filter(brand__brand_name__in=selected_brand)
+                    if selected_size:
+                        product_variants = ProductVariant.objects.filter(product_size__id__in=selected_size)
+                        filtered_products_id = filter_products.values_list('id', flat=True)
+                        filter_variants = product_variants.filter(product__id__in=filtered_products_id)
+                        filter_products = [variant.product for variant in filter_variants]
 
-                if selected_category:
-                    filter_products = filter_products.filter(category__category_name__in=selected_category)
-                if selected_brand:
-                    filter_products = filter_products.filter(brand__brand_name__in=selected_brand)
-                if selected_size:
-                    product_variants = ProductVariant.objects.filter(product_size__id__in=selected_size)
-                    filtered_products_id = filter_products.values_list('id', flat=True)
-                    filter_variants = product_variants.filter(product__id__in=filtered_products_id)
-                    filter_products = [variant.product for variant in filter_variants]
+                    if selected_rating:
+                        filter_products = filter_products.filter(rating__in=selected_rating)
 
-                if selected_rating:
-                    filter_products = filter_products.filter(rating__in=selected_rating)
+                    minimum_price = request.POST['minPrice']
+                    if not minimum_price:
+                        minimum_price = 0
+                    maximum_price = request.POST['maxPrice']
+                    if not maximum_price:
+                        maximum_price = 10000
 
-                minimum_price = request.POST['minPrice']
-                if not minimum_price:
-                    minimum_price = 0
-                maximum_price = request.POST['maxPrice']
-                if not maximum_price:
-                    maximum_price = 10000
+                    if minimum_price and maximum_price:
+                        filter_products = filter_products.filter(selling_price__gte=minimum_price,
+                                                                 selling_price__lte=maximum_price)
 
-                if minimum_price and maximum_price:
-                    filter_products = filter_products.filter(selling_price__gte=minimum_price,
-                                                             selling_price__lte=maximum_price)
+                except Exception as e:
+                    print(e)
 
-            except Exception as e:
-                print(e)
+                paginator = Paginator(filter_products, 9)
+                page = request.GET.get('page')
+                paged_products = paginator.get_page(page)
+                try:
+                    product_count = len(filter_products)
+                except:
+                    product_count = 0
 
-            paginator = Paginator(filter_products, 9)
-            page = request.GET.get('page')
-            paged_products = paginator.get_page(page)
-            try:
-                product_count = len(filter_products)
-            except:
-                product_count = 0
+        except Exception as e:
+            print(e)
+
+        context = {
+            'products': paged_products,
+            'product_count': product_count,
+            'brands': brands,
+            'sizes': sizes,
+        }
 
     except Exception as e:
         print(e)
-
-    context = {
-        'products': paged_products,
-        'product_count': product_count,
-        'brands': brands,
-        'sizes': sizes,
-    }
     return render(request, 'product/product.html', context)
 
 
