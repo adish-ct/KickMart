@@ -106,6 +106,7 @@ def detail_view(request, category_slug, product_slug):
         raise e
 
     reviews = Review.objects.filter(product=single_product)
+    products = Product.objects.all()
     product_id = single_product.id
     variant = ProductVariant.objects.filter(product=product_id)
     multiple_images = MultipleImages.objects.filter(product=product_id).order_by('-id')[:4]
@@ -113,7 +114,7 @@ def detail_view(request, category_slug, product_slug):
     context = {
         'product': single_product,
         'variant': variant,
-        'products': Product.objects.all(),
+        'products': products,
         'multiple_images': multiple_images,
         'user_id': request.user.id,
         'reviews': reviews,
@@ -168,17 +169,16 @@ def search_by_name(request):
             products = Product.objects.order_by('created_date').filter(product_name__icontains=keyword)
         else:
             products = Product.objects.all()
-        product_count = products.count()
         context = {
             'products': products,
-            'product_count': product_count,
+            'product_count': products.count(),
         }
     return render(request, 'product/product.html', context)
 
 
 @cache_control(no_cache=True, no_store=True)
 @login_required(login_url='user_login')
-def review(request):
+def review(request, category_slug=None, product_slug=None):
     my_user = request.user
     try:
         orders = OrderProduct.objects.filter(customer=my_user)
@@ -208,13 +208,11 @@ def review(request):
 def contact(request):
     try:
         if request.method == 'GET':
-            name = request.GET['name']
             email = request.GET['email']
-            message = request.GET['message']
             head = 'ceetey1997@gmail.com'
 
-            subject = f"Queries from {name} "
-            message = f'email {email}\n messaage : {message}'
+            subject = f"Queries from {request.GET.get('name', None)} "
+            message = f'email {email}\n message : {request.GET.get("message"), None}'
             email_from = settings.EMAIL_HOST_USER
             recipient_list = [head, ]
             send_mail(subject, message, email_from, recipient_list)

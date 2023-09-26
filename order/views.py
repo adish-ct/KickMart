@@ -12,6 +12,7 @@ import datetime
 from decimal import Decimal
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
+
 # module for print pdf
 from io import BytesIO
 from django.template.loader import get_template
@@ -20,8 +21,9 @@ from xhtml2pdf import pisa
 
 # Create your views here.
 
+
 @cache_control(no_cache=True, no_store=True)
-@login_required(login_url='index')
+@login_required(login_url="index")
 def order(request):
     context = {}
     try:
@@ -29,40 +31,42 @@ def order(request):
         checkout_items = Checkout.objects.get(user=user)
         cart_items = CartItem.objects.filter(customer=user)
         if not cart_items:
-            return redirect('index')
+            return redirect("index")
 
         context = {
-            'checkout_items': checkout_items,
-            'cart_items': cart_items,
+            "checkout_items": checkout_items,
+            "cart_items": cart_items,
         }
     except Exception as e:
         print(e)
-    return render(request, 'product/order_confirm.html', context)
+    return render(request, "product/order_confirm.html", context)
 
 
 @never_cache
 @cache_control(no_cache=True, no_store=True)
-@login_required(login_url='index')
+@login_required(login_url="index")
 def order_confirmed(request):
     my_user = request.user
     try:
         cart_items = CartItem.objects.filter(customer=my_user)
     except:
-        return redirect('index')
+        return redirect("index")
     try:
         checkout = Checkout.objects.get(user=my_user)
-        if request.method == 'POST':
+        if request.method == "POST":
             total = checkout.grand_total
             my_order = Order()
             my_order.user = my_user
             my_order.address = checkout.address
             my_order.paid_amount = checkout.payable_amount
             my_order.total = checkout.total  # product's total amount.
-            my_order.order_total = checkout.grand_total  # total amount including tax and other charges.
+            my_order.order_total = (
+                checkout.grand_total
+            )  # total amount including tax and other charges.
             my_order.discount = checkout.discount
             my_order.wallet_amount = checkout.wallet
             my_order.tax = checkout.tax
-            my_order.ip = request.META.get('REMOTE_ADDR')
+            my_order.ip = request.META.get("REMOTE_ADDR")
             my_order.is_ordered = True
             my_order.coupon = checkout.coupon
 
@@ -84,9 +88,9 @@ def order_confirmed(request):
                 wallet_history.save()
 
             # creating order with current date and order id
-            yr = int(datetime.date.today().strftime('%Y'))
-            dt = int(datetime.date.today().strftime('%d'))
-            mt = int(datetime.date.today().strftime('%m'))
+            yr = int(datetime.date.today().strftime("%Y"))
+            dt = int(datetime.date.today().strftime("%d"))
+            mt = int(datetime.date.today().strftime("%m"))
             d = datetime.date(yr, mt, dt)
             current_date = d.strftime("%Y%m%d")
             order_id = current_date + str(my_order.id)  # creating order id
@@ -95,7 +99,7 @@ def order_confirmed(request):
             my_order.save()
 
             # creating object for payment.
-            payment_type = request.POST.get('paymentMode')
+            payment_type = request.POST.get("paymentMode")
             payment = Payments.objects.create(
                 user=my_user,
                 total_amount=checkout.grand_total,
@@ -124,62 +128,66 @@ def order_confirmed(request):
                 pass
 
             # payment method : cashon delivery
-            if payment_type == 'cashonDelivery':
-                payment.payment_method = 'Cashon Delivery'  # set current payment method
+            if payment_type == "cashonDelivery":
+                payment.payment_method = "Cashon Delivery"  # set current payment method
                 payment_id = order_id + "COD"
                 payment.payment_id = payment_id
                 payment.save()
                 my_order.payment = payment
                 my_order.save()
-                return render(request, 'product/order_confirmed.html')
+                return render(request, "product/order_confirmed.html")
 
-            payment.payment_method = 'Razor Pay'  # set current payment method
-            payment.payment_id = request.POST.get('payment_id')  # check this payment_id
+            payment.payment_method = "Razor Pay"  # set current payment method
+            payment.payment_id = request.POST.get("payment_id")  # check this payment_id
             payment.is_paid = True
             payment.save()
             my_order.payment = payment
             my_order.save()
 
-            return JsonResponse({
-                'status': True,
-            })
+            return JsonResponse(
+                {
+                    "status": True,
+                }
+            )
     except Exception as e:
         print(e)
 
-    return render(request, 'product/order_confirmed.html')
+    return render(request, "product/order_confirmed.html")
 
 
-@login_required(login_url='user_login')
+@login_required(login_url="user_login")
 def proceed_to_pay(request):
     my_user = request.user
     payable_amount = 0
     checkout = Checkout.objects.get(user=my_user.id)
-    payable_amount = int(payable_amount + checkout.grand_total -checkout.wallet)
-    return JsonResponse({
-        'payable_amount': payable_amount,
-    })
+    payable_amount = int(payable_amount + checkout.grand_total - checkout.wallet)
+    return JsonResponse(
+        {
+            "payable_amount": payable_amount,
+        }
+    )
 
 
-@login_required(login_url='user_login')
+@login_required(login_url="user_login")
 def order_view(request):
     context = {}
     try:
-        if 'user' in request.session:
+        if "user" in request.session:
             my_user = request.user
-            orders = OrderProduct.objects.filter(customer=my_user).order_by('-order_id')
+            orders = OrderProduct.objects.filter(customer=my_user).order_by("-order_id")
 
             # return HttpResponse(orders)
             context = {
-                'orders': orders,
+                "orders": orders,
             }
     except Exception as e:
         print(e)
-        return redirect('user_profile')
+        return redirect("user_profile")
 
-    return render(request, 'user/orders.html', context)
+    return render(request, "user/orders.html", context)
 
 
-@login_required(login_url='user_login')
+@login_required(login_url="user_login")
 def order_cancel(request, order_id):
     order_product = OrderProduct.objects.get(id=order_id)
     variant = ProductVariant.objects.get(id=order_product.variant.id)
@@ -190,13 +198,13 @@ def order_cancel(request, order_id):
         user = order.user
         deduct_discount = order.discount
 
-        if request.method == 'POST':
-            reason = request.POST['cancelReason']
+        if request.method == "POST":
+            reason = request.POST["cancelReason"]
             if reason:
                 order_product.return_reason = reason
             order.status = "Cancelled"
 
-            payment.status = 'Order cancelled'
+            payment.status = "Order cancelled"
             order_product.item_cancel = True
             variant.stock += order_product.quandity
 
@@ -216,7 +224,8 @@ def order_cancel(request, order_id):
                         order.discount = 0
 
                 refund_amount = (float(amount) + float(delivery_charge)) - float(
-                    deduct_discount)  # calculating refund amount.
+                    deduct_discount
+                )  # calculating refund amount.
 
                 user.wallet = float(user.wallet) + float(refund_amount)
                 user.save()
@@ -225,7 +234,7 @@ def order_cancel(request, order_id):
                 wallet.customer = request.user
                 wallet.description = "Cashback received due to the cancel of item"
                 wallet.increment = True
-                wallet.amount = f'{refund_amount}'
+                wallet.amount = f"{refund_amount}"
                 wallet.save()
             else:
                 if order.wallet_amount:
@@ -241,7 +250,7 @@ def order_cancel(request, order_id):
             order_product.save()
             variant.save()
             payment.save()
-        return redirect('order_view')
+        return redirect("order_view")
     except Exception as e:
         print(e)
         try:
@@ -251,32 +260,33 @@ def order_cancel(request, order_id):
             user.save()
         except Exception as e:
             print(e)
-    return redirect('order_view')
+    return redirect("order_view")
 
 
 @cache_control(no_cache=True, no_store=True)
-@login_required(login_url='user_login')
+@login_required(login_url="user_login")
 def order_return(request, order_id):
     order_item = OrderProduct.objects.get(id=order_id)
     try:
-        if request.method == 'POST':
-            return_reason = request.POST.get('returnReason', None)
+        if request.method == "POST":
+            return_reason = request.POST.get("returnReason", None)
             if return_reason:
                 order_item.return_reason = return_reason
             order_item.return_request = True
         order_item.save()
-        return redirect('order_view')
+        return redirect("order_view")
     except Exception as e:
         print(e)
 
-    return redirect('order_view')
+    return redirect("order_view")
 
 
 def order_success(request):
-    return render(request, 'product/success.html')
+    return render(request, "product/success.html")
 
 
 # print invoice in pdf
+
 
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
@@ -284,7 +294,7 @@ def render_to_pdf(template_src, context_dict={}):
     result = BytesIO()
     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
     if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
+        return HttpResponse(result.getvalue(), content_type="application/pdf")
     return None
 
 
@@ -302,7 +312,6 @@ class ViewPDF(View):
                 "city": "Kannur",
                 "state": "Kerala",
                 "zipcode": "685256",
-
                 "phone": "+91 860635952",
                 "email": "kickmart@yahoo.com",
                 "website": "kickmart.com",
@@ -316,14 +325,13 @@ class ViewPDF(View):
                 "customer_phone": user.phone,
                 "order_products": order_products,
                 "order": order,
-
             }
 
         except Exception as e:
             print(e)
             return HttpResponse(False)
-        pdf = render_to_pdf('user/order_invoice.html', data)
-        return HttpResponse(pdf, content_type='application/pdf')
+        pdf = render_to_pdf("user/order_invoice.html", data)
+        return HttpResponse(pdf, content_type="application/pdf")
 
 
 # Automatically downloads to PDF file
@@ -340,7 +348,6 @@ class DownloadPDF(View):
                 "city": "Kannur",
                 "state": "Kerala",
                 "zipcode": "685256",
-
                 "phone": "+91 860635952",
                 "email": "kickmart@yahoo.com",
                 "website": "kickmart.com",
@@ -354,15 +361,14 @@ class DownloadPDF(View):
                 "customer_phone": user.phone,
                 "order_products": order_products,
                 "order": order,
-
             }
         except Exception as e:
             print(e)
 
-        pdf = render_to_pdf('user/order_invoice.html', data)
+        pdf = render_to_pdf("user/order_invoice.html", data)
 
-        response = HttpResponse(pdf, content_type='application/pdf')
+        response = HttpResponse(pdf, content_type="application/pdf")
         filename = "Invoice_%s.pdf" % ("12341231")
         content = "attachment; filename='%s'" % (filename)
-        response['Content-Disposition'] = content
+        response["Content-Disposition"] = content
         return response
