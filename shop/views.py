@@ -209,12 +209,11 @@ def contact(request):
     try:
         if request.method == 'GET':
             email = request.GET['email']
-            head = 'ceetey1997@gmail.com'
 
             subject = f"Queries from {request.GET.get('name', None)} "
             message = f'email {email}\n message : {request.GET.get("message"), None}'
             email_from = settings.EMAIL_HOST_USER
-            recipient_list = [head, ]
+            recipient_list = ['ceetey1997@gmail.com', ]
             send_mail(subject, message, email_from, recipient_list)
 
             messages.success(request, "Message sent successfully")
