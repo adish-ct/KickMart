@@ -28,7 +28,7 @@ def admin_login(request):
 
         admin = authenticate(email=email, password=password)  # authenticating user, checking user is valid or not
         if admin:
-            if admin.is_superuser:  # checking if the admin is super user or not.
+            if admin.is_superuser:  # checking if the admin is superuser or not.
                 login(request, admin)
                 request.session['email'] = email
                 return redirect('admin_dashboard')
@@ -218,17 +218,9 @@ def admin_edit_product(request, id):
     }
     try:
         if request.method == 'POST':
-            product_name = request.POST['product_name']
-            category = request.POST['selectOption']
-            brand = request.POST['selectBrandOption']
-            original_price = request.POST['originalPrice']
-            selling_price = request.POST['sellingPrice']
-            # condition for checking is there any file is present in the request.
             single_image = request.FILES.get('image', None)
-
             multiple_images = request.FILES.getlist('multipleImage')
-            # we want to remove the image that already stored in the database.
-            # first of all we have to check if there is any image exist on product object.
+
             if single_image:
                 if product.product_image:
                     os.remove(product.product_image.path)
@@ -251,14 +243,13 @@ def admin_edit_product(request, id):
                             images=image,
                         )
 
-            product.product_name = product_name
-            product.category = Category.objects.get(id=category)
-            product.brand = ProductBrand.objects.get(id=brand)
-            product.original_price = original_price
-            product.selling_price = selling_price
+            product.product_name = request.POST['product_name']
+            product.category = Category.objects.get(id=request.POST['selectOption'])
+            product.brand = ProductBrand.objects.get(id=request.POST['selectBrandOption'])
+            product.original_price = request.POST['originalPrice']
+            product.selling_price = request.POST['sellingPrice']
 
             product.save()
-            # Multi_image.save()
             messages.success(request, "Product updated successfully")
             return redirect('admin_product')
     except Exception as e:
@@ -281,7 +272,6 @@ def admin_add_product(request):
 
             product = Product()
             category = request.POST['selectOption']
-            brand = request.POST['selectBrand']
             original_price = int(request.POST['originalPrice'])
             selling_price = int(request.POST['sellingPrice'])
             try:
@@ -313,7 +303,7 @@ def admin_add_product(request):
             product.product_name = product_name
             product_slug = product_name.replace(" ", "-")
             product.category = Category.objects.get(id=category)
-            product.brand = ProductBrand.objects.get(id=brand)
+            product.brand = ProductBrand.objects.get(id=request.POST['selectBrand'])
             product.original_price = original_price
             product.selling_price = selling_price
             product.product_description = request.POST['description']
@@ -372,7 +362,6 @@ def admin_delete_product(request, id):
     except Exception as e:
         print(e)
     return redirect('admin_product')
-
 
 
 #   verified
@@ -443,15 +432,13 @@ def add_product_variant(request, product_id):
 def product_variant_update(request):
     try:
         if request.method == 'POST':
-            id = request.POST['id']
-            price = request.POST['price']
-            stock = request.POST['stock']
-            variant = ProductVariant.objects.get(id=id)
+            variant = ProductVariant.objects.get(id=request.POST['id'])
             product_id = variant.product
-            variant.product_price = price
-            variant.stock = stock
+            variant.product_price = request.POST['price']
+            variant.stock = request.POST['stock']
             variant.save()
-        return redirect('admin_product_variant', product_id.id)
+            return redirect('admin_product_variant', product_id.id)
+        return redirect('admin_product')
     except Exception as e:
         print(e)
         return redirect('admin_product')
@@ -473,7 +460,6 @@ def product_variant_control(request, variant_id):
     except Exception as e:
         print(e)
         return redirect('admin_product')
-
 
 
 #   verified
